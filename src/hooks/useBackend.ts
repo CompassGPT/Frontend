@@ -24,6 +24,7 @@ export const useBackend = () => {
       ...restOptions,
       headers: {
         "Content-Type": "application/json",
+        "X-API-Version": "1",
         ...headers,
       },
       credentials: "include", // Important: Include cookies for session management
