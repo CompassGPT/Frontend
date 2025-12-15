@@ -8,6 +8,7 @@ import { HomePage } from "./pages/home";
 import { ModulesPage } from "./pages/modules";
 import { ModulePage } from "./pages/module";
 import { LoginPage } from "./pages/auth/login";
+import ProfilePage from "./pages/profile";
 
 // Rendering app
 const root = document.getElementById("root")!;
@@ -38,6 +39,11 @@ const router = createBrowserRouter([
     path: "/auth/login",
     Component: LoginPage,
     errorElement: <div>Fout bij inloggen</div>,
+  },
+  {
+    path: "/profile",
+    Component: ProfilePage,
+    errorElement: <div>Er is een fout opgetreden bij het laden van het profiel</div>,
   },
 ]);
 
