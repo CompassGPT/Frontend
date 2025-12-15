@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const checkSession = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await backend.get<{ user: User }>("/user/profile");
+      const response = await backend.get<{ user: User }>("/api/user/profile");
       setUser(response.user);
     } catch {
       // Session doesn't exist or expired - not an error
@@ -64,7 +64,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsLoading(true);
       setError(null);
       const response = await backend.post<LoginResponse>(
-        "/auth/login",
+        "/api/auth/login",
         credentials
       );
       setUser(response.user);
@@ -85,7 +85,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       setIsLoading(true);
       setError(null);
-      await backend.post<LogoutResponse>("/auth/logout");
+      await backend.post<LogoutResponse>("/api/auth/logout");
       setUser(null);
     } catch (err) {
       const errorMessage =
