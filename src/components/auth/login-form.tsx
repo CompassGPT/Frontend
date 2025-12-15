@@ -1,52 +1,51 @@
 "use client";
 
 import { useState } from "react";
-import { redirect } from "react-router";
+import { useNavigate } from "react-router";
+import { useAuth } from "../../hooks/useAuth";
+import { BackendError } from "../../hooks/useBackend";
 
 export function LoginForm() {
+  const navigate = useNavigate();
+  const { login, clearError } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   async function handleLogin(evt: React.FormEvent<HTMLFormElement>) {
     setIsLoading(true);
+    setErrorMessage("");
+    setSuccessMessage("");
+    clearError();
     evt.preventDefault();
 
     const formData = new FormData(evt.currentTarget);
-    const username = formData.get("username");
-    const password = formData.get("password");
+    const email = formData.get("email") as string;
+    const password = formData.get("password") as string;
 
-    if (!username || !password) {
+    if (!email || !password) {
       setErrorMessage("Please enter your credentials.");
       setIsLoading(false);
       return;
     }
 
     try {
-      const result = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          username,
-          password,
-        }),
-      });
-      if (result.ok) {
-        setSuccessMessage("Login successful!");
-        setErrorMessage("");
-        setIsLoading(false);
-        redirect("/");
+      await login({ email, password });
+      setSuccessMessage("Login successful!");
+      setErrorMessage("");
+
+      // Redirect to home page after successful login
+      setTimeout(() => {
+        navigate("/");
+      }, 500);
+    } catch (err) {
+      if (err instanceof BackendError) {
+        setErrorMessage(err.message);
       } else {
-        const errorData = await result.json();
-        setErrorMessage(errorData.message || "Login failed.");
-        setSuccessMessage("");
-        setIsLoading(false);
+        setErrorMessage("An error occurred during login.");
       }
-    } catch {
-      setErrorMessage("An error occurred during login.");
       setSuccessMessage("");
+    } finally {
       setIsLoading(false);
     }
   }
@@ -62,13 +61,13 @@ export function LoginForm() {
         <div className="text-green-600 text-sm">{successMessage}</div>
       )}
       <div className="flex flex-col gap-2">
-        <label htmlFor="username" className="text-sm font-medium text-gray-700">
-          Username:
+        <label htmlFor="email" className="text-sm font-medium text-gray-700">
+          email:
         </label>
         <input
-          type="text"
-          id="username"
-          name="username"
+          type="email"
+          id="email"
+          name="email"
           required
           className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         />
