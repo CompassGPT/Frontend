@@ -1,7 +1,7 @@
 import { useAuth } from "../hooks/useAuth";
 
 /**
- * Example profile page demonstrating useAuth hook usage
+ * Profile page with updated styling
  */
 export function ProfilePage() {
   const { user, logout, isLoading } = useAuth();
@@ -15,48 +15,135 @@ export function ProfilePage() {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="p-8 text-center">Loading...</div>;
   }
 
   if (!user) {
-    return <div>Not authenticated</div>;
+    return <div className="p-8 text-center">Not authenticated</div>;
   }
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-6">Profile</h1>
+    <div className="container mx-auto p-8 max-w-6xl">
+      <div className="text-center mb-10">
+        <h1 className="text-4xl font-bold mb-2">Profiel</h1>
+        <p className="text-gray-600">
+          Bekijken en bewerk hier je gebruikersgegevens
+        </p>
+      </div>
 
-      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <div className="space-y-4">
-          <div>
-            <label className="text-sm text-gray-600">Name</label>
-            <p className="text-lg font-medium">{user.name}</p>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        {/* Profile Picture Card */}
+        <div className="bg-white shadow-md rounded-lg p-8 flex flex-col items-center text-center lg:col-span-1">
+          <div className="w-32 h-32 bg-gray-100 rounded-full mb-4 flex items-center justify-center ring-4 ring-gray-50">
+            <svg
+              className="w-16 h-16 text-gray-400"
+              fill="currentColor"
+              viewBox="0 0 20 20"
+            >
+              <path
+                fillRule="evenodd"
+                d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                clipRule="evenodd"
+              />
+            </svg>
           </div>
 
-          <div>
-            <label className="text-sm text-gray-600">Email</label>
-            <p className="text-lg font-medium">{user.email}</p>
+          <h2 className="text-xl font-bold text-gray-900 mb-1">{user.name}</h2>
+          <p className="text-sm text-gray-500 mb-6 font-medium">{user.role}</p>
+
+          <button className="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 transition-colors shadow-sm w-full max-w-xs">
+            Profielfoto wijzigen
+          </button>
+        </div>
+
+        {/* Details Card */}
+        <div className="bg-white shadow-md rounded-lg p-6 lg:col-span-2 relative flex flex-col">
+          <div className="flex justify-between items-start mb-8">
+            <h2 className="text-2xl font-semibold">Gegevens</h2>
+            <button
+              onClick={handleLogout}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors"
+            >
+              Logout
+            </button>
           </div>
 
-          <div>
-            <label className="text-sm text-gray-600">Role</label>
-            <p className="text-lg font-medium">{user.role}</p>
+          <div className="space-y-6 flex-grow">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-100 pb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Gebruikersnaam
+                </label>
+                <p className="text-lg font-medium">{user.name}</p>
+              </div>
+              <button className="mt-2 sm:mt-0 border border-blue-600 text-blue-600 px-3 py-1 rounded text-sm hover:bg-blue-50 transition-colors">
+                Verander Gebruikersnaam
+              </button>
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-100 pb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  E-mailadres
+                </label>
+                <p className="text-lg font-medium">{user.email}</p>
+              </div>
+              <button className="mt-2 sm:mt-0 border border-blue-600 text-blue-600 px-3 py-1 rounded text-sm hover:bg-blue-50 transition-colors">
+                Verander E-mailadres
+              </button>
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-100 pb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Rol
+                </label>
+                <p className="text-lg font-medium">{user.role}</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-100 pb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  Lid sinds
+                </label>
+                <p className="text-lg font-medium">
+                  {new Date(user.createdAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div>
-            <label className="text-sm text-gray-600">Member since</label>
-            <p className="text-lg font-medium">
-              {new Date(user.createdAt).toLocaleDateString()}
-            </p>
+          <div className="mt-8">
+            <button className="border border-red-500 text-red-500 px-4 py-2 rounded hover:bg-red-50 transition-colors">
+              Account verwijderen
+            </button>
           </div>
         </div>
       </div>
 
-      <button
-        onClick={handleLogout}
-        className="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
-        Logout
-      </button>
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Favorite Modules */}
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <h2 className="text-xl font-semibold mb-6">Favoriete Modules</h2>
+          <div className="space-y-4">
+            <p className="text-gray-500 italic">Geen favoriete modules gevonden.</p>
+          </div>
+        </div>
+
+        {/* Recommended Modules */}
+        <div className="bg-white shadow-md rounded-lg p-6">
+          <div className="flex justify-between items-center mb-6">
+            <h2 className="text-xl font-semibold">Recent aanbevolen modules</h2>
+            <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700">
+              Aanpassen
+            </button>
+          </div>
+          <div className="space-y-4">
+            <p className="text-gray-500 italic">Geen aanbevolen modules gevonden.</p>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
