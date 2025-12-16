@@ -55,13 +55,19 @@ export function LoginForm() {
       onSubmit={handleLogin}
       className="flex flex-col gap-4 w-full max-w-sm mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 transition-colors">
       {errorMessage && (
-        <div className="text-red-600 dark:text-red-400 text-sm">{errorMessage}</div>
+        <div className="text-red-600 dark:text-red-400 text-sm">
+          {errorMessage}
+        </div>
       )}
       {successMessage && (
-        <div className="text-green-600 dark:text-green-400 text-sm">{successMessage}</div>
+        <div className="text-green-600 dark:text-green-400 text-sm">
+          {successMessage}
+        </div>
       )}
       <div className="flex flex-col gap-2">
-        <label htmlFor="email" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="email"
+          className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Email:
         </label>
         <input
@@ -74,7 +80,9 @@ export function LoginForm() {
         />
       </div>
       <div className="flex flex-col gap-2">
-        <label htmlFor="password" className="text-sm font-medium text-gray-700 dark:text-gray-300">
+        <label
+          htmlFor="password"
+          className="text-sm font-medium text-gray-700 dark:text-gray-300">
           Password:
         </label>
         <input

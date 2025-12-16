@@ -8,7 +8,9 @@ export function LoginPage() {
         <ThemeToggle />
       </div>
       <div className="w-full max-w-sm">
-        <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">Login</h1>
+        <h1 className="mb-6 text-center text-2xl font-bold text-gray-900 dark:text-white">
+          Login
+        </h1>
         <LoginForm />
       </div>
     </div>
