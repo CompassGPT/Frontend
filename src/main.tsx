@@ -9,8 +9,9 @@ import { ModulesPage } from "./pages/modules";
 import { ModulePage } from "./pages/module";
 import { LoginPage } from "./pages/auth/login";
 
-// Auth provider
+// Providers
 import { AuthProvider } from "./hooks/useAuth";
+import { ThemeProvider } from "./context/ThemeContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Rendering app
@@ -51,8 +52,10 @@ const router = createBrowserRouter([
 
 createRoot(root).render(
   <StrictMode>
-    <AuthProvider>
-      <RouterProvider router={router} />
-    </AuthProvider>
+    <ThemeProvider>
+      <AuthProvider>
+        <RouterProvider router={router} />
+      </AuthProvider>
+    </ThemeProvider>
   </StrictMode>
 );
