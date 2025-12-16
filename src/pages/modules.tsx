@@ -181,7 +181,7 @@ export function ModulesPage() {
       {/* Error state */}
       {error && (
         <div className="container mx-auto px-4 py-8">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-800 dark:text-red-300 transition-colors">
             {error}
           </div>
         </div>
@@ -195,12 +195,12 @@ export function ModulesPage() {
           <aside className="lg:w-72 flex-shrink-0">
             <div className="space-y-4">
               {/* Niveau filter */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
                 <button
                   onClick={() => toggleFilter("level")}
-                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  <h3 className="font-semibold text-gray-900">Niveau</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Niveau</h3>
                   <svg
                     className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
                       openFilters.level ? "rotate-180" : ""
@@ -224,11 +224,11 @@ export function ModulesPage() {
                       : "max-h-0 opacity-0 overflow-hidden"
                   }`}
                 >
-                  <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
+                  <div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700">
                     {levelOpties.map((lvl) => (
                       <label
                         key={lvl}
-                        className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
+                        className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"
                       >
                         <input
                           type="checkbox"
@@ -238,7 +238,7 @@ export function ModulesPage() {
                           }
                           className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         />
-                        <span className="text-gray-700">{lvl}</span>
+                        <span className="text-gray-900 dark:text-white">{lvl}</span>
                       </label>
                     ))}
                   </div>
@@ -247,12 +247,12 @@ export function ModulesPage() {
               
 
               {/* Studiepunten filter */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
                 <button
                   onClick={() => toggleFilter("studiepunten")}
-                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  <h3 className="font-semibold text-gray-900">Studiepunten (EC)</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Studiepunten (EC)</h3>
                   <svg
                     className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
                       openFilters.studiepunten ? "rotate-180" : ""
@@ -276,11 +276,11 @@ export function ModulesPage() {
                       : "max-h-0 opacity-0 overflow-hidden"
                   }`}
                 >
-                  <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
+                  <div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700">
                     {ecOpties.map((ec) => (
                       <label
                         key={ec}
-                        className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
+                        className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"
                       >
                         <input
                           type="checkbox"
@@ -294,7 +294,7 @@ export function ModulesPage() {
                           }
                           className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         />
-                        <span className="text-gray-700">{ec} EC</span>
+                        <span className="text-gray-900 dark:text-white">{ec} EC</span>
                       </label>
                     ))}
                   </div>
@@ -303,12 +303,12 @@ export function ModulesPage() {
               
 
               {/* Periode filter */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
                 <button
                   onClick={() => toggleFilter("periode")}
-                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  <h3 className="font-semibold text-gray-900">Periode</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Periode</h3>
                   <svg
                     className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
                       openFilters.periode ? "rotate-180" : ""
@@ -332,11 +332,11 @@ export function ModulesPage() {
                       : "max-h-0 opacity-0 overflow-hidden"
                   }`}
                 >
-                  <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
+                  <div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700">
                     {["P1", "P2", "P3", "P4"].map((periode) => (
                       <label
                         key={periode}
-                        className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
+                        className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"
                       >
                         <input
                           type="checkbox"
@@ -350,7 +350,7 @@ export function ModulesPage() {
                           }
                           className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         />
-                        <span className="text-gray-700">{periode}</span>
+                        <span className="text-gray-900 dark:text-white">{periode}</span>
                       </label>
                     ))}
                   </div>
@@ -358,12 +358,12 @@ export function ModulesPage() {
               </div>
 
               {/* Locatie filter */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+              <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
                 <button
                   onClick={() => toggleFilter("locatie")}
-                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
                 >
-                  <h3 className="font-semibold text-gray-900">Locatie</h3>
+                  <h3 className="font-semibold text-gray-900 dark:text-white">Locatie</h3>
                   <svg
                     className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
                       openFilters.locatie ? "rotate-180" : ""
@@ -387,11 +387,11 @@ export function ModulesPage() {
                       : "max-h-0 opacity-0 overflow-hidden"
                   }`}
                 >
-                  <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
+                  <div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700">
                     {["Tilburg", "Breda", "Den Bosch", "Roosendaal"].map((locatie) => (
                       <label
                         key={locatie}
-                        className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
+                        className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"
                       >
                         <input
                           type="checkbox"
@@ -405,7 +405,7 @@ export function ModulesPage() {
                           }
                           className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         />
-                        <span className="text-gray-700">{locatie}</span>
+                        <span className="text-gray-900 dark:text-white">{locatie}</span>
                       </label>
                     ))}
                   </div>
@@ -423,14 +423,14 @@ export function ModulesPage() {
                 placeholder="Zoek op keuzemodule naam"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white"
+                className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors"
               />
-              <button className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+              <button className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors">
                 Zoeken
               </button>
               <button
                 onClick={handleReset}
-                className="px-6 py-3 bg-white border border-gray-300 text-gray-700 font-medium rounded-lg hover:bg-gray-50 transition-colors"
+                className="px-6 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               >
                 Reset
               </button>
@@ -439,14 +439,14 @@ export function ModulesPage() {
             {/* Results info and favorites button */}
             <div className="flex gap-3 mb-6 justify-between items-center">
               <div>
-                <p className="text-sm text-gray-600 mb-1">
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                   {startIndex + 1} - {Math.min(startIndex + modulesPerPage, filteredModules.length)} van {filteredModules.length} keuzemodules
                 </p>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
                   {filteredModules.length === 0 ? "Geen resultaten met deze filters" : "Selecteer een module om meer te zien"}
                 </p>
               </div>
-              <button className="flex items-center gap-2 px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors font-medium">
+              <button className="flex items-center gap-2 px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium">
                 <svg
                   className="w-5 h-5"
                   fill="currentColor"
@@ -463,11 +463,11 @@ export function ModulesPage() {
               <div className="mb-6 flex flex-wrap gap-2">
                 
                 {selectedPeriode.map((periode) => (
-                  <div key={periode} className="px-4 py-2 bg-white border border-gray-200 text-gray-900 text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+                  <div key={periode} className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
                     {periode}
                     <button
                       onClick={() => setSelectedPeriode(selectedPeriode.filter((p) => p !== periode))}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       title="Filter verwijderen"
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -477,11 +477,11 @@ export function ModulesPage() {
                   </div>
                 ))}
                 {selectedLocatie.map((locatie) => (
-                  <div key={locatie} className="px-4 py-2 bg-white border border-gray-200 text-gray-900 text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+                  <div key={locatie} className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
                     {locatie}
                     <button
                       onClick={() => setSelectedLocatie(selectedLocatie.filter((l) => l !== locatie))}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       title="Filter verwijderen"
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -491,11 +491,11 @@ export function ModulesPage() {
                   </div>
                 ))}
                 {selectedLevel.map((lvl) => (
-                  <div key={lvl} className="px-4 py-2 bg-white border border-gray-200 text-gray-900 text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+                  <div key={lvl} className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
                     {lvl}
                     <button
                       onClick={() => setSelectedLevel(selectedLevel.filter((l) => l !== lvl))}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       title="Filter verwijderen"
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -505,11 +505,11 @@ export function ModulesPage() {
                   </div>
                 ))}
                 {selectedEC.map((ec) => (
-                  <div key={ec} className="px-4 py-2 bg-white border border-gray-200 text-gray-900 text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+                  <div key={ec} className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
                     {ec} EC
                     <button
                       onClick={() => setSelectedEC(selectedEC.filter((e) => e !== ec))}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
                       title="Filter verwijderen"
                     >
                       <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
@@ -524,8 +524,8 @@ export function ModulesPage() {
             {/* Module cards */}
             <div className="space-y-4">
               {filteredModules.length === 0 ? (
-                <div className="bg-white rounded-lg shadow-sm p-8 border border-gray-200 text-center">
-                  <p className="text-gray-500">
+                <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-8 border border-gray-200 dark:border-gray-700 text-center transition-colors">
+                  <p className="text-gray-500 dark:text-gray-400">
                     Geen modules gevonden met de huidige filters.
                   </p>
                 </div>
@@ -533,11 +533,11 @@ export function ModulesPage() {
                 paginatedModules.map((module) => (
                   <div
                     key={module.id}
-                    className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 flex gap-5"
+                    className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5 flex gap-5 transition-colors"
                   >
                     {/* Module afbeelding placeholder */}
-                    <div className="w-36 h-28 bg-gray-100 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-200">
-                      <span className="text-gray-400 text-sm">Plaatje</span>
+                    <div className="w-36 h-28 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-200 dark:border-gray-700 transition-colors">
+                      <span className="text-gray-400 dark:text-gray-500 text-sm">Plaatje</span>
                     </div>
 
                     {/* Module info */}
@@ -556,21 +556,21 @@ export function ModulesPage() {
                       </div>
 
                       {/* Titel */}
-                      <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
                         {module.title}
                       </h3>
 
                       {/* Beschrijving */}
-                      <p className="text-gray-600 text-sm line-clamp-3">
+                      <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-3">
                         {module.description}
                       </p>
                     </div>
 
                     {/* Locatie en acties rechts */}
                     <div className="flex flex-col items-end justify-between gap-3 flex-shrink-0 text-right">
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <svg
-                          className="w-4 h-4 text-gray-500"
+                          className="w-4 h-4 text-gray-500 dark:text-gray-400"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -588,18 +588,18 @@ export function ModulesPage() {
                             d="M12 21s7-4.5 7-11.5A7 7 0 005 9.5C5 16.5 12 21 12 21z"
                           />
                         </svg>
-                        <span className="font-medium text-gray-700">{module.locatie}</span>
+                        <span className="font-medium text-gray-700 dark:text-white">{module.locatie}</span>
                       </div>
 
                       <div className="flex items-end gap-2">
                         <Link
                           to={`/modules/${module.id}`}
-                          className="px-4 py-2 bg-white text-gray-900 text-sm font-semibold rounded-full border border-gray-300 hover:bg-gray-50 transition-colors"
+                          className="px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
                         >
                           Meer info
                         </Link>
                         <button
-                          className="px-4 py-2 text-sm font-semibold rounded-full border border-gray-300 text-gray-900 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                          className="px-4 py-2 text-sm font-semibold rounded-full border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
                           type="button"
                         >
                           Aanmelden via Osiris
@@ -627,8 +627,8 @@ export function ModulesPage() {
                           onClick={() => toggleFavorite(module.id)}
                           className={`p-2 rounded-lg transition-colors ${
                             favoriteModules.includes(module.id)
-                              ? "bg-red-50 text-red-500"
-                              : "border border-red-500 text-red-500 hover:bg-red-50"
+                              ? "bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400"
+                              : "border border-red-500 dark:border-red-400 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
                           }`}
                           title={
                             favoriteModules.includes(module.id)
@@ -658,7 +658,7 @@ export function ModulesPage() {
                 <button
                   onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                   disabled={currentPage === 1}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Vorige
                 </button>
@@ -670,8 +670,8 @@ export function ModulesPage() {
                       onClick={() => setCurrentPage(page)}
                       className={`w-10 h-10 rounded-full text-sm font-medium transition-colors ${
                         currentPage === page
-                          ? 'bg-white text-gray-900 border-2 border-gray-900'
-                          : 'text-gray-600 hover:bg-gray-100'
+                          ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-900 dark:border-gray-600'
+                          : 'text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700'
                       }`}
                     >
                       {page}
@@ -682,7 +682,7 @@ export function ModulesPage() {
                 <button
                   onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                   disabled={currentPage === totalPages}
-                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   Volgende
                 </button>
