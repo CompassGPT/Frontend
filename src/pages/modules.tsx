@@ -48,6 +48,7 @@ export function ModulesPage() {
   const [selectedTaal, setSelectedTaal] = useState<string[]>([]);
   const [selectedPeriode, setSelectedPeriode] = useState<string[]>([]);
   const [selectedLocatie, setSelectedLocatie] = useState<string[]>([]);
+  const [favoriteModules, setFavoriteModules] = useState<string[]>([]);
 
   // Filter open/dicht state
   const [openFilters, setOpenFilters] = useState({
@@ -77,6 +78,14 @@ export function ModulesPage() {
     setSelectedTaal([]);
     setSelectedPeriode([]);
     setSelectedLocatie([]);
+  };
+
+  const toggleFavorite = (moduleId: string) => {
+    setFavoriteModules((prev) =>
+      prev.includes(moduleId)
+        ? prev.filter((id) => id !== moduleId)
+        : [...prev, moduleId]
+    );
   };
 
   // Filter modules
@@ -146,7 +155,7 @@ export function ModulesPage() {
                       : "max-h-0 opacity-0 overflow-hidden"
                   }`}
                 >
-                  <div className="px-4 pb-4 space-y-2">
+                  <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
                     {taalOpties.map((taal) => (
                       <label
                         key={taal}
@@ -197,7 +206,7 @@ export function ModulesPage() {
                       : "max-h-0 opacity-0 overflow-hidden"
                   }`}
                 >
-                  <div className="px-4 pb-4 space-y-2">
+                  <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
                     {periodeOpties.map((periode) => (
                       <label
                         key={periode}
@@ -252,7 +261,7 @@ export function ModulesPage() {
                       : "max-h-0 opacity-0 overflow-hidden"
                   }`}
                 >
-                  <div className="px-4 pb-4 space-y-2">
+                  <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
                     {locatieOpties.map((locatie) => (
                       <label
                         key={locatie}
@@ -301,6 +310,76 @@ export function ModulesPage() {
               </button>
             </div>
 
+            {/* Results info and favorites button */}
+            <div className="flex gap-3 mb-6 justify-between items-center">
+              <div>
+                <p className="text-lg font-semibold text-gray-900">
+                  {filteredModules.length} {filteredModules.length === 1 ? "module" : "modules"} gevonden
+                </p>
+                <p className="text-sm text-gray-500 mt-1">
+                  {filteredModules.length === 0 ? "Geen resultaten met deze filters" : "Selecteer een module om meer te zien"}
+                </p>
+              </div>
+              <button className="flex items-center gap-2 px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 transition-colors font-medium">
+                <svg
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                </svg>
+                Toon favorieten ({favoriteModules.length})
+              </button>
+            </div>
+
+            {/* Active filters display */}
+            {(selectedTaal.length > 0 || selectedPeriode.length > 0 || selectedLocatie.length > 0) && (
+              <div className="mb-6 flex flex-wrap gap-2">
+                {selectedTaal.map((taal) => (
+                  <div key={taal} className="px-4 py-2 bg-white border border-gray-200 text-gray-900 text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+                    {taal}
+                    <button
+                      onClick={() => setSelectedTaal(selectedTaal.filter((t) => t !== taal))}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      title="Filter verwijderen"
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+                {selectedPeriode.map((periode) => (
+                  <div key={periode} className="px-4 py-2 bg-white border border-gray-200 text-gray-900 text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+                    {periode}
+                    <button
+                      onClick={() => setSelectedPeriode(selectedPeriode.filter((p) => p !== periode))}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      title="Filter verwijderen"
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+                {selectedLocatie.map((locatie) => (
+                  <div key={locatie} className="px-4 py-2 bg-white border border-gray-200 text-gray-900 text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+                    {locatie}
+                    <button
+                      onClick={() => setSelectedLocatie(selectedLocatie.filter((l) => l !== locatie))}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      title="Filter verwijderen"
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+
             {/* Module cards */}
             <div className="space-y-4">
               {filteredModules.length === 0 ? (
@@ -346,14 +425,61 @@ export function ModulesPage() {
                       </p>
                     </div>
 
-                    {/* Actie knop */}
-                    <div className="flex items-end flex-shrink-0">
-                      <Link
-                        to={`/modules/${module.id}`}
-                        className="px-4 py-2 border border-blue-600 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-50 transition-colors"
-                      >
-                        Zie meer
-                      </Link>
+                    {/* Locatie en acties rechts */}
+                    <div className="flex flex-col items-end justify-between gap-3 flex-shrink-0 text-right">
+                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                        <svg
+                          className="w-4 h-4 text-gray-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 11.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z"
+                          />
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M12 21s7-4.5 7-11.5A7 7 0 005 9.5C5 16.5 12 21 12 21z"
+                          />
+                        </svg>
+                        <span className="font-medium text-gray-700">{module.locatie}</span>
+                      </div>
+
+                      <div className="flex items-end gap-2">
+                        <button
+                          onClick={() => toggleFavorite(module.id)}
+                          className={`p-2 rounded-lg transition-colors ${
+                            favoriteModules.includes(module.id)
+                              ? "bg-red-50 text-red-500"
+                              : "border border-red-500 text-red-500 hover:bg-red-50"
+                          }`}
+                          title={
+                            favoriteModules.includes(module.id)
+                              ? "Verwijder van favorieten"
+                              : "Voeg toe aan favorieten"
+                          }
+                        >
+                          <svg
+                            className="w-5 h-5"
+                            fill={favoriteModules.includes(module.id) ? "currentColor" : "none"}
+                            stroke="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                          </svg>
+                        </button>
+                        <Link
+                          to={`/modules/${module.id}`}
+                          className="px-4 py-2 border border-blue-600 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-50 transition-colors"
+                        >
+                          Zie meer
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 ))
