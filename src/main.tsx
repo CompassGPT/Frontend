@@ -11,7 +11,7 @@ import { LoginPage } from "./pages/auth/login";
 
 // Providers
 import { AuthProvider } from "./hooks/useAuth";
-import { ThemeProvider } from "./hooks/useTheme";
+import { ThemeProvider } from "./context/ThemeContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Rendering app
