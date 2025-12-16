@@ -1,5 +1,6 @@
 import { createApiUrl } from "../lib/api";
 import type { ApiError } from "../types/api.types";
+import { useMemo } from "react";
 
 export interface FetchOptions extends Omit<RequestInit, "body"> {
   body?: unknown;
@@ -124,14 +125,17 @@ export const useBackend = () => {
     return request<T>(endpoint, { ...options, method: "DELETE" });
   };
 
-  return {
-    request,
-    get,
-    post,
-    put,
-    patch,
-    delete: del,
-  };
+  return useMemo(
+    () => ({
+      request,
+      get,
+      post,
+      put,
+      patch,
+      delete: del,
+    }),
+    []
+  );
 };
 
 /**

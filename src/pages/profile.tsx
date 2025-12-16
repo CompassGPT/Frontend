@@ -57,16 +57,8 @@ export function ProfilePage() {
             </svg>
           </div>
 
-          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">
-            {user.name}
-          </h2>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">
-            {user.role}
-          </p>
-
-          <button className="bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-md text-sm font-medium hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors shadow-sm w-full max-w-xs">
-            Profielfoto wijzigen
-          </button>
+          <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-1">{user.name}</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 font-medium">{user.role}</p>
         </div>
 
         {/* Details Card */}
@@ -92,9 +84,6 @@ export function ProfilePage() {
                   {user.name}
                 </p>
               </div>
-              <button className="mt-2 sm:mt-0 border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 px-3 py-1 rounded text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
-                Verander Gebruikersnaam
-              </button>
             </div>
 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-100 dark:border-gray-700 pb-4">
@@ -106,9 +95,6 @@ export function ProfilePage() {
                   {user.email}
                 </p>
               </div>
-              <button className="mt-2 sm:mt-0 border border-blue-600 text-blue-600 dark:text-blue-400 dark:border-blue-400 px-3 py-1 rounded text-sm hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors">
-                Verander E-mailadres
-              </button>
             </div>
 
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-gray-100 dark:border-gray-700 pb-4">
@@ -132,12 +118,6 @@ export function ProfilePage() {
                 </p>
               </div>
             </div>
-          </div>
-
-          <div className="mt-8">
-            <button className="border border-red-500 text-red-500 dark:text-red-400 dark:border-red-400 px-4 py-2 rounded hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors">
-              Account verwijderen
-            </button>
           </div>
         </div>
       </div>

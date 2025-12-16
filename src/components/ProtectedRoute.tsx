@@ -1,6 +1,6 @@
-import { Navigate, Outlet } from "react-router";
+import { Navigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
-import { ThemeToggle } from "./ThemeToggle";
+import { AppLayout } from "./AppLayout";
 
 /**
  * Component that protects routes requiring authentication
@@ -24,12 +24,5 @@ export function ProtectedRoute() {
     return <Navigate to="/auth/login" replace />;
   }
 
-  return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-      <header className="fixed top-0 right-0 p-4 z-50">
-        <ThemeToggle />
-      </header>
-      <Outlet />
-    </div>
-  );
+  return <AppLayout />;
 }
