@@ -31,8 +31,8 @@ export function Navbar() {
         {/* Right: user + logout */}
         <div className="flex items-center gap-3">
           {user && (
-            <span className="hidden sm:block text-sm text-gray-600">
-              Ingelogd als <span className="font-medium">{user.name}</span>
+            <span className="hidden sm:block text-sm font-medium text-gray-900">
+              {user.name}
             </span>
           )}
           <button
