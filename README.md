@@ -1,3 +1,50 @@
+# CompassGPT — Frontend
+
+Frontend application for CompassGPT (Vite + React + Tailwind).
+
+Quick start
+
+1. Install Node (recommended: 22+) and npm.
+2. Install dependencies:
+
+   npm ci
+
+3. Run development server:
+
+   npm run dev
+
+Build
+
+npm run build
+
+Available scripts
+
+- `npm run dev` — start Vite dev server
+- `npm run build` — build production assets
+- `npm run preview` — preview the production build locally
+- `npm run lint` — run ESLint
+- `npm run test` / `npm run test:ci` — placeholder test scripts
+
+Environment
+
+- Configure API endpoints via environment variables (e.g. `VITE_API_URL`) or edit `src/lib/api.ts`.
+
+Styling and theming
+
+- Tailwind CSS is used. Dark mode support is implemented using a `ThemeProvider` and `dark` class on `html`.
+
+Deployment
+
+- Build output: `dist/` — deploy to static hosts (Azure Static Web Apps, Vercel, Netlify, etc.).
+
+Contributing
+
+- Use feature branches and open PRs against `main`. CI runs lint, build and tests.
+
+License
+
+- See the repository `LICENSE` file.
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
@@ -19,9 +66,9 @@ If you are developing a production application, we recommend updating the config
 
 ```js
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(["dist"]),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{ts,tsx}"],
     extends: [
       // Other configs...
 
@@ -36,40 +83,40 @@ export default defineConfig([
     ],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
       // other options...
     },
   },
-])
+]);
 ```
 
 You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
 ```js
 // eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+import reactX from "eslint-plugin-react-x";
+import reactDom from "eslint-plugin-react-dom";
 
 export default defineConfig([
-  globalIgnores(['dist']),
+  globalIgnores(["dist"]),
   {
-    files: ['**/*.{ts,tsx}'],
+    files: ["**/*.{ts,tsx}"],
     extends: [
       // Other configs...
       // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
+      reactX.configs["recommended-typescript"],
       // Enable lint rules for React DOM
       reactDom.configs.recommended,
     ],
     languageOptions: {
       parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        project: ["./tsconfig.node.json", "./tsconfig.app.json"],
         tsconfigRootDir: import.meta.dirname,
       },
       // other options...
     },
   },
-])
+]);
 ```
