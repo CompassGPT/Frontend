@@ -159,11 +159,11 @@ export function ModulesPage() {
   const paginatedModules = filteredModules.slice(startIndex, startIndex + modulesPerPage);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       {/* Header */}
-      <div className="text-center py-12 bg-white border-b border-gray-200">
-        <h1 className="text-4xl font-bold text-gray-900 mb-4">Keuzemodules</h1>
-        <p className="text-gray-600 max-w-2xl mx-auto px-4">
+      <div className="text-center py-12 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors">
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">Keuzemodules</h1>
+        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4">
           Via keuzemodules krijg je de vrijheid om een deel van je opleiding
           zelf samen te stellen en kun je jezelf straks beter profileren op de
           arbeidsmarkt. Via deze pagina kun je zoeken en filteren op alle

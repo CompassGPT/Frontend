@@ -11,8 +11,9 @@ import { ProfilePage } from "./pages/profile";
 import { KeuzehulpPage } from "./pages/keuzehulp.tsx";
 import { LoginPage } from "./pages/auth/login";
 
-// Auth provider
+// Providers
 import { AuthProvider } from "./hooks/useAuth";
+import { ThemeProvider } from "./context/ThemeContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Rendering app
@@ -21,22 +22,24 @@ if (!root) throw new Error("Root element not found!");
 
 createRoot(root).render(
   <StrictMode>
-    <BrowserRouter>
-      <AuthProvider>
-        <Routes>
-          {/* Protected routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/modules" element={<ModulesPage />} />
-            <Route path="/modules/:id" element={<ModulePage />} />
-            <Route path="/keuzehulp" element={<KeuzehulpPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-          </Route>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/modules" element={<ModulesPage />} />
+              <Route path="/modules/:id" element={<ModulePage />} />
+              <Route path="/keuzehulp" element={<KeuzehulpPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+            </Route>
 
-          {/* Public routes */}
-          <Route path="/auth/login" element={<LoginPage />} />
-        </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+            {/* Public routes */}
+            <Route path="/auth/login" element={<LoginPage />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
   </StrictMode>
 );
