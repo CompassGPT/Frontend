@@ -1,54 +1,65 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { Link } from "react-router";
+import { useBackend } from "../hooks/useBackend";
+import type { ModulesResponse } from "../types/api.types";
 
-// Mock data voor modules
-const mockModules = [
-  {
-    id: "1",
-    title: "Titel van module",
-    description:
-      "Beschrijving van module - bldsaldsa d saiodsa dsaiohf dsfdsiofds fdsijfds f fidshfds nfdshif sfjdsiohfjds fdsfdsifdsjhio fisdohf dsfhidsof bdsfjdsofhds fdsopifds fdsoipfjds fds dsadasdsadsadsa dsadsadsadsadsadsafnioefew fewofew bf dfsafdsfdspn fdsopinfds",
-    startDate: "2025-09-02",
-    level: "Beginner",
-    studiepunten: 3,
-    locatie: "Tilburg",
-    image: null,
-  },
-  {
-    id: "2",
-    title: "Web Development Advanced",
-    description:
-      "Leer geavanceerde webontwikkeling met moderne frameworks en tools. Deze module behandelt React, TypeScript, en backend development.",
-    startDate: "2025-12-01",
-    level: "Gevorderd",
-    studiepunten: 5,
-    locatie: "Breda",
-    image: null,
-  },
-  {
-    id: "3",
-    title: "Data Science Basics",
-    description:
-      "Introductie tot data science met Python. Leer data analyse, visualisatie en machine learning basics.",
-    startDate: "2026-03-03",
-    level: "Beginner",
-    studiepunten: 4,
-    locatie: "Den Bosch",
-    image: null,
-  },
-];
-
-// Filter opties
-const periodeOpties = ["P1", "P2", "P3", "P4"];
-const locatieOpties = ["Tilburg", "Breda", "Den Bosch", "Roosendaal"];
+interface TransformedModule {
+  id: string;
+  title: string;
+  description: string;
+  startDate: string;
+  level: string;
+  studiepunten: number;
+  locatie: string;
+  image: null;
+  periode?: string;
+}
 
 export function ModulesPage() {
+  const backend = useBackend();
+  const [modules, setModules] = useState<TransformedModule[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const modulesPerPage = 5;
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedPeriode, setSelectedPeriode] = useState<string[]>([]);
   const [selectedLocatie, setSelectedLocatie] = useState<string[]>([]);
   const [selectedLevel, setSelectedLevel] = useState<string[]>([]);
   const [selectedEC, setSelectedEC] = useState<number[]>([]);
   const [favoriteModules, setFavoriteModules] = useState<string[]>([]);
+
+  // Fetch modules from backend
+  useEffect(() => {
+    const fetchModules = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await backend.get<ModulesResponse>("/api/modules");
+        // Transform backend Module to frontend format
+        const transformed = response.modules.map((m) => ({
+          id: m.id,
+          title: m.name,
+          description: m.shortdescription,
+          startDate: m.startDate,
+          level: m.level,
+          studiepunten: m.studyCredits,
+          locatie: m.location.length > 0 ? m.location.map(loc => loc.name).join(', ') : "Onbekend",
+          image: null,
+        }));
+        setModules(transformed);
+      } catch (err) {
+        console.error("Failed to fetch modules:", err);
+        setError("Kon modules niet laden. Probeer later opnieuw.");
+        setModules([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    void fetchModules();
+  }, [backend]);
 
   // Filter open/dicht state
   const [openFilters, setOpenFilters] = useState({
@@ -80,6 +91,7 @@ export function ModulesPage() {
     setSelectedLocatie([]);
     setSelectedLevel([]);
     setSelectedEC([]);
+    setCurrentPage(1);
   };
 
   const toggleFavorite = (moduleId: string) => {
@@ -90,37 +102,28 @@ export function ModulesPage() {
     );
   };
 
-  // Bepaal periode uit startDate
+  // Bepaal periode uit startDate (string format: "2025-09-02")
   const getPeriodeFromDate = (dateStr: string) => {
     const d = new Date(dateStr);
     const m = d.getMonth(); // 0-11
-    if (m === 8 || m === 9 || m === 10) return "P1"; // sep-nov
-    if (m === 11 || m === 0 || m === 1) return "P2"; // dec-feb
-    if (m === 2 || m === 3) return "P3"; // mrt-apr
-    return "P4"; // mei-aug
+    if (m >= 8 && m <= 10) return "P1"; // sep-nov (8,9,10)
+    if (m === 11 || m <= 1) return "P2"; // dec-feb (11,0,1)
+    if (m >= 2 && m <= 3) return "P3"; // mrt-apr (2,3)
+    return "P4"; // mei-aug (4,5,6,7)
   };
 
   // Afgeleide opties
-  const levelOpties = useMemo(
-    () => Array.from(new Set(mockModules.map((m) => m.level))).sort(),
-    []
-  );
-  const ecOpties = useMemo(
-    () =>
-      Array.from(new Set(mockModules.map((m) => m.studiepunten))).sort(
-        (a, b) => a - b
-      ),
-    []
-  );
+  const levelOpties = ["NLQF5", "NLQF6"];
+  const ecOpties = [15, 30];
 
   // Verrijk modules met periode
   const modulesWithPeriode = useMemo(
     () =>
-      mockModules.map((m) => ({
+      modules.map((m) => ({
         ...m,
         periode: getPeriodeFromDate(m.startDate),
       })),
-    []
+    [modules]
   );
 
   // Filter modules
@@ -134,7 +137,8 @@ export function ModulesPage() {
       selectedPeriode.length === 0 || selectedPeriode.includes(module.periode);
 
     const matchesLocatie =
-      selectedLocatie.length === 0 || selectedLocatie.includes(module.locatie);
+      selectedLocatie.length === 0 || 
+      selectedLocatie.some(loc => module.locatie.includes(loc));
     const matchesLevel =
       selectedLevel.length === 0 || selectedLevel.includes(module.level);
     const matchesEC =
@@ -149,6 +153,11 @@ export function ModulesPage() {
     );
   });
 
+  // Pagination
+  const totalPages = Math.ceil(filteredModules.length / modulesPerPage);
+  const startIndex = (currentPage - 1) * modulesPerPage;
+  const paginatedModules = filteredModules.slice(startIndex, startIndex + modulesPerPage);
+
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
@@ -162,6 +171,24 @@ export function ModulesPage() {
         </p>
       </div>
 
+      {/* Loading state */}
+      {loading && (
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        </div>
+      )}
+
+      {/* Error state */}
+      {error && (
+        <div className="container mx-auto px-4 py-8">
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-red-800">
+            {error}
+          </div>
+        </div>
+      )}
+
+      {/* Main content */}
+      {!loading && !error && (
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
           {/* Sidebar met filters */}
@@ -306,7 +333,7 @@ export function ModulesPage() {
                   }`}
                 >
                   <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
-                    {periodeOpties.map((periode) => (
+                    {["P1", "P2", "P3", "P4"].map((periode) => (
                       <label
                         key={periode}
                         className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
@@ -361,7 +388,7 @@ export function ModulesPage() {
                   }`}
                 >
                   <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
-                    {locatieOpties.map((locatie) => (
+                    {["Tilburg", "Breda", "Den Bosch", "Roosendaal"].map((locatie) => (
                       <label
                         key={locatie}
                         className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
@@ -412,8 +439,8 @@ export function ModulesPage() {
             {/* Results info and favorites button */}
             <div className="flex gap-3 mb-6 justify-between items-center">
               <div>
-                <p className="text-lg font-semibold text-gray-900">
-                  {filteredModules.length} {filteredModules.length === 1 ? "module" : "modules"} gevonden
+                <p className="text-sm text-gray-600 mb-1">
+                  {startIndex + 1} - {Math.min(startIndex + modulesPerPage, filteredModules.length)} van {filteredModules.length} keuzemodules
                 </p>
                 <p className="text-sm text-gray-500 mt-1">
                   {filteredModules.length === 0 ? "Geen resultaten met deze filters" : "Selecteer een module om meer te zien"}
@@ -503,7 +530,7 @@ export function ModulesPage() {
                   </p>
                 </div>
               ) : (
-                filteredModules.map((module) => (
+                paginatedModules.map((module) => (
                   <div
                     key={module.id}
                     className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 flex gap-5"
@@ -624,9 +651,47 @@ export function ModulesPage() {
                 ))
               )}
             </div>
+
+            {/* Pagination */}
+            {filteredModules.length > modulesPerPage && (
+              <div className="flex justify-center items-center gap-2 mt-8">
+                <button
+                  onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Vorige
+                </button>
+                
+                <div className="flex items-center gap-1">
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-10 h-10 rounded-full text-sm font-medium transition-colors ${
+                        currentPage === page
+                          ? 'bg-white text-gray-900 border-2 border-gray-900'
+                          : 'text-gray-600 hover:bg-gray-100'
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                </div>
+
+                <button
+                  onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  Volgende
+                </button>
+              </div>
+            )}
           </main>
         </div>
       </div>
+      )}
     </div>
   );
 }
