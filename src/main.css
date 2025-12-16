@@ -1,5 +1,24 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  color-scheme: light;
+}
+
+.dark {
+  color-scheme: dark;
+}
+
+/* Base styles for light/dark mode */
+html {
+  @apply bg-white text-gray-900 transition-colors duration-200;
+}
+
+html.dark {
+  @apply bg-gray-900 text-gray-100;
+}
+
 .loader {
   width: 48px;
   height: 48px;
@@ -9,6 +28,11 @@
   display: inline-block;
   box-sizing: border-box;
   animation: rotation 1s linear infinite;
+}
+
+.dark .loader {
+  border-color: #374151;
+  border-bottom-color: transparent;
 }
 
 @keyframes rotation {
