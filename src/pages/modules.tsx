@@ -451,6 +451,37 @@ export function ModulesPage() {
                       </div>
 
                       <div className="flex items-end gap-2">
+                        <Link
+                          to={`/modules/${module.id}`}
+                          className="px-4 py-2 bg-white text-gray-900 text-sm font-semibold rounded-full border border-gray-300 hover:bg-gray-50 transition-colors"
+                        >
+                          Meer info
+                        </Link>
+                        <button
+                          className="px-4 py-2 text-sm font-semibold rounded-full border border-gray-300 text-gray-900 hover:bg-gray-50 transition-colors flex items-center gap-2"
+                          type="button"
+                        >
+                          Aanmelden via Osiris
+                          <svg
+                            className="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M14 3h7v7m0-7L10 14"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M5 5v14h14"
+                            />
+                          </svg>
+                        </button>
                         <button
                           onClick={() => toggleFavorite(module.id)}
                           className={`p-2 rounded-lg transition-colors ${
@@ -473,12 +504,6 @@ export function ModulesPage() {
                             <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
                           </svg>
                         </button>
-                        <Link
-                          to={`/modules/${module.id}`}
-                          className="px-4 py-2 border border-blue-600 text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-50 transition-colors"
-                        >
-                          Zie meer
-                        </Link>
                       </div>
                     </div>
                   </div>
