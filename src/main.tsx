@@ -8,6 +8,7 @@ import { HomePage } from "./pages/home";
 import { ModulesPage } from "./pages/modules";
 import { ModulePage } from "./pages/module";
 import { ProfilePage } from "./pages/profile";
+import { KeuzehulpPage } from "./pages/keuzehulp.tsx";
 import { LoginPage } from "./pages/auth/login";
 
 // Auth provider
@@ -28,6 +29,7 @@ createRoot(root).render(
             <Route path="/" element={<HomePage />} />
             <Route path="/modules" element={<ModulesPage />} />
             <Route path="/modules/:id" element={<ModulePage />} />
+            <Route path="/keuzehulp" element={<KeuzehulpPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
 

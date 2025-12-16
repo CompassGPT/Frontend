@@ -1,5 +1,6 @@
-import { Navigate, Outlet } from "react-router";
+import { Navigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import { AppLayout } from "./AppLayout";
 
 /**
  * Component that protects routes requiring authentication
@@ -23,5 +24,5 @@ export function ProtectedRoute() {
     return <Navigate to="/auth/login" replace />;
   }
 
-  return <Outlet />;
+  return <AppLayout />;
 }
