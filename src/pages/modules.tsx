@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Link } from "react-router";
 
 // Mock data voor modules
@@ -8,9 +8,9 @@ const mockModules = [
     title: "Titel van module",
     description:
       "Beschrijving van module - bldsaldsa d saiodsa dsaiohf dsfdsiofds fdsijfds f fidshfds nfdshif sfjdsiohfjds fdsfdsifdsjhio fisdohf dsfhidsof bdsfjdsofhds fdsopifds fdsoipfjds fds dsadasdsadsadsa dsadsadsadsadsadsafnioefew fewofew bf dfsafdsfdspn fdsopinfds",
-    periode: "P1",
+    startDate: "2025-09-02",
+    level: "Beginner",
     studiepunten: 3,
-    taal: "Nederlands",
     locatie: "Tilburg",
     image: null,
   },
@@ -19,9 +19,9 @@ const mockModules = [
     title: "Web Development Advanced",
     description:
       "Leer geavanceerde webontwikkeling met moderne frameworks en tools. Deze module behandelt React, TypeScript, en backend development.",
-    periode: "P2",
+    startDate: "2025-12-01",
+    level: "Gevorderd",
     studiepunten: 5,
-    taal: "Engels",
     locatie: "Breda",
     image: null,
   },
@@ -30,31 +30,32 @@ const mockModules = [
     title: "Data Science Basics",
     description:
       "Introductie tot data science met Python. Leer data analyse, visualisatie en machine learning basics.",
-    periode: "P1",
+    startDate: "2026-03-03",
+    level: "Beginner",
     studiepunten: 4,
-    taal: "Nederlands",
     locatie: "Den Bosch",
     image: null,
   },
 ];
 
 // Filter opties
-const taalOpties = ["Engels", "Nederlands"];
 const periodeOpties = ["P1", "P2", "P3", "P4"];
 const locatieOpties = ["Tilburg", "Breda", "Den Bosch", "Roosendaal"];
 
 export function ModulesPage() {
   const [searchQuery, setSearchQuery] = useState("");
-  const [selectedTaal, setSelectedTaal] = useState<string[]>([]);
   const [selectedPeriode, setSelectedPeriode] = useState<string[]>([]);
   const [selectedLocatie, setSelectedLocatie] = useState<string[]>([]);
+  const [selectedLevel, setSelectedLevel] = useState<string[]>([]);
+  const [selectedEC, setSelectedEC] = useState<number[]>([]);
   const [favoriteModules, setFavoriteModules] = useState<string[]>([]);
 
   // Filter open/dicht state
   const [openFilters, setOpenFilters] = useState({
-    taal: true,
     periode: true,
     locatie: true,
+    level: true,
+    studiepunten: true,
   });
 
   const toggleFilter = (filter: keyof typeof openFilters) => {
@@ -75,9 +76,10 @@ export function ModulesPage() {
 
   const handleReset = () => {
     setSearchQuery("");
-    setSelectedTaal([]);
     setSelectedPeriode([]);
     setSelectedLocatie([]);
+    setSelectedLevel([]);
+    setSelectedEC([]);
   };
 
   const toggleFavorite = (moduleId: string) => {
@@ -88,23 +90,63 @@ export function ModulesPage() {
     );
   };
 
+  // Bepaal periode uit startDate
+  const getPeriodeFromDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    const m = d.getMonth(); // 0-11
+    if (m === 8 || m === 9 || m === 10) return "P1"; // sep-nov
+    if (m === 11 || m === 0 || m === 1) return "P2"; // dec-feb
+    if (m === 2 || m === 3) return "P3"; // mrt-apr
+    return "P4"; // mei-aug
+  };
+
+  // Afgeleide opties
+  const levelOpties = useMemo(
+    () => Array.from(new Set(mockModules.map((m) => m.level))).sort(),
+    []
+  );
+  const ecOpties = useMemo(
+    () =>
+      Array.from(new Set(mockModules.map((m) => m.studiepunten))).sort(
+        (a, b) => a - b
+      ),
+    []
+  );
+
+  // Verrijk modules met periode
+  const modulesWithPeriode = useMemo(
+    () =>
+      mockModules.map((m) => ({
+        ...m,
+        periode: getPeriodeFromDate(m.startDate),
+      })),
+    []
+  );
+
   // Filter modules
-  const filteredModules = mockModules.filter((module) => {
+  const filteredModules = modulesWithPeriode.filter((module) => {
     const matchesSearch =
       searchQuery === "" ||
       module.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       module.description.toLowerCase().includes(searchQuery.toLowerCase());
-
-    const matchesTaal =
-      selectedTaal.length === 0 || selectedTaal.includes(module.taal);
 
     const matchesPeriode =
       selectedPeriode.length === 0 || selectedPeriode.includes(module.periode);
 
     const matchesLocatie =
       selectedLocatie.length === 0 || selectedLocatie.includes(module.locatie);
+    const matchesLevel =
+      selectedLevel.length === 0 || selectedLevel.includes(module.level);
+    const matchesEC =
+      selectedEC.length === 0 || selectedEC.includes(module.studiepunten);
 
-    return matchesSearch && matchesTaal && matchesPeriode && matchesLocatie;
+    return (
+      matchesSearch &&
+      matchesPeriode &&
+      matchesLocatie &&
+      matchesLevel &&
+      matchesEC
+    );
   });
 
   return (
@@ -125,16 +167,16 @@ export function ModulesPage() {
           {/* Sidebar met filters */}
           <aside className="lg:w-72 flex-shrink-0">
             <div className="space-y-4">
-              {/* Taal filter */}
+              {/* Niveau filter */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
                 <button
-                  onClick={() => toggleFilter("taal")}
+                  onClick={() => toggleFilter("level")}
                   className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
                 >
-                  <h3 className="font-semibold text-gray-900">Taal</h3>
+                  <h3 className="font-semibold text-gray-900">Niveau</h3>
                   <svg
                     className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
-                      openFilters.taal ? "rotate-180" : ""
+                      openFilters.level ? "rotate-180" : ""
                     }`}
                     fill="none"
                     stroke="currentColor"
@@ -150,31 +192,88 @@ export function ModulesPage() {
                 </button>
                 <div
                   className={`transition-all duration-200 ease-in-out ${
-                    openFilters.taal
+                    openFilters.level
                       ? "max-h-96 opacity-100"
                       : "max-h-0 opacity-0 overflow-hidden"
                   }`}
                 >
                   <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
-                    {taalOpties.map((taal) => (
+                    {levelOpties.map((lvl) => (
                       <label
-                        key={taal}
+                        key={lvl}
                         className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
                       >
                         <input
                           type="checkbox"
-                          checked={selectedTaal.includes(taal)}
+                          checked={selectedLevel.includes(lvl)}
                           onChange={() =>
-                            handleFilterToggle(taal, selectedTaal, setSelectedTaal)
+                            handleFilterToggle(lvl, selectedLevel, setSelectedLevel)
                           }
                           className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         />
-                        <span className="text-gray-700">{taal}</span>
+                        <span className="text-gray-700">{lvl}</span>
                       </label>
                     ))}
                   </div>
                 </div>
               </div>
+              
+
+              {/* Studiepunten filter */}
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <button
+                  onClick={() => toggleFilter("studiepunten")}
+                  className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition-colors"
+                >
+                  <h3 className="font-semibold text-gray-900">Studiepunten (EC)</h3>
+                  <svg
+                    className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${
+                      openFilters.studiepunten ? "rotate-180" : ""
+                    }`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M19 9l-7 7-7-7"
+                    />
+                  </svg>
+                </button>
+                <div
+                  className={`transition-all duration-200 ease-in-out ${
+                    openFilters.studiepunten
+                      ? "max-h-96 opacity-100"
+                      : "max-h-0 opacity-0 overflow-hidden"
+                  }`}
+                >
+                  <div className="px-4 pb-4 space-y-2 border-t border-gray-100">
+                    {ecOpties.map((ec) => (
+                      <label
+                        key={ec}
+                        className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 p-2 rounded-md transition-colors"
+                      >
+                        <input
+                          type="checkbox"
+                          checked={selectedEC.includes(ec)}
+                          onChange={() =>
+                            setSelectedEC((prev) =>
+                              prev.includes(ec)
+                                ? prev.filter((e) => e !== ec)
+                                : [...prev, ec]
+                            )
+                          }
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <span className="text-gray-700">{ec} EC</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+              
 
               {/* Periode filter */}
               <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
@@ -333,22 +432,9 @@ export function ModulesPage() {
             </div>
 
             {/* Active filters display */}
-            {(selectedTaal.length > 0 || selectedPeriode.length > 0 || selectedLocatie.length > 0) && (
+            {(selectedPeriode.length > 0 || selectedLocatie.length > 0 || selectedLevel.length > 0 || selectedEC.length > 0) && (
               <div className="mb-6 flex flex-wrap gap-2">
-                {selectedTaal.map((taal) => (
-                  <div key={taal} className="px-4 py-2 bg-white border border-gray-200 text-gray-900 text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
-                    {taal}
-                    <button
-                      onClick={() => setSelectedTaal(selectedTaal.filter((t) => t !== taal))}
-                      className="text-gray-400 hover:text-gray-600 transition-colors"
-                      title="Filter verwijderen"
-                    >
-                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  </div>
-                ))}
+                
                 {selectedPeriode.map((periode) => (
                   <div key={periode} className="px-4 py-2 bg-white border border-gray-200 text-gray-900 text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
                     {periode}
@@ -368,6 +454,34 @@ export function ModulesPage() {
                     {locatie}
                     <button
                       onClick={() => setSelectedLocatie(selectedLocatie.filter((l) => l !== locatie))}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      title="Filter verwijderen"
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+                {selectedLevel.map((lvl) => (
+                  <div key={lvl} className="px-4 py-2 bg-white border border-gray-200 text-gray-900 text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+                    {lvl}
+                    <button
+                      onClick={() => setSelectedLevel(selectedLevel.filter((l) => l !== lvl))}
+                      className="text-gray-400 hover:text-gray-600 transition-colors"
+                      title="Filter verwijderen"
+                    >
+                      <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+                      </svg>
+                    </button>
+                  </div>
+                ))}
+                {selectedEC.map((ec) => (
+                  <div key={ec} className="px-4 py-2 bg-white border border-gray-200 text-gray-900 text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+                    {ec} EC
+                    <button
+                      onClick={() => setSelectedEC(selectedEC.filter((e) => e !== ec))}
                       className="text-gray-400 hover:text-gray-600 transition-colors"
                       title="Filter verwijderen"
                     >
@@ -409,8 +523,8 @@ export function ModulesPage() {
                         <span className="px-3 py-1 bg-blue-100 text-blue-700 text-xs font-medium rounded-full">
                           {module.studiepunten} Studiepunten
                         </span>
-                        <span className="px-3 py-1 bg-purple-100 text-purple-700 text-xs font-medium rounded-full">
-                          {module.taal}
+                        <span className="px-3 py-1 bg-orange-100 text-orange-700 text-xs font-medium rounded-full">
+                          {module.level}
                         </span>
                       </div>
 
