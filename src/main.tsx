@@ -37,17 +37,17 @@ const router = createBrowserRouter([
 				Component: ModulePage,
 				errorElement: <div>Er is een fout opgetreden bij het laden van de module</div>,
 			},
+			{
+				path: "/profile",
+				Component: ProfilePage,
+				errorElement: <div>Er is een fout opgetreden bij het laden van de profiel</div>,
+			},
 		],
 	},
 	{
 		path: "/auth/login",
 		Component: LoginPage,
 		errorElement: <div>Fout bij inloggen</div>,
-	},
-	{
-		path: "/profile",
-		Component: ProfilePage,
-		errorElement: <div>Er is een fout opgetreden bij het laden van de profiel</div>,
 	},
 ]);
 
