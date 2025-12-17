@@ -29,6 +29,7 @@ export function ModulesPage() {
   const [selectedLevel, setSelectedLevel] = useState<string[]>([]);
   const [selectedEC, setSelectedEC] = useState<number[]>([]);
   const [favoriteModules, setFavoriteModules] = useState<string[]>([]);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   // Fetch modules from backend
   useEffect(() => {
@@ -191,9 +192,42 @@ export function ModulesPage() {
       {!loading && !error && (
       <div className="container mx-auto px-4 py-8">
         <div className="flex flex-col lg:flex-row gap-8">
+          {/* Mobile Filter Backdrop */}
+          {showMobileFilters && (
+            <div 
+              className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+              onClick={() => setShowMobileFilters(false)}
+            />
+          )}
+
           {/* Sidebar met filters */}
-          <aside className="lg:w-72 flex-shrink-0">
+          <aside className={`lg:w-72 flex-shrink-0 ${
+            showMobileFilters 
+              ? 'fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md max-h-[85vh] z-50 bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-2xl overflow-y-auto lg:static lg:transform-none lg:w-72 lg:max-h-none lg:bg-transparent lg:p-0 lg:overflow-visible lg:shadow-none lg:rounded-none' 
+              : 'hidden lg:block'
+          }`}>
+            <div className="flex justify-between items-center mb-4 lg:hidden">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Filters</h2>
+              <button 
+                onClick={() => setShowMobileFilters(false)}
+                className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
             <div className="space-y-4">
+              <button
+                onClick={handleReset}
+                className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
+              >
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                </svg>
+                Reset filters
+              </button>
+
               {/* Niveau filter */}
               <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
                 <button
@@ -411,13 +445,20 @@ export function ModulesPage() {
                   </div>
                 </div>
               </div>
+
+              <button
+                onClick={() => setShowMobileFilters(false)}
+                className="w-full mt-4 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors lg:hidden"
+              >
+                Toon {filteredModules.length} resultaten
+              </button>
             </div>
           </aside>
 
           {/* Main content */}
           <main className="flex-1">
             {/* Search bar */}
-            <div className="flex gap-3 mb-6">
+            <div className="flex flex-col sm:flex-row gap-3 mb-6">
               <input
                 type="text"
                 placeholder="Zoek op keuzemodule naam"
@@ -425,19 +466,19 @@ export function ModulesPage() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="flex-1 px-4 py-3 border border-gray-300 dark:border-gray-600 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent bg-white dark:bg-gray-800 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 transition-colors"
               />
-              <button className="px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 dark:hover:bg-blue-600 transition-colors">
-                Zoeken
-              </button>
               <button
-                onClick={handleReset}
-                className="px-6 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+                onClick={() => setShowMobileFilters(!showMobileFilters)}
+                className="lg:hidden px-6 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
               >
-                Reset
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                Filters
               </button>
             </div>
 
             {/* Results info and favorites button */}
-            <div className="flex gap-3 mb-6 justify-between items-center">
+            <div className="flex flex-col sm:flex-row gap-3 mb-6 justify-between items-start sm:items-center">
               <div>
                 <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                   {startIndex + 1} - {Math.min(startIndex + modulesPerPage, filteredModules.length)} van {filteredModules.length} keuzemodules
@@ -533,10 +574,10 @@ export function ModulesPage() {
                 paginatedModules.map((module) => (
                   <div
                     key={module.id}
-                    className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5 flex gap-5 transition-colors"
+                    className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5 flex flex-col sm:flex-row gap-5 transition-colors"
                   >
                     {/* Module afbeelding placeholder */}
-                    <div className="w-36 h-28 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-200 dark:border-gray-700 transition-colors">
+                    <div className="w-full sm:w-36 h-48 sm:h-28 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-200 dark:border-gray-700 transition-colors">
                       <span className="text-gray-400 dark:text-gray-500 text-sm">Plaatje</span>
                     </div>
 
@@ -567,8 +608,8 @@ export function ModulesPage() {
                     </div>
 
                     {/* Locatie en acties rechts */}
-                    <div className="flex flex-col items-end justify-between gap-3 flex-shrink-0 text-right">
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                    <div className="flex flex-col sm:items-end justify-between gap-3 flex-shrink-0 text-left sm:text-right border-t sm:border-t-0 pt-4 sm:pt-0 border-gray-100 dark:border-gray-700 mt-2 sm:mt-0">
+                      <div className="flex items-center sm:justify-end gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <svg
                           className="w-4 h-4 text-gray-500 dark:text-gray-400"
                           fill="none"
@@ -591,18 +632,19 @@ export function ModulesPage() {
                         <span className="font-medium text-gray-700 dark:text-white">{module.locatie}</span>
                       </div>
 
-                      <div className="flex items-end gap-2">
+                      <div className="flex flex-wrap sm:flex-nowrap items-center sm:items-end gap-2">
                         <Link
                           to={`/modules/${module.id}`}
-                          className="px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+                          className="flex-1 sm:flex-none text-center px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
                         >
                           Meer info
                         </Link>
                         <button
-                          className="px-4 py-2 text-sm font-semibold rounded-full border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
+                          className="flex-1 sm:flex-none justify-center px-4 py-2 text-sm font-semibold rounded-full border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 whitespace-nowrap"
                           type="button"
                         >
-                          Aanmelden via Osiris
+                          Aanmelden
+                          <span className="hidden sm:inline"> via Osiris</span>
                           <svg
                             className="w-4 h-4"
                             fill="none"
