@@ -1,133 +1,97 @@
-import {
-  createContext,
-  useContext,
-  useState,
-  useEffect,
-  useCallback,
-} from "react";
+import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { ReactNode } from "react";
 import { useBackend, BackendError } from "../hooks/useBackend";
-import type {
-  User,
-  LoginRequest,
-  LoginResponse,
-  LogoutResponse,
-} from "../types/api.types";
+import type { User, LoginRequest, LoginResponse, LogoutResponse } from "../types/api.types";
 
 interface AuthContextType {
-  user: User | null;
-  isAuthenticated: boolean;
-  isLoading: boolean;
-  login: (credentials: LoginRequest) => Promise<void>;
-  logout: () => Promise<void>;
-  checkSession: () => Promise<void>;
-  error: string | null;
-  clearError: () => void;
+	user: User | null | undefined; // undefined = nog niet geladen
+	isAuthenticated: boolean;
+	isLoading: boolean;
+	login: (credentials: LoginRequest) => Promise<void>;
+	logout: () => Promise<void>;
+	checkSession: () => Promise<void>;
+	error: string | null;
+	clearError: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-/**
- * Provider component that wraps the app and provides authentication state
- */
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const backend = useBackend();
+	const [user, setUser] = useState<User | null | undefined>(undefined);
+	const [isLoading, setIsLoading] = useState(true); // start als loading
+	const [error, setError] = useState<string | null>(null);
+	const backend = useBackend();
 
-  /**
-   * Check if there's an active session on mount
-   */
-  const checkSession = useCallback(async () => {
-    try {
-      setIsLoading(true);
-      const response = await backend.get<{ user: User }>("/api/user/profile");
-      setUser(response.user);
-    } catch {
-      // Session doesn't exist or expired - not an error
-      setUser(null);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [backend]);
+	// Check if there's an active session on mount
+	const checkSession = useCallback(async () => {
+		try {
+			const response = await backend.get<{ user: User }>("/api/user/profile");
+			setUser(response.user);
+		} catch {
+			setUser(null); // geen user gevonden
+		} finally {
+			setIsLoading(false); // loading klaar
+		}
+	}, [backend]);
 
   useEffect(() => {
     checkSession();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  /**
-   * Login user with email and password
-   */
-  const login = async (credentials: LoginRequest) => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      const response = await backend.post<LoginResponse>(
-        "/api/auth/login",
-        credentials
-      );
-      setUser(response.user);
-    } catch (err) {
-      const errorMessage =
-        err instanceof BackendError ? err.message : "Failed to login";
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+	// Login
+	const login = async (credentials: LoginRequest) => {
+		setIsLoading(true);
+		setError(null);
+		try {
+			const response = await backend.post<LoginResponse>("/api/auth/login", credentials);
+			setUser(response.user);
+		} catch (err) {
+			setError(err instanceof BackendError ? err.message : "Failed to login");
+			throw err;
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-  /**
-   * Logout current user
-   */
-  const logout = async () => {
-    try {
-      setIsLoading(true);
-      setError(null);
-      await backend.post<LogoutResponse>("/api/auth/logout");
-      setUser(null);
-    } catch (err) {
-      const errorMessage =
-        err instanceof BackendError ? err.message : "Failed to logout";
-      setError(errorMessage);
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+	// Logout
+	const logout = async () => {
+		setIsLoading(true);
+		setError(null);
+		try {
+			await backend.post<LogoutResponse>("/api/auth/logout");
+			setUser(null);
+		} catch (err) {
+			setError(err instanceof BackendError ? err.message : "Failed to logout");
+			throw err;
+		} finally {
+			setIsLoading(false);
+		}
+	};
 
-  /**
-   * Clear error message
-   */
-  const clearError = () => {
-    setError(null);
-  };
+	const clearError = () => setError(null);
 
-  const value: AuthContextType = {
-    user,
-    isAuthenticated: user !== null,
-    isLoading,
-    login,
-    logout,
-    checkSession,
-    error,
-    clearError,
-  };
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+	return (
+		<AuthContext.Provider
+			value={{
+				user,
+				isAuthenticated: !!user,
+				isLoading,
+				login,
+				logout,
+				checkSession,
+				error,
+				clearError,
+			}}
+		>
+			{children}
+		</AuthContext.Provider>
+	);
 };
 
-/**
- * Hook to access authentication state and methods
- * Must be used within AuthProvider
- */
-// eslint-disable-next-line react-refresh/only-export-components
+// Hook to use the Auth context
 export const useAuth = (): AuthContextType => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error("useAuth must be used within an AuthProvider");
-  }
-  return context;
+	const context = useContext(AuthContext);
+	if (!context) throw new Error("useAuth must be used within AuthProvider");
+	return context;
 };

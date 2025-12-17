@@ -10,10 +10,10 @@ import { ModulePage } from "./pages/module";
 import { ProfilePage } from "./pages/profile";
 import { KeuzehulpPage } from "./pages/keuzehulp.tsx";
 import { LoginPage } from "./pages/auth/login";
+import { ProfilePage } from "./pages/profile";
 
-// Providers
+// Auth provider
 import { AuthProvider } from "./hooks/useAuth";
-import { ThemeProvider } from "./context/ThemeContext";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Rendering app

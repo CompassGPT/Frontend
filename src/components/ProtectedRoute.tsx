@@ -12,9 +12,9 @@ export function ProtectedRoute() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-white dark:bg-gray-900 transition-colors">
+      <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <p className="text-gray-900 dark:text-white">Loading...</p>
+          <p>Loading...</p>
         </div>
       </div>
     );
