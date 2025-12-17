@@ -10,11 +10,13 @@ import { ModulePage } from "./pages/module";
 import { ProfilePage } from "./pages/profile";
 import { KeuzehulpPage } from "./pages/keuzehulp.tsx";
 import { LoginPage } from "./pages/auth/login";
-import { ProfilePage } from "./pages/profile";
 
 // Auth provider
 import { AuthProvider } from "./hooks/useAuth";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+
+// Dark mode context
+import { ThemeProvider } from "./context/ThemeContext.tsx";
 
 // Rendering app
 const root = document.getElementById("root")!;
