@@ -34,10 +34,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 		}
 	}, [backend]);
 
-	useEffect(() => {
-		checkSession();
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, []);
+  useEffect(() => {
+    checkSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
 	// Login
 	const login = async (credentials: LoginRequest) => {

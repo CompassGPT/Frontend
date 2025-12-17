@@ -55,3 +55,17 @@ export interface moduleDetail {
 export interface ModuleResponse {
 	module: moduleDetail;
 }
+
+export interface Module {
+  id: string;
+  name: string;
+  shortdescription: string;
+  studyCredits: number;
+  level: string;
+  location: { id: string; name: string }[];
+  startDate: string;
+}
+
+export interface ModulesResponse {
+  modules: Module[];
+}
