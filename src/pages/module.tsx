@@ -1,6 +1,7 @@
 import { useParams } from "react-router";
 import { useModule } from "../hooks/useModule";
 import { useState } from "react";
+import { favoriteModule, unfavoriteModule } from "../api/favorites";
 import keuzemoduleFallback from "../images/keuzemodule_fallback_16-9.webp";
 
 export function ModulePage() {
@@ -9,9 +10,23 @@ export function ModulePage() {
 	const { module, isLoading, error } = useModule(id || "");
 	const [favoriteModules, setFavoriteModules] = useState<string[]>([]);
 
-	const toggleFavorite = (moduleId: string) => {
-		setFavoriteModules((prev) => (prev.includes(moduleId) ? prev.filter((id) => id !== moduleId) : [...prev, moduleId]));
+	const toggleFavorite = async (moduleId: string) => {
+		const isFavorited = favoriteModules.includes(moduleId);
+
+		try {
+			if (isFavorited) {
+			await unfavoriteModule(moduleId);
+			setFavoriteModules((prev) => prev.filter((id) => id !== moduleId));
+			} else {
+			await favoriteModule(moduleId);
+			setFavoriteModules((prev) => [...prev, moduleId]);
+			}
+		} catch (err) {
+			console.error(err);
+			alert("Favoriet opslaan mislukt");
+		}
 	};
+
 
 	if (isLoading) {
 		return <div>Loading module...</div>;
