@@ -38,18 +38,44 @@ export function useModuleCreate() {
 	const [isCreating, setIsCreating] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 
+	const getModuleTags = async () => {
+		try {
+			console.log("Calling /api/moduletags...");
+			const response = await backend.get<{ moduleTags: { id: string; name: string }[] }>("/api/moduletags");
+			console.log("ModuleTags response:", response);
+			return response;
+		} catch (err) {
+			console.error("Error fetching module tags:", err);
+			return [];
+		}
+	};
+
+	const getLocations = async () => {
+		try {
+			console.log("Calling /api/locations...");
+			const response = await backend.get<{ locations: { id: string; name: string }[] }>("/api/locations");
+			console.log("Locations response:", response);
+			return response;
+		} catch (err) {
+			console.error("Error fetching locations:", err);
+			return [];
+		}
+	};
+
 	const createModule = async (module: createModule) => {
 		try {
 			setIsCreating(true);
 			setError(null);
-			await backend.post("/api/modules", module);
+			const response = await backend.post<{ module: moduleDetail }>("/api/modules", module);
+			return response.module?.id || null;
 		} catch (err) {
 			console.error(err);
 			setError(err instanceof BackendError ? err.message : "Failed to create module");
+			return null;
 		} finally {
 			setIsCreating(false);
 		}
 	};
 
-	return { isCreating, error, createModule };
+	return { isCreating, error, createModule, getModuleTags, getLocations };
 }

@@ -82,3 +82,21 @@ export interface createModule {
 	startDate: string;
 	shortdescription: string;
 }
+
+export interface Location {
+	id: string;
+	name: string;
+}
+
+export interface LocationsResponse {
+	locations: Location[];
+}
+
+export interface Tag {
+	id: string;
+	name: string;
+}
+
+export interface TagsResponse {
+	tags: Tag[];
+}

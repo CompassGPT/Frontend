@@ -1,23 +1,16 @@
-import { useState } from "react";
-import { Link } from "react-router";
+import { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { useModuleCreate } from "../hooks/useModule";
 import type { createModule } from "../types/api.types";
 
-function slugify(value: string) {
-	return value
-		.toLowerCase()
-		.trim()
-		.replace(/\s+/g, "-")
-		.replace(/[^a-z0-9-]/g, "");
-}
-
-const locationOptions = ["Tilburg", "Breda", "Den Bosch", "Roosendaal"];
-const tagOptions = ["Data", "AI", "Design", "Business", "Tech"];
+type Location = { id: string; name: string };
+type Tag = { id: string; name: string };
 
 export function CreateModulePage() {
 	const { user } = useAuth();
-	const { isCreating, error, createModule } = useModuleCreate();
+	const navigate = useNavigate();
+	const { isCreating, error, createModule, getModuleTags, getLocations } = useModuleCreate();
 
 	const [name, setName] = useState("");
 	const [shortdescription, setShortdescription] = useState("");
@@ -33,24 +26,58 @@ export function CreateModulePage() {
 	const [customTag, setCustomTag] = useState("");
 	const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
+	const [locations, setLocations] = useState<Location[]>([]);
+	const [tags, setTags] = useState<Tag[]>([]);
+	const [loadingData, setLoadingData] = useState(true);
+
+	useEffect(() => {
+		const fetchData = async () => {
+			try {
+				setLoadingData(true);
+				console.log("Fetching locations and tags...");
+				const [locationsData, tagsData] = await Promise.all([getLocations(), getModuleTags()]);
+				console.log("Locations data:", locationsData);
+				console.log("Tags data:", tagsData);
+				const resolvedLocations = Array.isArray(locationsData) ? locationsData : (locationsData as any)?.locations ?? [];
+				setLocations(resolvedLocations);
+				// tagsData may be returned as an array or as an object like { moduleTags: Tag[] }
+				const resolvedTags = (Array.isArray(tagsData) ? tagsData : (tagsData as any)?.moduleTags) ?? [];
+				setTags(resolvedTags);
+			} catch (err) {
+				console.error("Failed to fetch locations/tags:", err);
+				setLocations([]);
+				setTags([]);
+			} finally {
+				setLoadingData(false);
+			}
+		};
+		void fetchData();
+	}, []);
+
 	if (user?.role === "STUDENT") {
 		return <div className="p-8 text-center text-gray-900 dark:text-white">Niet geautoriseerd</div>;
 	}
 
-	const canSubmit = name.trim() !== "" && shortdescription.trim() !== "" && description.trim() !== "" && content.trim() !== "" && learningOutcomes.trim() !== "" && startDate.trim() !== "" && selectedLocations.length > 0;
+	const isStartDateInPast = startDate && new Date(startDate) < new Date();
+	const canSubmit = name.trim() !== "" && shortdescription.trim() !== "" && description.trim() !== "" && content.trim() !== "" && learningOutcomes.trim() !== "" && startDate.trim() !== "" && selectedLocations.length > 0 && !isStartDateInPast;
 
-	const toggleLocation = (loc: string) => {
-		setSelectedLocations((prev) => (prev.includes(loc) ? prev.filter((l) => l !== loc) : [...prev, loc]));
+	const toggleLocation = (locId: string) => {
+		setSelectedLocations((prev) => (prev.includes(locId) ? prev.filter((l) => l !== locId) : [...prev, locId]));
 	};
 
-	const toggleTag = (tag: string) => {
-		setSelectedTags((prev) => (prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]));
+	const toggleTag = (tagId: string) => {
+		setSelectedTags((prev) => (prev.includes(tagId) ? prev.filter((t) => t !== tagId) : [...prev, tagId]));
 	};
 
 	const addCustomTag = () => {
 		const t = customTag.trim();
 		if (!t) return;
-		setSelectedTags((prev) => (prev.includes(t) ? prev : [...prev, t]));
+		const newTag: Tag = {
+			id: `custom-${Date.now()}`,
+			name: t,
+		};
+		setTags((prev) => [...prev, newTag]);
+		setSelectedTags((prev) => [...prev, newTag.id]);
 		setCustomTag("");
 	};
 
@@ -68,12 +95,20 @@ export function CreateModulePage() {
 			availableSpots,
 			startDate,
 			learningOutcomes,
-			location: selectedLocations.map((name) => ({ id: slugify(name), name })),
-			moduleTags: selectedTags.map((name) => ({ id: slugify(name), name })),
+			location: selectedLocations.map((id) => {
+				const loc = locations.find((l) => l.id === id);
+				return { id, name: loc?.name || "" };
+			}),
+			moduleTags: selectedTags.map((id) => {
+				const tag = tags.find((t) => t.id === id);
+				return { id, name: tag?.name || "" };
+			}),
 		};
 
-		await createModule(payload);
-		if (!error) {
+		const createdModuleId = await createModule(payload);
+		if (createdModuleId && !error) {
+			navigate(`/modules/${createdModuleId}`);
+		} else {
 			setSuccessMessage("Module succesvol aangemaakt.");
 		}
 	};
@@ -83,8 +118,15 @@ export function CreateModulePage() {
 			<div className="container w-full mx-auto px-4 py-10 max-w-5xl">
 				<div className="text-center mb-8">
 					<h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white">Nieuwe keuzemodule aanmaken</h1>
-					<p className="mt-2 text-gray-600 dark:text-gray-400">Vul de details in voor de nieuwe module. Locaties en tags zijn voorlopig lokale opties totdat de API beschikbaar is.</p>
+					<p className="mt-2 text-gray-600 dark:text-gray-400">Vul de details in voor de nieuwe module.</p>
 				</div>
+
+				{loadingData && (
+					<div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-blue-800 dark:text-blue-300 flex items-center gap-3">
+						<div className="inline-block w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+						Locaties en tags worden geladen...
+					</div>
+				)}
 
 				{successMessage && (
 					<div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 text-green-800 dark:text-green-300">
@@ -98,6 +140,8 @@ export function CreateModulePage() {
 				)}
 
 				{error && <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-800 dark:text-red-300">{error}</div>}
+
+				{isStartDateInPast && startDate && <div className="mb-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4 text-yellow-800 dark:text-yellow-300">⚠️ De startdatum kan niet in het verleden liggen. Kies een toekomstige datum.</div>}
 
 				<form onSubmit={handleSubmit} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8 space-y-8">
 					{/* Basisgegevens */}
@@ -163,9 +207,10 @@ export function CreateModulePage() {
 							<div>
 								<p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Selecteer één of meer locaties</p>
 								<div className="flex flex-wrap gap-2">
-									{locationOptions.map((loc) => (
-										<button type="button" key={loc} onClick={() => toggleLocation(loc)} className={`px-3 py-1 rounded-full text-sm border transition-colors ${selectedLocations.includes(loc) ? "bg-blue-600 text-white border-blue-600" : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"}`}>
-											{loc}
+									{(!locations || locations.length === 0) && !loadingData && <p className="text-sm text-gray-500 dark:text-gray-400">Geen locaties beschikbaar</p>}
+									{locations?.map((loc) => (
+										<button type="button" key={loc.id} onClick={() => toggleLocation(loc.id)} className={`px-3 py-1 rounded-full text-sm border transition-colors ${selectedLocations.includes(loc.id) ? "bg-blue-600 text-white border-blue-600" : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"}`}>
+											{loc.name}
 										</button>
 									))}
 								</div>
@@ -173,9 +218,10 @@ export function CreateModulePage() {
 							<div>
 								<p className="text-sm text-gray-600 dark:text-gray-400 mb-2">Kies tags of voeg een eigen tag toe</p>
 								<div className="flex flex-wrap gap-2 mb-3">
-									{tagOptions.map((tag) => (
-										<button type="button" key={tag} onClick={() => toggleTag(tag)} className={`px-3 py-1 rounded-full text-sm border transition-colors ${selectedTags.includes(tag) ? "bg-green-600 text-white border-green-600" : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"}`}>
-											{tag}
+									{(!tags || tags.length === 0) && !loadingData && <p className="text-sm text-gray-500 dark:text-gray-400">Geen tags beschikbaar</p>}
+									{tags?.map((tag) => (
+										<button type="button" key={tag.id} onClick={() => toggleTag(tag.id)} className={`px-3 py-1 rounded-full text-sm border transition-colors ${selectedTags.includes(tag.id) ? "bg-green-600 text-white border-green-600" : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"}`}>
+											{tag.name}
 										</button>
 									))}
 								</div>
@@ -198,11 +244,14 @@ export function CreateModulePage() {
 								</div>
 								{selectedTags.length > 0 && (
 									<div className="mt-3 flex flex-wrap gap-2">
-										{selectedTags.map((t) => (
-											<span key={t} className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium rounded-full">
-												{t}
-											</span>
-										))}
+										{selectedTags.map((tagId) => {
+											const tag = tags.find((t) => t.id === tagId);
+											return (
+												<span key={tagId} className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium rounded-full">
+													{tag?.name || tagId}
+												</span>
+											);
+										})}
 									</div>
 								)}
 							</div>
