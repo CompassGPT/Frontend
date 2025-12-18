@@ -10,6 +10,7 @@ import { ModulePage } from "./pages/module";
 import { ProfilePage } from "./pages/profile";
 import { KeuzehulpPage } from "./pages/keuzehulp.tsx";
 import { LoginPage } from "./pages/auth/login";
+import { CreateModulePage } from "./pages/modulecreate";
 
 // Theme provider
 import { ThemeProvider } from "./context/ThemeContext.tsx";
@@ -35,6 +36,7 @@ createRoot(root).render(
 							<Route path="/modules/:id" element={<ModulePage />} />
 							<Route path="/keuzehulp" element={<KeuzehulpPage />} />
 							<Route path="/profile" element={<ProfilePage />} />
+							<Route path="/modules/create" element={<CreateModulePage />} />
 						</Route>
 
 						{/* Public routes */}

@@ -57,15 +57,46 @@ export interface ModuleResponse {
 }
 
 export interface Module {
-  id: string;
-  name: string;
-  shortdescription: string;
-  studyCredits: number;
-  level: string;
-  location: { id: string; name: string }[];
-  startDate: string;
+	id: string;
+	name: string;
+	shortdescription: string;
+	studyCredits: number;
+	level: string;
+	location: { id: string; name: string }[];
+	startDate: string;
 }
 
 export interface ModulesResponse {
-  modules: Module[];
+	modules: Module[];
+}
+export interface createModule {
+	name: string;
+	description: string;
+	content: string;
+	level: string;
+	studyCredits: number;
+	location: { id: string; name: string }[];
+	moduleTags: { id: string; name: string }[];
+	learningOutcomes: string;
+	availableSpots: number;
+	startDate: string;
+	shortdescription: string;
+}
+
+export interface Location {
+	id: string;
+	name: string;
+}
+
+export interface LocationsResponse {
+	locations: Location[];
+}
+
+export interface Tag {
+	id: string;
+	name: string;
+}
+
+export interface TagsResponse {
+	tags: Tag[];
 }
