@@ -35,7 +35,7 @@ export function ModulePage() {
 						<p>{module.learningOutcomes}</p>
 					</div>
 					<div className="flex flex-nowrap gap-2 mt-4 p-4 items-center">
-						<button className="px-3 py-2 text-xs sm:text-sm font-semibold rounded-full border border-gray-300 text-gray-900 hover:bg-gray-50 transition-colors flex items-center gap-2" type="button">
+						<button className="px-3 py-2 text-xs sm:text-sm font-semibold rounded-full border border-gray-300 text-gray-900 hover:bg-gray-50 transition-colors flex items-center gap-2 dark:text-white" type="button">
 							Aanmelden via Osiris
 							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 3h7v7m0-7L10 14" />
