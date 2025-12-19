@@ -1,7 +1,11 @@
-const API_BASE = "http://localhost:4000/api";
+const API_BASE = import.meta.env.VITE_BACKEND_URL;
+
+if (!API_BASE) {
+  throw new Error("VITE_BACKEND_URL is not defined");
+}
 
 export async function favoriteModule(moduleId: string) {
-  const res = await fetch(`${API_BASE}/user/favorites/${moduleId}`, {
+  const res = await fetch(`${API_BASE}/api/user/favorites/${moduleId}`, {
     method: "POST",
     credentials: "include",
   });
@@ -12,7 +16,7 @@ export async function favoriteModule(moduleId: string) {
 }
 
 export async function unfavoriteModule(moduleId: string) {
-  const res = await fetch(`${API_BASE}/user/favorites/${moduleId}`, {
+  const res = await fetch(`${API_BASE}/api/user/favorites/${moduleId}`, {
     method: "DELETE",
     credentials: "include",
   });
