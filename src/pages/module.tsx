@@ -1,31 +1,18 @@
 import { useParams } from "react-router";
 import { useModule } from "../hooks/useModule";
-import { useState } from "react";
-import { favoriteModule, unfavoriteModule } from "../api/favorites";
+import { useFavorite } from "../hooks/useFavorite";
 import keuzemoduleFallback from "../images/keuzemodule_fallback_16-9.webp";
 
 export function ModulePage() {
 	const { id } = useParams<{ id: string }>();
 
 	const { module, isLoading, error } = useModule(id || "");
-	const [favoriteModules, setFavoriteModules] = useState<string[]>([]);
 
-	const toggleFavorite = async (moduleId: string) => {
-		const isFavorited = favoriteModules.includes(moduleId);
-
-		try {
-			if (isFavorited) {
-			await unfavoriteModule(moduleId);
-			setFavoriteModules((prev) => prev.filter((id) => id !== moduleId));
-			} else {
-			await favoriteModule(moduleId);
-			setFavoriteModules((prev) => [...prev, moduleId]);
-			}
-		} catch (err) {
-			console.error(err);
-			alert("Favoriet opslaan mislukt");
-		}
-	};
+	const {
+	isFavorited,
+	toggleFavorite,
+	isLoading: isFavoriteLoading,
+	} = useFavorite(module?.id ?? "");
 
 
 	if (isLoading) {
@@ -57,11 +44,21 @@ export function ModulePage() {
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5v14h14" />
 							</svg>
 						</button>
-						<button onClick={() => toggleFavorite(module.id)} className={`p-2 rounded-lg transition-colors ${favoriteModules.includes(module.id) ? "bg-red-50 text-red-500" : "border border-red-500 text-red-500 hover:bg-red-500 hover:text-white"}`} title={favoriteModules.includes(module.id) ? "Verwijder van favorieten" : "Voeg toe aan favorieten"}>
-							<svg className="w-5 h-5" fill={favoriteModules.includes(module.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 20 20">
+						<button
+							onClick={toggleFavorite}
+							disabled={isFavoriteLoading}
+							className={`p-2 rounded-lg transition-colors ${
+								isFavorited
+								? "bg-red-50 text-red-500"
+								: "border border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+							}`}
+							title={isFavorited ? "Verwijder van favorieten" : "Voeg toe aan favorieten"}
+							>
+							<svg className="w-5 h-5" fill={isFavorited ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 20 20">
 								<path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
 							</svg>
 						</button>
+
 					</div>
 				</div>
 				<div className="p-6 m-4 sm:m-8 lg:m-10 w-full lg:w-5/6 max-w-5xl mx-auto bg-white dark:bg-gray-800 rounded shadow">
