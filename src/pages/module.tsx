@@ -26,9 +26,9 @@ export function ModulePage() {
 	}
 
 	return (
-		<div className="w-full py-8 px-6 mx-auto">
-			<div className="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-				<div className="p-6 m-4 sm:m-8 lg:m-10 w-full lg:w-5/6 max-w-5xl mx-auto bg-white dark:bg-gray-800 rounded shadow">
+		<div className="w-full min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-8 px-4 sm:px-6">
+			<div className="max-w-5xl mx-auto space-y-6">
+				<div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
 					<h1 className="text-2xl font-bold">{module.name}</h1>
 					<div className="mt-4">
 						<h2 className="text-lg font-semibold">Dit is wat je gaat leren</h2>
@@ -49,7 +49,7 @@ export function ModulePage() {
 						</button>
 					</div>
 				</div>
-				<div className="p-6 m-4 sm:m-8 lg:m-10 w-full lg:w-5/6 max-w-5xl mx-auto bg-white dark:bg-gray-800 rounded shadow">
+				<div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
 					<div className="flex flex-col md:flex-row gap-6">
 						<div className="mb-4 w-full md:w-1/2">
 							<img src={keuzemoduleFallback} alt="Afbeelding van de module" className="w-full h-auto rounded object-cover" />

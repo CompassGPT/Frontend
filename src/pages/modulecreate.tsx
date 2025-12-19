@@ -245,7 +245,7 @@ export function CreateModulePage() {
 										</button>
 									))}
 								</div>
-								<div className="flex gap-2">
+								<div className="flex flex-col sm:flex-row gap-2">
 									<input
 										value={customTag}
 										onChange={(e) => setCustomTag(e.target.value)}
@@ -258,7 +258,7 @@ export function CreateModulePage() {
 										className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
 										placeholder="Eigen tag toevoegen"
 									/>
-									<button type="button" onClick={addCustomTag} className="px-4 py-2 rounded-lg bg-gray-900 text-white dark:bg-white dark:text-gray-900">
+									<button type="button" onClick={addCustomTag} className="px-4 py-2 rounded-lg bg-gray-900 text-white dark:bg-white dark:text-gray-900 w-full sm:w-auto">
 										Voeg toe
 									</button>
 								</div>
