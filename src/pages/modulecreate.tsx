@@ -10,7 +10,7 @@ type Tag = { id: string; name: string };
 export function CreateModulePage() {
 	const { user } = useAuth();
 	const navigate = useNavigate();
-	const { isCreating, error, createModule, getModuleTags, getLocations } = useModuleCreate();
+	const { isCreating, error, createModule, getModuleTags, getLocations, createModuleTag } = useModuleCreate();
 
 	const [name, setName] = useState("");
 	const [shortdescription, setShortdescription] = useState("");
@@ -69,16 +69,36 @@ export function CreateModulePage() {
 		setSelectedTags((prev) => (prev.includes(tagId) ? prev.filter((t) => t !== tagId) : [...prev, tagId]));
 	};
 
-	const addCustomTag = () => {
-		const t = customTag.trim();
-		if (!t) return;
-		const newTag: Tag = {
-			id: `custom-${Date.now()}`,
-			name: t,
-		};
-		setTags((prev) => [...prev, newTag]);
-		setSelectedTags((prev) => [...prev, newTag.id]);
+	const addCustomTag = async () => {
+		const trimmedTag = customTag.trim();
+		if (trimmedTag === "") return;
+
+		// Check if tag already exists
+		const existingTag = tags.find((t) => t.name.toLowerCase() === trimmedTag.toLowerCase());
+		if (existingTag) {
+			// Tag already exists, just select it
+			if (!selectedTags.includes(existingTag.id)) {
+				setSelectedTags((prev) => [...prev, existingTag.id]);
+			}
+			setCustomTag("");
+			return;
+		}
+
 		setCustomTag("");
+
+		// Create the new tag
+		await createModuleTag(trimmedTag);
+
+		// Refresh tags to get the new tag with its ID
+		const tagsData = await getModuleTags();
+		const resolvedTags = (Array.isArray(tagsData) ? tagsData : (tagsData as any)?.moduleTags) ?? [];
+		setTags(resolvedTags);
+
+		// Find the newly created tag and select it
+		const createdTag = resolvedTags.find((t: Tag) => t.name.toLowerCase() === trimmedTag.toLowerCase());
+		if (createdTag && !selectedTags.includes(createdTag.id)) {
+			setSelectedTags((prev) => [...prev, createdTag.id]);
+		}
 	};
 
 	const handleSubmit = async (e: React.FormEvent) => {
@@ -225,7 +245,7 @@ export function CreateModulePage() {
 										</button>
 									))}
 								</div>
-								<div className="flex gap-2">
+								<div className="flex flex-col sm:flex-row gap-2">
 									<input
 										value={customTag}
 										onChange={(e) => setCustomTag(e.target.value)}
@@ -238,7 +258,7 @@ export function CreateModulePage() {
 										className="flex-1 px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
 										placeholder="Eigen tag toevoegen"
 									/>
-									<button type="button" onClick={addCustomTag} className="px-4 py-2 rounded-lg bg-gray-900 text-white dark:bg-white dark:text-gray-900">
+									<button type="button" onClick={addCustomTag} className="px-4 py-2 rounded-lg bg-gray-900 text-white dark:bg-white dark:text-gray-900 w-full sm:w-auto">
 										Voeg toe
 									</button>
 								</div>
