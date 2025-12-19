@@ -77,5 +77,17 @@ export function useModuleCreate() {
 		}
 	};
 
-	return { isCreating, error, createModule, getModuleTags, getLocations };
+	const createModuleTag = async (tag: string) => {
+		try {
+			console.log("Creating module tags:", tag);
+			const response = await backend.post<{ moduleTags: { id: string; name: string } }>("/api/moduletags", { tag });
+			console.log("ModuleTags response:", response);
+			return response;
+		} catch (err) {
+			console.error("Error creating module tags:", err);
+			return null;
+		}
+	};
+
+	return { isCreating, error, createModule, getModuleTags, getLocations, createModuleTag };
 }
