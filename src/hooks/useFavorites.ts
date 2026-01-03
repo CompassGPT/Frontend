@@ -9,28 +9,40 @@ export function useFavorites() {
   const [isLoading, setIsLoading] = useState(true);
   const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
 
+  // Fetch favorites van backend
   useEffect(() => {
     const fetchFavorites = async () => {
       setIsLoading(true);
+      try {
+        const res = await backend.get<{ favorites: { choiceModuleId: string }[] }>(
+          "/api/user/favorites"
+        );
 
-      const res = await backend.get<{ favorites: { moduleId: string }[] }>(
-        "/api/user/favorites"
-      );
-
-      setFavoriteIds(res.favorites.map(f => f.moduleId));
-      setIsLoading(false);
+        // Gebruik de juiste property uit de API
+        const ids = res.favorites.map(f => f.choiceModuleId);
+        setFavoriteIds(ids);
+      } catch (err) {
+        console.error("Failed to fetch favorites:", err);
+        setFavoriteIds([]);
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     fetchFavorites();
   }, [backend]);
 
   const toggleFavorite = async (moduleId: string) => {
-    if (favoriteIds.includes(moduleId)) {
-      await backend.delete(`/api/user/favorites/${moduleId}`);
-      setFavoriteIds(prev => prev.filter(id => id !== moduleId));
-    } else {
-      await backend.post(`/api/user/favorites/${moduleId}`);
-      setFavoriteIds(prev => [...prev, moduleId]);
+    try {
+      if (favoriteIds.includes(moduleId)) {
+        await backend.delete(`/api/user/favorites/${moduleId}`);
+        setFavoriteIds(prev => prev.filter(id => id !== moduleId));
+      } else {
+        await backend.post(`/api/user/favorites/${moduleId}`);
+        setFavoriteIds(prev => [...prev, moduleId]);
+      }
+    } catch (err) {
+      console.error("Failed to toggle favorite:", err);
     }
   };
 
