@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { useBackend } from "../hooks/useBackend";
 import type { ModulesResponse } from "../types/api.types";
 import { useAuth } from "../hooks/useAuth";
+import { useFavorites } from "../hooks/useFavorites";
 
 interface TransformedModule {
 	id: string;
@@ -29,7 +30,6 @@ export function ModulesPage() {
 	const [selectedLocatie, setSelectedLocatie] = useState<string[]>([]);
 	const [selectedLevel, setSelectedLevel] = useState<string[]>([]);
 	const [selectedEC, setSelectedEC] = useState<number[]>([]);
-	const [favoriteModules, setFavoriteModules] = useState<string[]>([]);
 	const [showMobileFilters, setShowMobileFilters] = useState(false);
 	const { user } = useAuth();
 
@@ -64,6 +64,14 @@ export function ModulesPage() {
 		void fetchModules();
 	}, [backend]);
 
+	const {
+		favoriteIds,
+		favoritesCount,
+		showOnlyFavorites,
+		toggleShowOnlyFavorites,
+		toggleFavorite,
+	} = useFavorites();
+
 	// Filter open/dicht state
 	const [openFilters, setOpenFilters] = useState({
 		periode: true,
@@ -93,10 +101,6 @@ export function ModulesPage() {
 		setCurrentPage(1);
 	};
 
-	const toggleFavorite = (moduleId: string) => {
-		setFavoriteModules((prev) => (prev.includes(moduleId) ? prev.filter((id) => id !== moduleId) : [...prev, moduleId]));
-	};
-
 	// Bepaal periode uit startDate (string format: "2025-09-02")
 	const getPeriodeFromDate = (dateStr: string) => {
 		const d = new Date(dateStr);
@@ -123,16 +127,42 @@ export function ModulesPage() {
 
 	// Filter modules
 	const filteredModules = modulesWithPeriode.filter((module) => {
-		const matchesSearch = searchQuery === "" || module.title.toLowerCase().includes(searchQuery.toLowerCase()) || module.description.toLowerCase().includes(searchQuery.toLowerCase());
+		if (showOnlyFavorites && !favoriteIds.includes(module.id)) {
+			return false;
+		}
 
-		const matchesPeriode = selectedPeriode.length === 0 || selectedPeriode.includes(module.periode);
+		const matchesSearch =
+			searchQuery === "" ||
+			module.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+			module.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-		const matchesLocatie = selectedLocatie.length === 0 || selectedLocatie.some((loc) => module.locatie.includes(loc));
-		const matchesLevel = selectedLevel.length === 0 || selectedLevel.includes(module.level);
-		const matchesEC = selectedEC.length === 0 || selectedEC.includes(module.studiepunten);
+		const matchesPeriode =
+			selectedPeriode.length === 0 ||
+			selectedPeriode.includes(module.periode);
 
-		return matchesSearch && matchesPeriode && matchesLocatie && matchesLevel && matchesEC;
+		const matchesLocatie =
+			selectedLocatie.length === 0 ||
+			selectedLocatie.some((loc) => module.locatie.includes(loc));
+
+		const matchesLevel =
+			selectedLevel.length === 0 ||
+			selectedLevel.includes(module.level);
+
+		const matchesEC =
+			selectedEC.length === 0 ||
+			selectedEC.includes(module.studiepunten);
+
+		return (
+			matchesSearch &&
+			matchesPeriode &&
+			matchesLocatie &&
+			matchesLevel &&
+			matchesEC
+		);
 	});
+
+
+
 
 	// Pagination
 	const totalPages = Math.ceil(filteredModules.length / modulesPerPage);
@@ -293,11 +323,20 @@ export function ModulesPage() {
 									</p>
 									<p className="text-sm text-gray-500 dark:text-gray-400 mt-1">{filteredModules.length === 0 ? "Geen resultaten met deze filters" : "Selecteer een module om meer te zien"}</p>
 								</div>
-								<button className="flex items-center gap-2 px-4 py-2 border border-red-500 text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors font-medium">
+								<button
+									onClick={toggleShowOnlyFavorites}
+									className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors font-medium
+										${
+										showOnlyFavorites
+											? "border-red-500 bg-red-50 text-red-600"
+											: "border-red-500 text-red-500 hover:bg-red-50"
+										}
+									`}
+									>
 									<svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
 										<path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
 									</svg>
-									Toon favorieten ({favoriteModules.length})
+									Toon favorieten ({favoritesCount})
 								</button>
 							</div>
 
@@ -399,8 +438,8 @@ export function ModulesPage() {
 															<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5v14h14" />
 														</svg>
 													</button>
-													<button onClick={() => toggleFavorite(module.id)} className={`p-2 rounded-lg transition-colors ${favoriteModules.includes(module.id) ? "bg-red-50 dark:bg-red-900/30 text-red-500 dark:text-red-400" : "border border-red-500 dark:border-red-400 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"}`} title={favoriteModules.includes(module.id) ? "Verwijder van favorieten" : "Voeg toe aan favorieten"}>
-														<svg className="w-5 h-5" fill={favoriteModules.includes(module.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 20 20">
+													<button onClick={() => toggleFavorite(module.id)} className={`p-2 rounded-lg transition-colors ${ favoriteIds.includes(module.id) ? "bg-red-50 dark:bg-red-900/30 text-red-500" : "border border-red-500 text-red-500 hover:bg-red-50" }`}>
+														<svg className="w-5 h-5" fill={favoriteIds.includes(module.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 20 20">
 															<path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
 														</svg>
 													</button>
