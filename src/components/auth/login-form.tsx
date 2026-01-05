@@ -36,7 +36,7 @@ export function LoginForm() {
 
       // Redirect to home page after successful login
       setTimeout(() => {
-        navigate("/");
+        navigate("/modules");
       }, 500);
     } catch (err) {
       if (err instanceof BackendError) {
