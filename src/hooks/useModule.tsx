@@ -41,7 +41,7 @@ export function useModuleCreate() {
 	const getModuleTags = async () => {
 		try {
 			console.log("Calling /api/moduletags...");
-			const response = await backend.get<{ moduleTags: { id: string; name: string }[] }>("/api/moduletags");
+			const response = await backend.get<{ moduleTags: Tag[] }>("/api/moduletags");
 			console.log("ModuleTags response:", response);
 			return response;
 		} catch (err) {
@@ -53,7 +53,7 @@ export function useModuleCreate() {
 	const getLocations = async () => {
 		try {
 			console.log("Calling /api/locations...");
-			const response = await backend.get<{ locations: { id: string; name: string }[] }>("/api/locations");
+			const response = await backend.get<{ locations: Location[] }>("/api/locations");
 			console.log("Locations response:", response);
 			return response;
 		} catch (err) {
