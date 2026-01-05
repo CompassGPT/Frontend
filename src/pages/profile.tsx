@@ -1,15 +1,13 @@
 import { Link } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { useFavorites } from "../hooks/useFavorites";
-import { useFavoriteModules } from "../hooks/useFavoriteProfile";
 
 /**
  * Profile page with updated styling
  */
 export function ProfilePage() {
   const { user, logout, isLoading } = useAuth();
-  const { toggleFavorite } = useFavorites();
-  const { favoriteModules, isLoading: loadingModules } = useFavoriteModules();
+  const { favoriteModules, toggleFavorite, isLoading: loadingModules } = useFavorites();
 
   const handleLogout = async () => {
     try {
@@ -166,10 +164,10 @@ export function ProfilePage() {
                         </Link>
                         <button 
                           onClick={() => toggleFavorite(module.id)}
-                          className="p-1.5 rounded-full bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50 transition-colors"
+                          className="p-2 rounded-lg transition-colors bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50"
                           title="Verwijder uit favorieten"
                         >
-                          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+                          <svg className="w-5 h-5" fill="currentColor" stroke="currentColor" viewBox="0 0 20 20">
                             <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
                           </svg>
                         </button>
