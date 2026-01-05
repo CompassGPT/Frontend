@@ -16,7 +16,6 @@ export function Navbar() {
 	};
 
 	const navLinks = [
-		{ to: "/", label: "Home" },
 		{ to: "/modules", label: "Modules" },
 		{ to: "/keuzehulp", label: "Keuzehulp" },
 		{ to: "/profile", label: "Profiel" },
