@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useBackend, BackendError } from "../hooks/useBackend";
-import type { createModule, moduleDetail, ModuleResponse } from "../types/api.types";
+import type { createModule, moduleDetail, ModuleResponse, Location, Tag } from "../types/api.types";
 
 export function useModule(id: string) {
 	const backend = useBackend();
@@ -41,7 +41,7 @@ export function useModuleCreate() {
 	const getModuleTags = async () => {
 		try {
 			console.log("Calling /api/moduletags...");
-			const response = await backend.get<{ moduleTags: { id: string; name: string }[] }>("/api/moduletags");
+			const response = await backend.get<{ moduleTags: Tag[] }>("/api/moduletags");
 			console.log("ModuleTags response:", response);
 			return response;
 		} catch (err) {
@@ -53,7 +53,7 @@ export function useModuleCreate() {
 	const getLocations = async () => {
 		try {
 			console.log("Calling /api/locations...");
-			const response = await backend.get<{ locations: { id: string; name: string }[] }>("/api/locations");
+			const response = await backend.get<{ locations: Location[] }>("/api/locations");
 			console.log("Locations response:", response);
 			return response;
 		} catch (err) {
@@ -66,6 +66,9 @@ export function useModuleCreate() {
 		try {
 			setIsCreating(true);
 			setError(null);
+			module.location = module.location.map((loc) => ({ id: loc.id, name: loc.name }));
+			module.moduleTags = module.moduleTags.map((tag) => ({ id: tag.id, name: tag.name }));
+			console.log("Creating module with data:", module);
 			const response = await backend.post<{ module: moduleDetail }>("/api/modules", module);
 			return response.module?.id || null;
 		} catch (err) {
@@ -79,8 +82,9 @@ export function useModuleCreate() {
 
 	const createModuleTag = async (tag: string) => {
 		try {
+			if (!tag) return null;
 			console.log("Creating module tags:", tag);
-			const response = await backend.post<{ moduleTags: { id: string; name: string } }>("/api/moduletags", { tag });
+			const response = await backend.post<{ moduleTags: Tag[] }>("/api/moduletags", { tag });
 			console.log("ModuleTags response:", response);
 			return response;
 		} catch (err) {
