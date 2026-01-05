@@ -4,6 +4,7 @@ import { useBackend } from "../hooks/useBackend";
 import type { ModulesResponse } from "../types/api.types";
 import { useAuth } from "../hooks/useAuth";
 import { useFavorites } from "../hooks/useFavorites";
+import keuzemoduleFallback from "../images/keuzemodule_fallback_16-9.webp";
 
 interface TransformedModule {
 	id: string;
@@ -396,9 +397,9 @@ export function ModulesPage() {
 								) : (
 									paginatedModules.map((module) => (
 										<div key={module.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5 flex flex-col sm:flex-row gap-5 transition-colors">
-											{/* Module afbeelding placeholder */}
-											<div className="w-full sm:w-36 h-48 sm:h-28 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-200 dark:border-gray-700 transition-colors">
-												<span className="text-gray-400 dark:text-gray-500 text-sm">Plaatje</span>
+											{/* Module afbeelding */}
+											<div className="w-full sm:w-36 h-48 sm:h-28 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-200 dark:border-gray-700 transition-colors overflow-hidden">
+												<img src={keuzemoduleFallback} alt={module.title} className="w-full h-full object-cover" />
 											</div>
 
 											{/* Module info */}
