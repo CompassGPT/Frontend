@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { useModule } from "../hooks/useModule";
-import { useFavorites } from "../hooks/useFavorites";
+import { useFavoriteModule } from "../hooks/useFavorites";
 import keuzemoduleFallback from "../images/keuzemodule_fallback_16-9.webp";
 
 export function ModulePage() {
@@ -12,7 +12,7 @@ export function ModulePage() {
 	isFavorited,
 	toggleFavorite,
 	isLoading: isFavoriteLoading,
-	} = useFavorites(module?.id);
+	} = useFavoriteModule(module?.id);
 
 
 	if (isLoading) {

@@ -1,13 +1,13 @@
 import { Link } from "react-router";
 import { useAuth } from "../hooks/useAuth";
-import { useFavorites } from "../hooks/useFavorites";
+import { useFavoritesList } from "../hooks/useFavorites";
 
 /**
  * Profile page with updated styling
  */
 export function ProfilePage() {
   const { user, logout, isLoading } = useAuth();
-  const { favoriteModules, toggleFavorite, isLoading: loadingModules } = useFavorites();
+  const { favoriteModules, toggleFavorite, isLoading: loadingModules, error: favoritesError } = useFavoritesList();
 
   const handleLogout = async () => {
     try {
@@ -131,6 +131,11 @@ export function ProfilePage() {
           <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">
             Favoriete Modules
           </h2>
+          {favoritesError && (
+            <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 text-red-800 dark:text-red-300 transition-colors">
+              {favoritesError}
+            </div>
+          )}
           <div className="space-y-4">
             {loadingModules ? (
               <p className="text-gray-500 dark:text-gray-400">Laden...</p>

@@ -1,64 +1,110 @@
 import { useEffect, useState, useMemo } from "react";
 import { useBackend, BackendError } from "./useBackend";
 import type { ModulesResponse } from "../types/api.types";
+import type { TransformedModule } from "../types/api.types";
 
-export interface TransformedModule {
-  id: string;
-  title: string;
-  description: string;
-  startDate: string;
-  level: string;
-  studiepunten: number;
-  locatie: string;
-  image: null;
-  periode?: string;
-}
-
-export function useFavorites(moduleId?: string) {
+// Hook for single module favorite state
+export function useFavoriteModule(moduleId?: string) {
   const backend = useBackend();
+  const validModuleId =
+    typeof moduleId === "string" && moduleId.trim().length > 0
+      ? moduleId.trim()
+      : undefined;
 
-  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
-  const [allModules, setAllModules] = useState<TransformedModule[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingModules, setIsLoadingModules] = useState(false);
-  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
   const [isFavorited, setIsFavorited] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch favorites van backend
   useEffect(() => {
     const fetchFavorites = async () => {
       setIsLoading(true);
+      setError(null);
       try {
         const res = await backend.get<{ favorites: { choiceModuleId: string }[] }>(
           "/api/user/favorites"
         );
-
-        // Gebruik de juiste property uit de API
         const ids = res.favorites.map(f => f.choiceModuleId);
-        setFavoriteIds(ids);
-        
-        // Als er een specifieke moduleId is, check of deze in de lijst staat
-        if (moduleId) {
-          setIsFavorited(ids.includes(moduleId));
+        if (validModuleId) {
+          setIsFavorited(ids.includes(validModuleId));
+        } else {
+          setIsFavorited(false);
         }
       } catch (err) {
         console.error("Failed to fetch favorites:", err);
-        setFavoriteIds([]);
+        setError(
+          err instanceof BackendError ? err.message : "Failed to fetch favorites"
+        );
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchFavorites();
-  }, [backend, moduleId]);
+  }, [backend, validModuleId]);
 
-  // Fetch all modules - alleen als er geen specifieke moduleId is
+  const toggleFavorite = async () => {
+    if (!validModuleId) return;
+    try {
+      setError(null);
+      if (isFavorited) {
+        await backend.delete(`/api/user/favorites/${validModuleId}`);
+        setIsFavorited(false);
+      } else {
+        await backend.post(`/api/user/favorites/${validModuleId}`);
+        setIsFavorited(true);
+      }
+    } catch (err) {
+      console.error("Failed to toggle favorite:", err);
+      setError(
+        err instanceof BackendError ? err.message : "Failed to toggle favorite"
+      );
+    }
+  };
+
+  return { isFavorited, toggleFavorite, isLoading, error };
+}
+
+// Hook for favorites in list contexts (modules page, profile page)
+export function useFavoritesList() {
+  const backend = useBackend();
+
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [allModules, setAllModules] = useState<TransformedModule[]>([]);
+  const [isLoadingFavorites, setIsLoadingFavorites] = useState(true);
+  const [isLoadingModules, setIsLoadingModules] = useState(false);
+  const [showOnlyFavorites, setShowOnlyFavorites] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  // Fetch favorites
   useEffect(() => {
-    if (moduleId) return; // Skip als we alleen een specifieke module checken
+    const fetchFavorites = async () => {
+      setIsLoadingFavorites(true);
+      setError(null);
+      try {
+        const res = await backend.get<{ favorites: { choiceModuleId: string }[] }>(
+          "/api/user/favorites"
+        );
+        const ids = res.favorites.map(f => f.choiceModuleId);
+        setFavoriteIds(ids);
+      } catch (err) {
+        console.error("Failed to fetch favorites:", err);
+        setFavoriteIds([]);
+        setError(
+          err instanceof BackendError ? err.message : "Failed to fetch favorites"
+        );
+      } finally {
+        setIsLoadingFavorites(false);
+      }
+    };
 
+    fetchFavorites();
+  }, [backend]);
+
+  // Fetch all modules for profile/list views
+  useEffect(() => {
     const fetchModules = async () => {
       try {
+        setError(null);
         setIsLoadingModules(true);
         const response = await backend.get<ModulesResponse>("/api/modules");
         const transformed = response.modules.map((m) => ({
@@ -69,44 +115,41 @@ export function useFavorites(moduleId?: string) {
           level: m.level,
           studiepunten: m.studyCredits,
           locatie: m.location.length > 0 ? m.location.map((loc) => loc.name).join(", ") : "Onbekend",
-          image: null,
         }));
         setAllModules(transformed);
       } catch (err) {
         console.error("Failed to fetch modules:", err);
+        setError(
+          err instanceof BackendError ? err.message : "Failed to fetch modules"
+        );
       } finally {
         setIsLoadingModules(false);
       }
     };
 
     fetchModules();
-  }, [backend, moduleId]);
+  }, [backend]);
 
-  // Filter favorite modules
   const favoriteModules = useMemo(() => {
     return allModules.filter((m) => favoriteIds.includes(m.id));
   }, [allModules, favoriteIds]);
 
-  const toggleFavorite = async (id?: string) => {
-    const targetId = id || moduleId;
-    if (!targetId) return;
-
+  const toggleFavorite = async (id: string) => {
+    if (!id || id.trim().length === 0) return;
+    const targetId = id.trim();
     try {
+      setError(null);
       if (favoriteIds.includes(targetId)) {
         await backend.delete(`/api/user/favorites/${targetId}`);
         setFavoriteIds(prev => prev.filter(fid => fid !== targetId));
-        if (targetId === moduleId) setIsFavorited(false);
       } else {
         await backend.post(`/api/user/favorites/${targetId}`);
         setFavoriteIds(prev => [...prev, targetId]);
-        if (targetId === moduleId) setIsFavorited(true);
       }
     } catch (err) {
       console.error("Failed to toggle favorite:", err);
       setError(
-        err instanceof BackendError
-          ? err.message
-          : "Failed to toggle favorite"
+        err instanceof BackendError ? err.message : "Failed to toggle favorite"
       );
     }
   };
@@ -122,9 +165,7 @@ export function useFavorites(moduleId?: string) {
     showOnlyFavorites,
     toggleShowOnlyFavorites,
     toggleFavorite,
-    isLoading: isLoading || isLoadingModules,
-    // For single module page
-    isFavorited,
+    isLoading: isLoadingFavorites || isLoadingModules,
     error,
   };
 }

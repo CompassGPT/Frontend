@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router";
 import { useAuth } from "../hooks/useAuth";
-import { useFavorites } from "../hooks/useFavorites";
+import { useFavoritesList } from "../hooks/useFavorites";
 import { useModulesList } from "../hooks/useModule";
 import keuzemoduleFallback from "../images/keuzemodule_fallback_16-9.webp";
 
@@ -32,7 +32,8 @@ export function ModulesPage() {
 		toggleShowOnlyFavorites,
 		toggleFavorite,
 		isLoading: favoritesLoading,
-	} = useFavorites();
+		error: favoritesError,
+	} = useFavoritesList();
 
 	// Filter open/dicht state
 	const [openFilters, setOpenFilters] = useState({
@@ -99,6 +100,11 @@ export function ModulesPage() {
 			{error && (
 				<div className="container mx-auto px-4 py-8">
 					<div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-800 dark:text-red-300 transition-colors">{error}</div>
+				</div>
+			)}
+			{favoritesError && (
+				<div className="container mx-auto px-4 py-0">
+					<div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-800 dark:text-red-300 transition-colors">{favoritesError}</div>
 				</div>
 			)}
 
@@ -239,8 +245,8 @@ export function ModulesPage() {
 									className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors font-medium
 										${
 										showOnlyFavorites
-											? "border-red-500 bg-red-50 text-red-600"
-											: "border-red-500 text-red-500 hover:bg-red-50"
+											? "border-red-500 text-red-600 bg-red-50 hover:bg-red-100 dark:border-red-500 dark:text-red-400 dark:bg-red-900/30 dark:hover:bg-red-900/50"
+											: "border-red-500 text-red-500 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-900/30"
 										}
 									`}
 									>

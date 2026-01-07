@@ -1,18 +1,9 @@
 import { useEffect, useState, useMemo } from "react";
 import { useBackend, BackendError } from "../hooks/useBackend";
 import type { createModule, moduleDetail, ModuleResponse, Location, Tag, ModulesResponse } from "../types/api.types";
+import type { TransformedModule } from "../types/api.types";
 
-interface TransformedModule {
-	id: string;
-	title: string;
-	description: string;
-	startDate: string;
-	level: string;
-	studiepunten: number;
-	locatie: string;
-	image: null;
-	periode?: string;
-}
+
 
 export function useModule(id: string) {
 	const backend = useBackend();
@@ -68,7 +59,6 @@ export function useModulesList() {
 					level: m.level,
 					studiepunten: m.studyCredits,
 					locatie: m.location.length > 0 ? m.location.map((loc) => loc.name).join(", ") : "Onbekend",
-					image: null,
 				}));
 				setModules(transformed);
 			} catch (err) {
