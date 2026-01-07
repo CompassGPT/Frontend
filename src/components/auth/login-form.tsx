@@ -53,7 +53,8 @@ export function LoginForm() {
   return (
     <form
       onSubmit={handleLogin}
-      className="flex flex-col gap-4 w-full max-w-sm mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 transition-colors">
+      className="flex flex-col gap-4 w-full max-w-sm mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 transition-colors"
+    >
       {errorMessage && (
         <div className="text-red-600 dark:text-red-400 text-sm">
           {errorMessage}
@@ -67,7 +68,8 @@ export function LoginForm() {
       <div className="flex flex-col gap-2">
         <label
           htmlFor="email"
-          className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          className="text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Email:
         </label>
         <input
@@ -82,7 +84,8 @@ export function LoginForm() {
       <div className="flex flex-col gap-2">
         <label
           htmlFor="password"
-          className="text-sm font-medium text-gray-700 dark:text-gray-300">
+          className="text-sm font-medium text-gray-700 dark:text-gray-300"
+        >
           Password:
         </label>
         <input
@@ -97,7 +100,8 @@ export function LoginForm() {
       <button
         disabled={isLoading}
         type="submit"
-        className="mt-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+        className="mt-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:focus:ring-offset-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      >
         {isLoading ? (
           <>
             <span className="loader"></span>

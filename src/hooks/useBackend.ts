@@ -16,7 +16,7 @@ export const useBackend = () => {
    */
   const request = async <T>(
     endpoint: string,
-    options: FetchOptions = {}
+    options: FetchOptions = {},
   ): Promise<T> => {
     const url = createApiUrl(endpoint);
     const { body, headers = {}, ...restOptions } = options;
@@ -53,7 +53,7 @@ export const useBackend = () => {
         throw new BackendError(
           errorData.message || "Request failed",
           errorData.statusCode,
-          errorData
+          errorData,
         );
       }
 
@@ -70,7 +70,7 @@ export const useBackend = () => {
       }
       throw new BackendError(
         error instanceof Error ? error.message : "Network error",
-        0
+        0,
       );
     }
   };
@@ -80,7 +80,7 @@ export const useBackend = () => {
    */
   const get = <T = unknown>(
     endpoint: string,
-    options?: FetchOptions
+    options?: FetchOptions,
   ): Promise<T> => {
     return request<T>(endpoint, { ...options, method: "GET" });
   };
@@ -91,7 +91,7 @@ export const useBackend = () => {
   const post = <T = unknown>(
     endpoint: string,
     body?: unknown,
-    options?: FetchOptions
+    options?: FetchOptions,
   ): Promise<T> => {
     return request<T>(endpoint, { ...options, method: "POST", body });
   };
@@ -102,7 +102,7 @@ export const useBackend = () => {
   const put = <T = unknown>(
     endpoint: string,
     body?: unknown,
-    options?: FetchOptions
+    options?: FetchOptions,
   ): Promise<T> => {
     return request<T>(endpoint, { ...options, method: "PUT", body });
   };
@@ -113,7 +113,7 @@ export const useBackend = () => {
   const patch = <T = unknown>(
     endpoint: string,
     body?: unknown,
-    options?: FetchOptions
+    options?: FetchOptions,
   ): Promise<T> => {
     return request<T>(endpoint, { ...options, method: "PATCH", body });
   };
@@ -134,7 +134,7 @@ export const useBackend = () => {
       patch,
       delete: del,
     }),
-    []
+    [],
   );
 };
 

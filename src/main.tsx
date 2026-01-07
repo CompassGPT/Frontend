@@ -23,26 +23,26 @@ const root = document.getElementById("root")!;
 if (!root) throw new Error("Root element not found!");
 
 createRoot(root).render(
-	<StrictMode>
-		<ThemeProvider>
-			<BrowserRouter>
-				<AuthProvider>
-					<Routes>
-						{/* Protected routes */}
-						<Route element={<ProtectedRoute />}>
-						<Route path="/" element={<ModulesPage />} />
-							<Route path="/modules" element={<ModulesPage />} />
-							<Route path="/modules/:id" element={<ModulePage />} />
-							<Route path="/keuzehulp" element={<KeuzehulpPage />} />
-							<Route path="/profile" element={<ProfilePage />} />
-							<Route path="/modules/create" element={<CreateModulePage />} />
-						</Route>
+  <StrictMode>
+    <ThemeProvider>
+      <BrowserRouter>
+        <AuthProvider>
+          <Routes>
+            {/* Protected routes */}
+            <Route element={<ProtectedRoute />}>
+              <Route path="/" element={<ModulesPage />} />
+              <Route path="/modules" element={<ModulesPage />} />
+              <Route path="/modules/:id" element={<ModulePage />} />
+              <Route path="/keuzehulp" element={<KeuzehulpPage />} />
+              <Route path="/profile" element={<ProfilePage />} />
+              <Route path="/modules/create" element={<CreateModulePage />} />
+            </Route>
 
-						{/* Public routes */}
-						<Route path="/auth/login" element={<LoginPage />} />
-					</Routes>
-				</AuthProvider>
-			</BrowserRouter>
-		</ThemeProvider>
-	</StrictMode>
+            {/* Public routes */}
+            <Route path="/auth/login" element={<LoginPage />} />
+          </Routes>
+        </AuthProvider>
+      </BrowserRouter>
+    </ThemeProvider>
+  </StrictMode>,
 );

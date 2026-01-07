@@ -42,13 +42,22 @@ const QUESTIONS = [
 
 export function KeuzehulpPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<string[]>(new Array(TOTAL_QUESTIONS).fill(""));
+  const [answers, setAnswers] = useState<string[]>(
+    new Array(TOTAL_QUESTIONS).fill(""),
+  );
 
   const currentQ = QUESTIONS[currentQuestion];
   const progress = ((currentQuestion + 1) / TOTAL_QUESTIONS) * 100;
 
   // Map progress steps to Tailwind width classes to avoid inline styles
-  const progressWidths = ["w-1/6", "w-1/3", "w-1/2", "w-2/3", "w-5/6", "w-full"];
+  const progressWidths = [
+    "w-1/6",
+    "w-1/3",
+    "w-1/2",
+    "w-2/3",
+    "w-5/6",
+    "w-full",
+  ];
 
   const handleAnswer = (value: string) => {
     const newAnswers = [...answers];
@@ -81,11 +90,12 @@ export function KeuzehulpPage() {
           Keuzehulp
         </h1>
         <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm leading-relaxed">
-          Heb je moeite met het kiezen van een keuzem module die goed bij jou past? Vrees niet!
-          Keuzehulp is speciaal ontwikkeld om jou als student te helpen met het maken van deze
-          keuze. Hieronder zie je je een vragenlijst met verschillende vragen over persoonlijke
-          interesses. Keuzehulp neemt al je antwoorden op en werkt dit in een op maat gemaakte
-          advies.
+          Heb je moeite met het kiezen van een keuzem module die goed bij jou
+          past? Vrees niet! Keuzehulp is speciaal ontwikkeld om jou als student
+          te helpen met het maken van deze keuze. Hieronder zie je je een
+          vragenlijst met verschillende vragen over persoonlijke interesses.
+          Keuzehulp neemt al je antwoorden op en werkt dit in een op maat
+          gemaakte advies.
         </p>
       </div>
 
@@ -114,7 +124,8 @@ export function KeuzehulpPage() {
           {/* Question Number */}
           <div className="mb-6">
             <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-              {String(currentQuestion + 1).padStart(2, "0")}/{String(TOTAL_QUESTIONS).padStart(2, "0")}
+              {String(currentQuestion + 1).padStart(2, "0")}/
+              {String(TOTAL_QUESTIONS).padStart(2, "0")}
             </span>
           </div>
 
@@ -131,10 +142,11 @@ export function KeuzehulpPage() {
                   <button
                     key={option}
                     onClick={() => handleAnswer(option)}
-                    className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 border-2 ${answers[currentQuestion] === option
+                    className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 border-2 ${
+                      answers[currentQuestion] === option
                         ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
                         : "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-gray-100 dark:hover:bg-gray-600"
-                      }`}
+                    }`}
                   >
                     {option}
                   </button>
@@ -154,10 +166,16 @@ export function KeuzehulpPage() {
             </button>
 
             <button
-              onClick={currentQuestion === TOTAL_QUESTIONS - 1 ? handleComplete : handleNext}
+              onClick={
+                currentQuestion === TOTAL_QUESTIONS - 1
+                  ? handleComplete
+                  : handleNext
+              }
               className="px-6 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
             >
-              {currentQuestion === TOTAL_QUESTIONS - 1 ? "Voltooien" : "Volgende"}
+              {currentQuestion === TOTAL_QUESTIONS - 1
+                ? "Voltooien"
+                : "Volgende"}
             </button>
           </div>
         </div>

@@ -9,7 +9,7 @@ export interface ThemeContextType {
 }
 
 export const ThemeContext = createContext<ThemeContextType | undefined>(
-  undefined
+  undefined,
 );
 
 export const THEME_STORAGE_KEY = "compassgpt-theme";

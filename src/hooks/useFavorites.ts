@@ -20,10 +20,10 @@ export function useFavoriteModule(moduleId?: string) {
       setIsLoading(true);
       setError(null);
       try {
-        const res = await backend.get<{ favorites: { choiceModuleId: string }[] }>(
-          "/api/user/favorites"
-        );
-        const ids = res.favorites.map(f => f.choiceModuleId);
+        const res = await backend.get<{
+          favorites: { choiceModuleId: string }[];
+        }>("/api/user/favorites");
+        const ids = res.favorites.map((f) => f.choiceModuleId);
         if (validModuleId) {
           setIsFavorited(ids.includes(validModuleId));
         } else {
@@ -32,7 +32,9 @@ export function useFavoriteModule(moduleId?: string) {
       } catch (err) {
         console.error("Failed to fetch favorites:", err);
         setError(
-          err instanceof BackendError ? err.message : "Failed to fetch favorites"
+          err instanceof BackendError
+            ? err.message
+            : "Failed to fetch favorites",
         );
       } finally {
         setIsLoading(false);
@@ -56,7 +58,7 @@ export function useFavoriteModule(moduleId?: string) {
     } catch (err) {
       console.error("Failed to toggle favorite:", err);
       setError(
-        err instanceof BackendError ? err.message : "Failed to toggle favorite"
+        err instanceof BackendError ? err.message : "Failed to toggle favorite",
       );
     }
   };
@@ -81,16 +83,18 @@ export function useFavoritesList() {
       setIsLoadingFavorites(true);
       setError(null);
       try {
-        const res = await backend.get<{ favorites: { choiceModuleId: string }[] }>(
-          "/api/user/favorites"
-        );
-        const ids = res.favorites.map(f => f.choiceModuleId);
+        const res = await backend.get<{
+          favorites: { choiceModuleId: string }[];
+        }>("/api/user/favorites");
+        const ids = res.favorites.map((f) => f.choiceModuleId);
         setFavoriteIds(ids);
       } catch (err) {
         console.error("Failed to fetch favorites:", err);
         setFavoriteIds([]);
         setError(
-          err instanceof BackendError ? err.message : "Failed to fetch favorites"
+          err instanceof BackendError
+            ? err.message
+            : "Failed to fetch favorites",
         );
       } finally {
         setIsLoadingFavorites(false);
@@ -114,13 +118,16 @@ export function useFavoritesList() {
           startDate: m.startDate,
           level: m.level,
           studiepunten: m.studyCredits,
-          locatie: m.location.length > 0 ? m.location.map((loc) => loc.name).join(", ") : "Onbekend",
+          locatie:
+            m.location.length > 0
+              ? m.location.map((loc) => loc.name).join(", ")
+              : "Onbekend",
         }));
         setAllModules(transformed);
       } catch (err) {
         console.error("Failed to fetch modules:", err);
         setError(
-          err instanceof BackendError ? err.message : "Failed to fetch modules"
+          err instanceof BackendError ? err.message : "Failed to fetch modules",
         );
       } finally {
         setIsLoadingModules(false);
@@ -141,21 +148,21 @@ export function useFavoritesList() {
       setError(null);
       if (favoriteIds.includes(targetId)) {
         await backend.delete(`/api/user/favorites/${targetId}`);
-        setFavoriteIds(prev => prev.filter(fid => fid !== targetId));
+        setFavoriteIds((prev) => prev.filter((fid) => fid !== targetId));
       } else {
         await backend.post(`/api/user/favorites/${targetId}`);
-        setFavoriteIds(prev => [...prev, targetId]);
+        setFavoriteIds((prev) => [...prev, targetId]);
       }
     } catch (err) {
       console.error("Failed to toggle favorite:", err);
       setError(
-        err instanceof BackendError ? err.message : "Failed to toggle favorite"
+        err instanceof BackendError ? err.message : "Failed to toggle favorite",
       );
     }
   };
 
   const toggleShowOnlyFavorites = () => {
-    setShowOnlyFavorites(prev => !prev);
+    setShowOnlyFavorites((prev) => !prev);
   };
 
   return {
