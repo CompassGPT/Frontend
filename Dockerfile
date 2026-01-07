@@ -20,6 +20,10 @@ RUN npm install -g serve
 
 COPY --from=builder /app/dist ./dist
 
+RUN addgroup -g 1001 -S nodejs && adduser -S nodejs -u 1001
+
+USER nodejs
+
 EXPOSE 5173
 
 CMD ["serve", "-s", "dist", "-l", "5173"]
