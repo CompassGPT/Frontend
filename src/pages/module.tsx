@@ -12,7 +12,7 @@ export function ModulePage() {
 	isFavorited,
 	toggleFavorite,
 	isLoading: isFavoriteLoading,
-	} = useFavorites(module?.id ?? "");
+	} = useFavorites(module?.id);
 
 
 	if (isLoading) {
