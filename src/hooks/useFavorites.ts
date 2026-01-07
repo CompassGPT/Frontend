@@ -87,8 +87,8 @@ export function useFavorites(moduleId?: string) {
     return allModules.filter((m) => favoriteIds.includes(m.id));
   }, [allModules, favoriteIds]);
 
-  const toggleFavorite = async (id?: string) => {
-    const targetId = id || moduleId;
+  const toggleFavorite = async (id: string | undefined = moduleId) => {
+    const targetId = id;
     if (!targetId) return;
 
     try {
