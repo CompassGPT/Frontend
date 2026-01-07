@@ -4,7 +4,6 @@ import { StrictMode } from "react";
 import "./main.css";
 
 // Page imports
-import { HomePage } from "./pages/home";
 import { ModulesPage } from "./pages/modules";
 import { ModulePage } from "./pages/module";
 import { ProfilePage } from "./pages/profile";
@@ -31,7 +30,7 @@ createRoot(root).render(
 					<Routes>
 						{/* Protected routes */}
 						<Route element={<ProtectedRoute />}>
-							<Route path="/" element={<HomePage />} />
+						<Route path="/" element={<ModulesPage />} />
 							<Route path="/modules" element={<ModulesPage />} />
 							<Route path="/modules/:id" element={<ModulePage />} />
 							<Route path="/keuzehulp" element={<KeuzehulpPage />} />

@@ -100,3 +100,15 @@ export interface Tag {
 export interface TagsResponse {
 	tags: Tag[];
 }
+
+// Frontend-friendly module shape used across lists and favorites
+export interface TransformedModule {
+	id: string;
+	title: string;
+	description: string;
+	startDate: string;
+	level: string;
+	studiepunten: number;
+	locatie: string;
+	periode?: string;
+}

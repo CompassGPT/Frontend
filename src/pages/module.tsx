@@ -1,6 +1,6 @@
 import { useParams } from "react-router";
 import { useModule } from "../hooks/useModule";
-import { useFavorite } from "../hooks/useFavorite";
+import { useFavoriteModule } from "../hooks/useFavorites";
 import keuzemoduleFallback from "../images/keuzemodule_fallback_16-9.webp";
 
 export function ModulePage() {
@@ -12,7 +12,7 @@ export function ModulePage() {
 	isFavorited,
 	toggleFavorite,
 	isLoading: isFavoriteLoading,
-	} = useFavorite(module?.id ?? "");
+	} = useFavoriteModule(module?.id);
 
 
 	if (isLoading) {
@@ -37,7 +37,7 @@ export function ModulePage() {
 						<p>{module.learningOutcomes}</p>
 					</div>
 					<div className="flex flex-nowrap gap-2 mt-4 p-4 items-center">
-						<button className="px-3 py-2 text-xs sm:text-sm font-semibold rounded-full border border-gray-300 text-gray-900 hover:bg-gray-50 transition-colors flex items-center gap-2 dark:text-white" type="button">
+						<button className="px-3 py-2 text-xs sm:text-sm font-semibold rounded-full border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2" type="button">
 							Aanmelden via Osiris
 							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 3h7v7m0-7L10 14" />
@@ -45,12 +45,12 @@ export function ModulePage() {
 							</svg>
 						</button>
 						<button
-							onClick={toggleFavorite}
+							onClick={() => toggleFavorite()}
 							disabled={isFavoriteLoading}
 							className={`p-2 rounded-lg transition-colors ${
 								isFavorited
-								? "bg-red-50 text-red-500"
-								: "border border-red-500 text-red-500 hover:bg-red-500 hover:text-white"
+								? "bg-red-50 dark:bg-red-900/30 text-red-500"
+								: "border border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/30"
 							}`}
 							title={isFavorited ? "Verwijder van favorieten" : "Voeg toe aan favorieten"}
 							>

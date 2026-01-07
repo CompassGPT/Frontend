@@ -1,10 +1,13 @@
+import { Link } from "react-router";
 import { useAuth } from "../hooks/useAuth";
+import { useFavoritesList } from "../hooks/useFavorites";
 
 /**
  * Profile page with updated styling
  */
 export function ProfilePage() {
   const { user, logout, isLoading } = useAuth();
+  const { favoriteModules, toggleFavorite, isLoading: loadingModules, error: favoritesError } = useFavoritesList();
 
   const handleLogout = async () => {
     try {
@@ -128,10 +131,61 @@ export function ProfilePage() {
           <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">
             Favoriete Modules
           </h2>
+          {favoritesError && (
+            <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 text-red-800 dark:text-red-300 transition-colors">
+              {favoritesError}
+            </div>
+          )}
           <div className="space-y-4">
-            <p className="text-gray-500 dark:text-gray-400 italic">
-              Geen favoriete modules gevonden.
-            </p>
+            {loadingModules ? (
+              <p className="text-gray-500 dark:text-gray-400">Laden...</p>
+            ) : favoriteModules.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400 italic">
+                Geen favoriete modules gevonden.
+              </p>
+            ) : (
+              favoriteModules.map((module) => (
+                <div key={module.id} className="group flex flex-col sm:flex-row gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700 border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex justify-between items-start gap-2">
+                      <div>
+                        <h3 className="font-bold text-gray-900 dark:text-white truncate">{module.title}</h3>
+                        <div className="flex flex-wrap gap-2 mt-1.5">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
+                            {module.studiepunten} EC
+                          </span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">
+                            {module.level}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <Link 
+                          to={`/modules/${module.id}`}
+                          className="px-3 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
+                        >
+                          Meer info
+                        </Link>
+                        <button 
+                          onClick={() => toggleFavorite(module.id)}
+                          className="p-2 rounded-lg transition-colors bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50"
+                          title="Verwijder uit favorieten"
+                        >
+                          <svg className="w-5 h-5" fill="currentColor" stroke="currentColor" viewBox="0 0 20 20">
+                            <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                    
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                      {module.description}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
 

@@ -1,27 +1,11 @@
-import { useMemo, useState, useEffect } from "react";
+import { useState } from "react";
 import { Link } from "react-router";
-import { useBackend } from "../hooks/useBackend";
-import type { ModulesResponse } from "../types/api.types";
 import { useAuth } from "../hooks/useAuth";
-import { useFavorites } from "../hooks/useFavorites";
-
-interface TransformedModule {
-	id: string;
-	title: string;
-	description: string;
-	startDate: string;
-	level: string;
-	studiepunten: number;
-	locatie: string;
-	image: null;
-	periode?: string;
-}
+import { useFavoritesList } from "../hooks/useFavorites";
+import { useModulesList } from "../hooks/useModule";
+import keuzemoduleFallback from "../images/keuzemodule_fallback_16-9.webp";
 
 export function ModulesPage() {
-	const backend = useBackend();
-	const [modules, setModules] = useState<TransformedModule[]>([]);
-	const [loading, setLoading] = useState(true);
-	const [error, setError] = useState<string | null>(null);
 	const [currentPage, setCurrentPage] = useState(1);
 	const modulesPerPage = 5;
 
@@ -33,36 +17,13 @@ export function ModulesPage() {
 	const [showMobileFilters, setShowMobileFilters] = useState(false);
 	const { user } = useAuth();
 
-	// Fetch modules from backend
-	useEffect(() => {
-		const fetchModules = async () => {
-			try {
-				setLoading(true);
-				setError(null);
-				const response = await backend.get<ModulesResponse>("/api/modules");
-				// Transform backend Module to frontend format
-				const transformed = response.modules.map((m) => ({
-					id: m.id,
-					title: m.name,
-					description: m.shortdescription,
-					startDate: m.startDate,
-					level: m.level,
-					studiepunten: m.studyCredits,
-					locatie: m.location.length > 0 ? m.location.map((loc) => loc.name).join(", ") : "Onbekend",
-					image: null,
-				}));
-				setModules(transformed);
-			} catch (err) {
-				console.error("Failed to fetch modules:", err);
-				setError("Kon modules niet laden. Probeer later opnieuw.");
-				setModules([]);
-			} finally {
-				setLoading(false);
-			}
-		};
-
-		void fetchModules();
-	}, [backend]);
+	const {
+		modules,
+		loading,
+		error,
+		filterOptions,
+		filterModules,
+	} = useModulesList();
 
 	const {
 		favoriteIds,
@@ -71,7 +32,8 @@ export function ModulesPage() {
 		toggleShowOnlyFavorites,
 		toggleFavorite,
 		isLoading: favoritesLoading,
-	} = useFavorites();
+		error: favoritesError,
+	} = useFavoritesList();
 
 	// Filter open/dicht state
 	const [openFilters, setOpenFilters] = useState({
@@ -102,68 +64,17 @@ export function ModulesPage() {
 		setCurrentPage(1);
 	};
 
-	// Bepaal periode uit startDate (string format: "2025-09-02")
-	const getPeriodeFromDate = (dateStr: string) => {
-		const d = new Date(dateStr);
-		const m = d.getMonth(); // 0-11
-		if (m >= 8 && m <= 10) return "P1"; // sep-nov (8,9,10)
-		if (m === 11 || m <= 1) return "P2"; // dec-feb (11,0,1)
-		if (m >= 2 && m <= 3) return "P3"; // mrt-apr (2,3)
-		return "P4"; // mei-aug (4,5,6,7)
-	};
-
-	// Afgeleide opties
-	const levelOpties = ["NLQF5", "NLQF6"];
-	const ecOpties = [15, 30];
-
-	// Verrijk modules met periode
-	const modulesWithPeriode = useMemo(
-		() =>
-			modules.map((m) => ({
-				...m,
-				periode: getPeriodeFromDate(m.startDate),
-			})),
-		[modules]
-	);
-
 	// Filter modules
-	const filteredModules = modulesWithPeriode.filter((module) => {
-		if (showOnlyFavorites && !favoriteIds.includes(module.id)) {
-			return false;
-		}
-
-		const matchesSearch =
-			searchQuery === "" ||
-			module.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-			module.description.toLowerCase().includes(searchQuery.toLowerCase());
-
-		const matchesPeriode =
-			selectedPeriode.length === 0 ||
-			selectedPeriode.includes(module.periode);
-
-		const matchesLocatie =
-			selectedLocatie.length === 0 ||
-			selectedLocatie.some((loc) => module.locatie.includes(loc));
-
-		const matchesLevel =
-			selectedLevel.length === 0 ||
-			selectedLevel.includes(module.level);
-
-		const matchesEC =
-			selectedEC.length === 0 ||
-			selectedEC.includes(module.studiepunten);
-
-		return (
-			matchesSearch &&
-			matchesPeriode &&
-			matchesLocatie &&
-			matchesLevel &&
-			matchesEC
-		);
-	});
-
-
-
+	const filteredModules = filterModules(
+		modules,
+		searchQuery,
+		selectedPeriode,
+		selectedLocatie,
+		selectedLevel,
+		selectedEC,
+		showOnlyFavorites,
+		favoriteIds
+	);
 
 	// Pagination
 	const totalPages = Math.ceil(filteredModules.length / modulesPerPage);
@@ -189,6 +100,11 @@ export function ModulesPage() {
 			{error && (
 				<div className="container mx-auto px-4 py-8">
 					<div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-800 dark:text-red-300 transition-colors">{error}</div>
+				</div>
+			)}
+			{favoritesError && (
+				<div className="container mx-auto px-4 py-0">
+					<div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-800 dark:text-red-300 transition-colors">{favoritesError}</div>
 				</div>
 			)}
 
@@ -227,7 +143,7 @@ export function ModulesPage() {
 									</button>
 									<div className={`transition-all duration-200 ease-in-out ${openFilters.level ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}>
 										<div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700">
-											{levelOpties.map((lvl) => (
+											{filterOptions.levelOpties.map((lvl: string) => (
 												<label key={lvl} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
 													<input type="checkbox" checked={selectedLevel.includes(lvl)} onChange={() => handleFilterToggle(lvl, selectedLevel, setSelectedLevel)} className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
 													<span className="text-gray-900 dark:text-white">{lvl}</span>
@@ -247,7 +163,7 @@ export function ModulesPage() {
 									</button>
 									<div className={`transition-all duration-200 ease-in-out ${openFilters.studiepunten ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}>
 										<div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700">
-											{ecOpties.map((ec) => (
+											{filterOptions.ecOpties.map((ec: number) => (
 												<label key={ec} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
 													<input type="checkbox" checked={selectedEC.includes(ec)} onChange={() => setSelectedEC((prev) => (prev.includes(ec) ? prev.filter((e) => e !== ec) : [...prev, ec]))} className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
 													<span className="text-gray-900 dark:text-white">{ec} EC</span>
@@ -267,7 +183,7 @@ export function ModulesPage() {
 									</button>
 									<div className={`transition-all duration-200 ease-in-out ${openFilters.periode ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}>
 										<div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700">
-											{["P1", "P2", "P3", "P4"].map((periode) => (
+											{filterOptions.periodeOpties.map((periode: string) => (
 												<label key={periode} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
 													<input type="checkbox" checked={selectedPeriode.includes(periode)} onChange={() => handleFilterToggle(periode, selectedPeriode, setSelectedPeriode)} className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
 													<span className="text-gray-900 dark:text-white">{periode}</span>
@@ -287,7 +203,7 @@ export function ModulesPage() {
 									</button>
 									<div className={`transition-all duration-200 ease-in-out ${openFilters.locatie ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}>
 										<div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700">
-											{["Tilburg", "Breda", "Den Bosch", "Roosendaal"].map((locatie) => (
+											{filterOptions.locatieOpties.map((locatie: string) => (
 												<label key={locatie} className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
 													<input type="checkbox" checked={selectedLocatie.includes(locatie)} onChange={() => handleFilterToggle(locatie, selectedLocatie, setSelectedLocatie)} className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
 													<span className="text-gray-900 dark:text-white">{locatie}</span>
@@ -329,8 +245,8 @@ export function ModulesPage() {
 									className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors font-medium
 										${
 										showOnlyFavorites
-											? "border-red-500 bg-red-50 text-red-600"
-											: "border-red-500 text-red-500 hover:bg-red-50"
+											? "border-red-500 text-red-600 bg-red-50 hover:bg-red-100 dark:border-red-500 dark:text-red-400 dark:bg-red-900/30 dark:hover:bg-red-900/50"
+											: "border-red-500 text-red-500 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-900/30"
 										}
 									`}
 									>
@@ -396,9 +312,9 @@ export function ModulesPage() {
 								) : (
 									paginatedModules.map((module) => (
 										<div key={module.id} className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5 flex flex-col sm:flex-row gap-5 transition-colors">
-											{/* Module afbeelding placeholder */}
-											<div className="w-full sm:w-36 h-48 sm:h-28 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-200 dark:border-gray-700 transition-colors">
-												<span className="text-gray-400 dark:text-gray-500 text-sm">Plaatje</span>
+											{/* Module afbeelding */}
+											<div className="w-full sm:w-36 h-48 sm:h-28 bg-gray-100 dark:bg-gray-700 rounded-lg flex-shrink-0 flex items-center justify-center border border-gray-200 dark:border-gray-700 transition-colors overflow-hidden">
+												<img src={keuzemoduleFallback} alt={module.title} className="w-full h-full object-cover" />
 											</div>
 
 											{/* Module info */}
@@ -439,7 +355,7 @@ export function ModulesPage() {
 															<path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 5v14h14" />
 														</svg>
 													</button>
-													<button onClick={() => toggleFavorite(module.id)} className={`p-2 rounded-lg transition-colors ${ favoriteIds.includes(module.id) ? "bg-red-50 dark:bg-red-900/30 text-red-500" : "border border-red-500 text-red-500 hover:bg-red-50" }`}>
+													<button onClick={() => toggleFavorite(module.id)} className={`p-2 rounded-lg transition-colors ${ favoriteIds.includes(module.id) ? "bg-red-50 dark:bg-red-900/30 text-red-500" : "border border-red-500 text-red-500 hover:bg-red-50" }`} title="Favoriet markeren">
 														<svg className="w-5 h-5" fill={favoriteIds.includes(module.id) ? "currentColor" : "none"} stroke="currentColor" viewBox="0 0 20 20">
 															<path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
 														</svg>
