@@ -4,13 +4,28 @@ import { usePrediction } from "../hooks/usePrediction";
 // --- Types ---
 type QuestionType = "text" | "select" | "multiselect";
 
-interface Question {
+interface BaseQuestion {
   id: number;
   question: string;
   type: QuestionType;
-  placeholder?: string;
-  options?: string[]; // Made optional for text type
 }
+
+interface TextQuestion extends BaseQuestion {
+  type: "text";
+  placeholder?: string;
+}
+
+interface SelectQuestion extends BaseQuestion {
+  type: "select";
+  options: string[];
+}
+
+interface MultiselectQuestion extends BaseQuestion {
+  type: "multiselect";
+  options: string[];
+}
+
+type Question = TextQuestion | SelectQuestion | MultiselectQuestion;
 
 const NONE_LABEL = "Geen van deze leerdoelen";
 
@@ -95,10 +110,6 @@ export function KeuzehulpPage() {
 
   const getArrayAnswer = (answer: string | string[]): string[] => {
     return Array.isArray(answer) ? answer : [];
-  };
-
-  const getSelectAnswer = (answer: string | string[]): string => {
-    return Array.isArray(answer) ? "" : answer;
   };
   const currentQ = QUESTIONS[currentQuestion];
   const currentAnswer = answers[currentQ.id];
