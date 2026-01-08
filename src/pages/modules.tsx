@@ -83,6 +83,46 @@ export function ModulesPage() {
     startIndex + modulesPerPage,
   );
 
+  // Generate smart pagination numbers
+  const getPaginationNumbers = () => {
+    const pages: (number | string)[] = [];
+    const maxVisible = 7; // Maximum page numbers to show
+
+    if (totalPages <= maxVisible) {
+      // Show all pages if total is small
+      return Array.from({ length: totalPages }, (_, i) => i + 1);
+    }
+
+    // Always show first page
+    pages.push(1);
+
+    if (currentPage <= 3) {
+      // Near start: show 1 2 3 4 5 ... last
+      for (let i = 2; i <= Math.min(5, totalPages - 1); i++) {
+        pages.push(i);
+      }
+      if (totalPages > 6) pages.push("...");
+      pages.push(totalPages);
+    } else if (currentPage >= totalPages - 2) {
+      // Near end: show 1 ... last-4 last-3 last-2 last-1 last
+      pages.push("...");
+      for (let i = Math.max(2, totalPages - 4); i < totalPages; i++) {
+        pages.push(i);
+      }
+      pages.push(totalPages);
+    } else {
+      // Middle: show 1 ... current-1 current current+1 ... last
+      pages.push("...");
+      pages.push(currentPage - 1);
+      pages.push(currentPage);
+      pages.push(currentPage + 1);
+      pages.push("...");
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
       {/* Header */}
@@ -746,10 +786,17 @@ export function ModulesPage() {
                   </button>
 
                   <div className="flex items-center gap-1">
-                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(
-                      (page) => (
+                    {getPaginationNumbers().map((page, index) =>
+                      typeof page === "string" ? (
+                        <span
+                          key={`ellipsis-${index}`}
+                          className="w-10 h-10 flex items-center justify-center text-gray-400 dark:text-gray-600"
+                        >
+                          {page}
+                        </span>
+                      ) : (
                         <button
-                          key={page}
+                          key={`page-${page}`}
                           onClick={() => setCurrentPage(page)}
                           className={`w-10 h-10 rounded-full text-sm font-medium transition-colors ${currentPage === page ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-900 dark:border-gray-600" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"}`}
                         >
