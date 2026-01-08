@@ -30,12 +30,12 @@ export interface ApiError {
  * Module related types
  */
 export interface Module {
-  id: string;
+  id: number;
   name: string;
   shortdescription: string;
   studyCredits: number;
   level: string;
-  location: { id: string; name: string }[];
+  location: { id: number; name: string }[];
   startDate: string;
 }
 
@@ -100,7 +100,7 @@ export interface TagsResponse {
  * Frontend-friendly module shape used across lists and favorites
  */
 export interface TransformedModule {
-  id: string;
+  id: number;
   title: string;
   description: string;
   startDate: string;

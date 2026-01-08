@@ -25,7 +25,7 @@ export function useModule(id: string) {
         setError(null);
 
         const response = await backend.get<ModuleResponse>(
-          `/api/modules/${id}`,
+          `/api/modules/${id}`
         );
 
         setModule(response.module); // ✅ correct
@@ -33,7 +33,7 @@ export function useModule(id: string) {
       } catch (err) {
         console.error(err);
         setError(
-          err instanceof BackendError ? err.message : "Failed to fetch module",
+          err instanceof BackendError ? err.message : "Failed to fetch module"
         );
       } finally {
         setIsLoading(false);
@@ -102,7 +102,7 @@ export function useModulesList() {
         ...m,
         periode: getPeriodeFromDate(m.startDate),
       })),
-    [modules],
+    [modules]
   );
 
   // Filter opties
@@ -124,7 +124,7 @@ export function useModulesList() {
     selectedLevel: string[],
     selectedEC: number[],
     showOnlyFavorites: boolean,
-    favoriteIds: string[],
+    favoriteIds: number[]
   ) => {
     return modulesToFilter.filter((module) => {
       if (showOnlyFavorites && !favoriteIds.includes(module.id)) {
@@ -178,7 +178,7 @@ export function useModuleCreate() {
     try {
       console.log("Calling /api/moduletags...");
       const response = await backend.get<{ moduleTags: Tag[] }>(
-        "/api/moduletags",
+        "/api/moduletags"
       );
       console.log("ModuleTags response:", response);
       return response;
@@ -192,7 +192,7 @@ export function useModuleCreate() {
     try {
       console.log("Calling /api/locations...");
       const response = await backend.get<{ locations: Location[] }>(
-        "/api/locations",
+        "/api/locations"
       );
       console.log("Locations response:", response);
       return response;
@@ -217,13 +217,13 @@ export function useModuleCreate() {
       console.log("Creating module with data:", module);
       const response = await backend.post<{ module: moduleDetail }>(
         "/api/modules",
-        module,
+        module
       );
       return response.module?.id || null;
     } catch (err) {
       console.error(err);
       setError(
-        err instanceof BackendError ? err.message : "Failed to create module",
+        err instanceof BackendError ? err.message : "Failed to create module"
       );
       return null;
     } finally {
@@ -237,7 +237,7 @@ export function useModuleCreate() {
       console.log("Creating module tags:", tag);
       const response = await backend.post<{ moduleTags: Tag[] }>(
         "/api/moduletags",
-        { tag },
+        { tag }
       );
       console.log("ModuleTags response:", response);
       return response;

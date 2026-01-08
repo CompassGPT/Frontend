@@ -4,12 +4,10 @@ import type { ModulesResponse } from "../types/api.types";
 import type { TransformedModule } from "../types/api.types";
 
 // Hook for single module favorite state
-export function useFavoriteModule(moduleId?: string) {
+export function useFavoriteModule(moduleId?: number) {
   const backend = useBackend();
   const validModuleId =
-    typeof moduleId === "string" && moduleId.trim().length > 0
-      ? moduleId.trim()
-      : undefined;
+    typeof moduleId === "number" && !isNaN(moduleId) ? moduleId : undefined;
 
   const [isLoading, setIsLoading] = useState(true);
   const [isFavorited, setIsFavorited] = useState<boolean>(false);
@@ -21,7 +19,7 @@ export function useFavoriteModule(moduleId?: string) {
       setError(null);
       try {
         const res = await backend.get<{
-          favorites: { choiceModuleId: string }[];
+          favorites: { choiceModuleId: number }[];
         }>("/api/user/favorites");
         const ids = res.favorites.map((f) => f.choiceModuleId);
         if (validModuleId) {
@@ -34,7 +32,7 @@ export function useFavoriteModule(moduleId?: string) {
         setError(
           err instanceof BackendError
             ? err.message
-            : "Failed to fetch favorites",
+            : "Failed to fetch favorites"
         );
       } finally {
         setIsLoading(false);
@@ -58,7 +56,7 @@ export function useFavoriteModule(moduleId?: string) {
     } catch (err) {
       console.error("Failed to toggle favorite:", err);
       setError(
-        err instanceof BackendError ? err.message : "Failed to toggle favorite",
+        err instanceof BackendError ? err.message : "Failed to toggle favorite"
       );
     }
   };
@@ -70,7 +68,7 @@ export function useFavoriteModule(moduleId?: string) {
 export function useFavoritesList() {
   const backend = useBackend();
 
-  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
   const [allModules, setAllModules] = useState<TransformedModule[]>([]);
   const [isLoadingFavorites, setIsLoadingFavorites] = useState(true);
   const [isLoadingModules, setIsLoadingModules] = useState(false);
@@ -84,7 +82,7 @@ export function useFavoritesList() {
       setError(null);
       try {
         const res = await backend.get<{
-          favorites: { choiceModuleId: string }[];
+          favorites: { choiceModuleId: number }[];
         }>("/api/user/favorites");
         const ids = res.favorites.map((f) => f.choiceModuleId);
         setFavoriteIds(ids);
@@ -94,7 +92,7 @@ export function useFavoritesList() {
         setError(
           err instanceof BackendError
             ? err.message
-            : "Failed to fetch favorites",
+            : "Failed to fetch favorites"
         );
       } finally {
         setIsLoadingFavorites(false);
@@ -127,7 +125,7 @@ export function useFavoritesList() {
       } catch (err) {
         console.error("Failed to fetch modules:", err);
         setError(
-          err instanceof BackendError ? err.message : "Failed to fetch modules",
+          err instanceof BackendError ? err.message : "Failed to fetch modules"
         );
       } finally {
         setIsLoadingModules(false);
@@ -141,9 +139,9 @@ export function useFavoritesList() {
     return allModules.filter((m) => favoriteIds.includes(m.id));
   }, [allModules, favoriteIds]);
 
-  const toggleFavorite = async (id: string) => {
-    if (!id || id.trim().length === 0) return;
-    const targetId = id.trim();
+  const toggleFavorite = async (id: number) => {
+    if (id == null || isNaN(id)) return;
+    const targetId = id;
     try {
       setError(null);
       if (favoriteIds.includes(targetId)) {
@@ -156,7 +154,7 @@ export function useFavoritesList() {
     } catch (err) {
       console.error("Failed to toggle favorite:", err);
       setError(
-        err instanceof BackendError ? err.message : "Failed to toggle favorite",
+        err instanceof BackendError ? err.message : "Failed to toggle favorite"
       );
     }
   };

@@ -12,7 +12,7 @@ export function ModulePage() {
     isFavorited,
     toggleFavorite,
     isLoading: isFavoriteLoading,
-  } = useFavoriteModule(module?.id);
+  } = useFavoriteModule(id ? parseInt(id, 10) : undefined);
 
   if (isLoading) {
     return <div>Loading module...</div>;
@@ -38,15 +38,13 @@ export function ModulePage() {
           <div className="flex flex-nowrap gap-2 mt-4 p-4 items-center">
             <button
               className="px-3 py-2 text-xs sm:text-sm font-semibold rounded-full border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2"
-              type="button"
-            >
+              type="button">
               Aanmelden via Osiris
               <svg
                 className="w-4 h-4"
                 fill="none"
                 stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+                viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -73,14 +71,12 @@ export function ModulePage() {
                 isFavorited
                   ? "Verwijder van favorieten"
                   : "Voeg toe aan favorieten"
-              }
-            >
+              }>
               <svg
                 className="w-5 h-5"
                 fill={isFavorited ? "currentColor" : "none"}
                 stroke="currentColor"
-                viewBox="0 0 20 20"
-              >
+                viewBox="0 0 20 20">
                 <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
               </svg>
             </button>
