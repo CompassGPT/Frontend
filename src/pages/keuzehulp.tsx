@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { usePrediction } from "../hooks/usePrediction";
 
 type Question =
   | {
@@ -47,27 +48,30 @@ const QUESTIONS: Question[] = [
   },
   {
     id: 5,
-    question: "Welke vaardigheden zou je graag willen ontwikkelen bij je gekozen VKM? (meerdere keuzes mogelijk)",
+    question:
+      "Welke vaardigheden zou je graag willen ontwikkelen bij je gekozen VKM? (meerdere keuzes mogelijk)",
     type: "multiselect",
-    options: ["kaas", "patat", "mayonnaise", "is dat goed", "geschreven?"]
+    options: ["kaas", "patat", "mayonnaise", "is dat goed", "geschreven?"],
   },
   {
     id: 6,
-    question: "Welke onderwerpen spreken je aan voor een VKM? (meerdere keuzes mogelijk)",
+    question:
+      "Welke onderwerpen spreken je aan voor een VKM? (meerdere keuzes mogelijk)",
     type: "multiselect",
-    options: ["kaas", "friet"]
+    options: ["kaas", "friet"],
   },
   {
     id: 7,
-    question: "In het kort: Welke interesses spelen mee bij je keuze voor een VKM?",
+    question:
+      "In het kort: Welke interesses spelen mee bij je keuze voor een VKM?",
     type: "text",
-    placeholder: "Bijv. 'Ik ben vooral geïnteresseerd in software en AI.'"
+    placeholder: "Bijv. 'Ik ben vooral geïnteresseerd in software en AI.'",
   },
   {
     id: 8,
     question: "In het kort: Wat hoop je vooral te leren met je VKM?",
     type: "text",
-    placeholder: "Bijv. 'Ik wil beter leren ondernemen en communiceren.'"
+    placeholder: "Bijv. 'Ik wil beter leren ondernemen en communiceren.'",
   },
 ];
 
@@ -80,9 +84,10 @@ export function KeuzehulpPage() {
 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Answer[]>(() =>
-    QUESTIONS.map((q) => (q.type === "multiselect" ? [] : "")),
+    QUESTIONS.map((q) => (q.type === "multiselect" ? [] : ""))
   );
   const [charLimitError, setCharLimitError] = useState(false);
+  const { predictions, isLoading, error, getPredictions } = usePrediction();
 
   useEffect(() => {
     setAnswers((prev) =>
@@ -94,11 +99,11 @@ export function KeuzehulpPage() {
         }
 
         return typeof prevValue === "string" ? prevValue : "";
-      }),
+      })
     );
 
     setCurrentQuestion((prev) =>
-      Math.min(Math.max(prev, 0), Math.max(QUESTIONS.length - 1, 0)),
+      Math.min(Math.max(prev, 0), Math.max(QUESTIONS.length - 1, 0))
     );
   }, []);
 
@@ -145,7 +150,10 @@ export function KeuzehulpPage() {
     // Check text answers for character limit before moving forward
     if (currentQ.type === "text") {
       const currentAnswer = answers[currentQuestion];
-      if (typeof currentAnswer === "string" && currentAnswer.length > MAX_TEXT_CHARS) {
+      if (
+        typeof currentAnswer === "string" &&
+        currentAnswer.length > MAX_TEXT_CHARS
+      ) {
         setCharLimitError(true);
         return; // Prevent navigation
       }
@@ -163,9 +171,26 @@ export function KeuzehulpPage() {
     }
   };
 
-  const handleComplete = () => {
-    // TODO: Send answers to backend or process them
-    console.log("Answers:", answers);
+  const handleComplete = async () => {
+    const creditAnswers = answers[1];
+    // Ensure wantedStudyCreditRange is always a tuple [number, number]
+    let wantedStudyCreditRange: [number, number] = [0, 100];
+    if (Array.isArray(creditAnswers)) {
+      if (creditAnswers.includes("15")) wantedStudyCreditRange = [15, 15];
+      else if (creditAnswers.includes("30")) wantedStudyCreditRange = [30, 30];
+    }
+
+    // Map answers to PredictionRequest shape
+    const request = {
+      currentStudy: typeof answers[0] === "string" ? answers[0] : "",
+      interests: Array.isArray(answers[4]) ? answers[4] : [],
+      wantedStudyCreditRange,
+      locationPreference: Array.isArray(answers[3]) ? answers[3] : [],
+      learningGoals: [],
+      levelPreference: [],
+      preferredLanguage: "nl",
+    };
+    await getPredictions(request);
   };
 
   return (
@@ -194,7 +219,7 @@ export function KeuzehulpPage() {
               Voortgang
             </span>
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-              {currentQuestion + 1}/{QUESTIONS.length }
+              {currentQuestion + 1}/{QUESTIONS.length}
             </span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
@@ -223,21 +248,26 @@ export function KeuzehulpPage() {
           {/* Input Field */}
           <div className="mb-12">
             {currentQ.type === "text" && (
-              <div>
+              <>
                 <input
                   type="text"
-                  value={typeof answers[currentQuestion] === "string" ? answers[currentQuestion] : ""}
+                  value={
+                    typeof answers[currentQuestion] === "string"
+                      ? answers[currentQuestion]
+                      : ""
+                  }
                   onChange={(e) => setAnswerForCurrentQuestion(e.target.value)}
                   placeholder={currentQ.placeholder}
                   autoFocus
-                  className={`w-full px-4 py-3 rounded-lg border-2 ${charLimitError ? "border-red-500 dark:border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none ${charLimitError ? "focus:border-red-500 dark:focus:border-red-500" : "focus:border-blue-400 dark:focus:border-blue-400"} transition-colors`}
+                  className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-blue-400 dark:focus:border-blue-400 transition-colors"
                 />
                 {charLimitError && (
                   <p className="mt-2 text-sm text-red-600 dark:text-red-400">
-                    Je antwoord is te lang. Maximaal {MAX_TEXT_CHARS} tekens toegestaan.
+                    Je antwoord is te lang. Maximaal {MAX_TEXT_CHARS} tekens
+                    toegestaan.
                   </p>
                 )}
-              </div>
+              </>
             )}
 
             {currentQ.type === "select" && (
@@ -250,8 +280,7 @@ export function KeuzehulpPage() {
                       answers[currentQuestion] === option
                         ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
                         : "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    }`}
-                  >
+                    }`}>
                     {option}
                   </button>
                 ))}
@@ -263,24 +292,23 @@ export function KeuzehulpPage() {
                 {currentQ.options
                   .filter((option) => option.trim() !== "")
                   .map((option) => {
-                  const current = answers[currentQuestion];
-                  const selected = Array.isArray(current) ? current : [];
-                  const isSelected = selected.includes(option);
+                    const current = answers[currentQuestion];
+                    const selected = Array.isArray(current) ? current : [];
+                    const isSelected = selected.includes(option);
 
-                  return (
-                    <button
-                      key={option}
-                      onClick={() => toggleMultiSelectOption(option)}
-                      className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 border-2 ${
-                        isSelected
-                          ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
-                          : "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-gray-100 dark:hover:bg-gray-600"
-                      }`}
-                    >
-                      {option}
-                    </button>
-                  );
-                })}
+                    return (
+                      <button
+                        key={option}
+                        onClick={() => toggleMultiSelectOption(option)}
+                        className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 border-2 ${
+                          isSelected
+                            ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
+                            : "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-gray-100 dark:hover:bg-gray-600"
+                        }`}>
+                        {option}
+                      </button>
+                    );
+                  })}
 
                 {currentQ.id === 5 && (
                   <button
@@ -291,11 +319,9 @@ export function KeuzehulpPage() {
                       answers[currentQuestion].includes(NONE_OF_GIVEN_LABEL)
                         ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
                         : "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    }`}
-                  >
+                    }`}>
                     {NONE_OF_GIVEN_LABEL}
                   </button>
-                  
                 )}
 
                 {currentQ.id === 6 && (
@@ -307,11 +333,9 @@ export function KeuzehulpPage() {
                       answers[currentQuestion].includes(NONE_OF_GIVEN_LABEL)
                         ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
                         : "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    }`}
-                  >
+                    }`}>
                     {NONE_OF_GIVEN_LABEL}
                   </button>
-                  
                 )}
               </div>
             )}
@@ -322,8 +346,7 @@ export function KeuzehulpPage() {
             <button
               onClick={handlePrevious}
               disabled={currentQuestion === 0}
-              className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-            >
+              className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
               Vorige
             </button>
 
@@ -333,8 +356,7 @@ export function KeuzehulpPage() {
                   ? handleComplete
                   : handleNext
               }
-              className="px-6 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
-            >
+              className="px-6 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">
               {currentQuestion === QUESTIONS.length - 1
                 ? "Voltooien"
                 : "Volgende"}
@@ -348,6 +370,60 @@ export function KeuzehulpPage() {
             💡 Tip: Antwoord eerlijk op alle vragen voor de beste aanbevelingen
           </p>
         </div>
+
+        {/* Prediction Results */}
+        {isLoading && (
+          <div className="mt-8 text-center text-blue-600 dark:text-blue-400 font-medium">
+            Bezig met laden...
+          </div>
+        )}
+        {error && (
+          <div className="mt-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <p className="text-sm text-red-800 dark:text-red-300">
+              Fout: {error}
+            </p>
+          </div>
+        )}
+        {predictions && predictions.predictions.length > 0 && (
+          <div className="mt-8">
+            <h3 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+              Aanbevolen modules
+            </h3>
+            <div className="grid gap-4">
+              {predictions.predictions.map((p) => (
+                <div
+                  key={p.module.id}
+                  className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h4 className="text-xl font-bold text-gray-900 dark:text-white">
+                        {p.module.name}
+                      </h4>
+                      <p className="text-gray-600 dark:text-gray-300 mt-1">
+                        {p.module.shortdescription}
+                      </p>
+                    </div>
+                    <div className="ml-4 text-right">
+                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                        {(p.score * 100).toFixed(0)}%
+                      </div>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                        Match
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400">
+                    <span>📚 {p.module.studyCredits} EC</span>
+                    <span>
+                      📍 {p.module.location.map((l) => l.name).join(", ")}
+                    </span>
+                    <span>🎓 {p.module.level}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
