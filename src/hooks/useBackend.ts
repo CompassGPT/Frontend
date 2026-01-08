@@ -16,7 +16,7 @@ export const useBackend = () => {
    */
   const request = async <T>(
     endpoint: string,
-    options: FetchOptions = {},
+    options: FetchOptions = {}
   ): Promise<T> => {
     const url = createApiUrl(endpoint);
     const { body, headers = {}, ...restOptions } = options;
@@ -50,11 +50,19 @@ export const useBackend = () => {
             message: response.statusText || "An error occurred",
           };
         }
-        throw new BackendError(
-          errorData.message || "Request failed",
-          errorData.statusCode,
-          errorData,
-        );
+
+        // Extract the full error message, preferring 'details' if available
+        let fullMessage = errorData.message || "Request failed";
+        if (
+          errorData &&
+          typeof errorData === "object" &&
+          "details" in errorData &&
+          typeof errorData.details === "string"
+        ) {
+          fullMessage = errorData.details;
+        }
+
+        throw new BackendError(fullMessage, errorData.statusCode, errorData);
       }
 
       // Handle empty responses
@@ -70,7 +78,7 @@ export const useBackend = () => {
       }
       throw new BackendError(
         error instanceof Error ? error.message : "Network error",
-        0,
+        0
       );
     }
   };
@@ -80,7 +88,7 @@ export const useBackend = () => {
    */
   const get = <T = unknown>(
     endpoint: string,
-    options?: FetchOptions,
+    options?: FetchOptions
   ): Promise<T> => {
     return request<T>(endpoint, { ...options, method: "GET" });
   };
@@ -91,7 +99,7 @@ export const useBackend = () => {
   const post = <T = unknown>(
     endpoint: string,
     body?: unknown,
-    options?: FetchOptions,
+    options?: FetchOptions
   ): Promise<T> => {
     return request<T>(endpoint, { ...options, method: "POST", body });
   };
@@ -102,7 +110,7 @@ export const useBackend = () => {
   const put = <T = unknown>(
     endpoint: string,
     body?: unknown,
-    options?: FetchOptions,
+    options?: FetchOptions
   ): Promise<T> => {
     return request<T>(endpoint, { ...options, method: "PUT", body });
   };
@@ -113,7 +121,7 @@ export const useBackend = () => {
   const patch = <T = unknown>(
     endpoint: string,
     body?: unknown,
-    options?: FetchOptions,
+    options?: FetchOptions
   ): Promise<T> => {
     return request<T>(endpoint, { ...options, method: "PATCH", body });
   };
@@ -134,7 +142,7 @@ export const useBackend = () => {
       patch,
       delete: del,
     }),
-    [],
+    []
   );
 };
 

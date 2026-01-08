@@ -26,6 +26,9 @@ export interface ApiError {
   error?: string;
 }
 
+/**
+ * Module related types
+ */
 export interface Module {
   id: string;
   name: string;
@@ -39,6 +42,7 @@ export interface Module {
 export interface ModulesResponse {
   modules: Module[];
 }
+
 export interface moduleDetail {
   id: string;
   name: string;
@@ -52,23 +56,11 @@ export interface moduleDetail {
   availableSpots: number;
   startDate: string;
 }
+
 export interface ModuleResponse {
   module: moduleDetail;
 }
 
-export interface Module {
-  id: string;
-  name: string;
-  shortdescription: string;
-  studyCredits: number;
-  level: string;
-  location: { id: string; name: string }[];
-  startDate: string;
-}
-
-export interface ModulesResponse {
-  modules: Module[];
-}
 export interface createModule {
   name: string;
   description: string;
@@ -83,6 +75,9 @@ export interface createModule {
   shortdescription: string;
 }
 
+/**
+ * Meta data types
+ */
 export interface Location {
   id: string;
   name: string;
@@ -101,7 +96,9 @@ export interface TagsResponse {
   tags: Tag[];
 }
 
-// Frontend-friendly module shape used across lists and favorites
+/**
+ * Frontend-friendly module shape used across lists and favorites
+ */
 export interface TransformedModule {
   id: string;
   title: string;
@@ -114,7 +111,7 @@ export interface TransformedModule {
 }
 
 /**
- * Prediction Types
+ * Prediction / Keuzehulp Types
  */
 export interface PredictionRequest {
   currentStudy: string;
@@ -124,6 +121,7 @@ export interface PredictionRequest {
   learningGoals: string[];
   levelPreference: string[];
   preferredLanguage: string;
+  preferredPeriod: string[]; // Merged from KeuzeHulpForm branch
 }
 
 export interface ModulePrediction {
