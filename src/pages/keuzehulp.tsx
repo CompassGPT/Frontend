@@ -29,7 +29,7 @@ const QUESTIONS: Question[] = [
     id: 3,
     question: "In welke periode wil je je VKM volgen?",
     type: "multiselect",
-    options: ["P1", "P2", "P3", "P4"],
+    options: ["P1", "P2" /* "P3", "P4" */],
   },
   {
     id: 4,
