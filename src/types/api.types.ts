@@ -112,3 +112,25 @@ export interface TransformedModule {
   locatie: string;
   periode?: string;
 }
+
+/**
+ * Prediction Types
+ */
+export interface PredictionRequest {
+  currentStudy: string;
+  interests: string[];
+  wantedStudyCreditRange: [number, number];
+  locationPreference: string[];
+  learningGoals: string[];
+  levelPreference: string[];
+  preferredLanguage: string;
+}
+
+export interface ModulePrediction {
+  module: Module;
+  score: number;
+}
+
+export interface PredictionResponse {
+  predictions: ModulePrediction[];
+}
