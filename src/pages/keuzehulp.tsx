@@ -1,39 +1,40 @@
 import { useState } from "react";
 
-const TOTAL_QUESTIONS = 6;
-const QUESTIONS = [
+type Question =
+  | {
+      id: number;
+      question: string;
+      type: "text";
+      placeholder?: string;
+    }
+  | {
+      id: number;
+      question: string;
+      type: "select";
+      options: string[];
+    };
+
+const QUESTIONS: Question[] = [
   {
     id: 1,
-    question: "Input question about module?",
-    type: "select",
-    options: ["Keuze 1", "Keuze 2", "Keuze 3"],
+    question: "Wat is de naam van je huidige studie?",
+    type: "text",
+    placeholder: "Typ je antwoord...",
   },
   {
     id: 2,
-    question: "Wat is je voorkeur voor moeilijkheidsgraad?",
-    type: "select",
-    options: ["Beginners", "Intermediate", "Advanced"],
-  },
-  {
-    id: 3,
-    question: "Welke studierichting volg je?",
-    type: "select",
-    options: ["Informatica", "Bedrijfskunde", "Psychologie"],
-  },
-  {
-    id: 4,
     question: "Hoeveel studiepunten wil je minimaal?",
     type: "select",
     options: ["15", "30", "Maakt niet uit"],
   },
   {
-    id: 5,
+    id: 3,
     question: "Welke periode past het best voor je?",
     type: "select",
     options: ["P1", "P2", "P3", "P4"],
   },
   {
-    id: 6,
+    id: 4,
     question: "Locatie voorkeur?",
     type: "select",
     options: ["Tilburg", "Breda", "Den Bosch", "Roosendaal"],
@@ -43,21 +44,14 @@ const QUESTIONS = [
 export function KeuzehulpPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<string[]>(
-    new Array(TOTAL_QUESTIONS).fill(""),
+    new Array(QUESTIONS.length).fill(""),
   );
 
   const currentQ = QUESTIONS[currentQuestion];
-  const progress = ((currentQuestion + 1) / TOTAL_QUESTIONS) * 100;
-
-  // Map progress steps to Tailwind width classes to avoid inline styles
-  const progressWidths = [
-    "w-1/6",
-    "w-1/3",
-    "w-1/2",
-    "w-2/3",
-    "w-5/6",
-    "w-full",
-  ];
+  const progress =
+    QUESTIONS.length <= 1
+      ? 100
+      : (currentQuestion / (QUESTIONS.length - 1)) * 100;
 
   const handleAnswer = (value: string) => {
     const newAnswers = [...answers];
@@ -66,7 +60,7 @@ export function KeuzehulpPage() {
   };
 
   const handleNext = () => {
-    if (currentQuestion < TOTAL_QUESTIONS - 1) {
+    if (currentQuestion < QUESTIONS.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     }
   };
@@ -108,13 +102,13 @@ export function KeuzehulpPage() {
               Voortgang
             </span>
             <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-              {currentQuestion + 1}/{TOTAL_QUESTIONS}
+              {currentQuestion + 1}/{QUESTIONS.length }
             </span>
           </div>
           <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
             <div
-              className={`bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300 ${progressWidths[currentQuestion]}`}
-              data-progress={`${progress}%`}
+              className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
+              style={{ width: `${progress}%` }}
             />
           </div>
         </div>
@@ -125,7 +119,7 @@ export function KeuzehulpPage() {
           <div className="mb-6">
             <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
               {String(currentQuestion + 1).padStart(2, "0")}/
-              {String(TOTAL_QUESTIONS).padStart(2, "0")}
+              {String(QUESTIONS.length).padStart(2, "0")}
             </span>
           </div>
 
@@ -136,6 +130,17 @@ export function KeuzehulpPage() {
 
           {/* Input Field */}
           <div className="mb-12">
+            {currentQ.type === "text" && (
+              <input
+                type="text"
+                value={answers[currentQuestion]}
+                onChange={(e) => handleAnswer(e.target.value)}
+                placeholder={currentQ.placeholder}
+                autoFocus
+                className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-blue-400 dark:focus:border-blue-400 transition-colors"
+              />
+            )}
+
             {currentQ.type === "select" && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {currentQ.options.map((option) => (
@@ -167,13 +172,13 @@ export function KeuzehulpPage() {
 
             <button
               onClick={
-                currentQuestion === TOTAL_QUESTIONS - 1
+                currentQuestion === QUESTIONS.length - 1
                   ? handleComplete
                   : handleNext
               }
               className="px-6 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
             >
-              {currentQuestion === TOTAL_QUESTIONS - 1
+              {currentQuestion === QUESTIONS.length - 1
                 ? "Voltooien"
                 : "Volgende"}
             </button>
