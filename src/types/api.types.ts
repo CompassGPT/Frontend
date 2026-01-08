@@ -124,6 +124,7 @@ export interface PredictionRequest {
   learningGoals: string[];
   levelPreference: string[];
   preferredLanguage: string;
+  preferredPeriod: string[];
 }
 
 export interface ModulePrediction {

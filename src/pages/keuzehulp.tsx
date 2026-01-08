@@ -186,6 +186,7 @@ export function KeuzehulpPage() {
       learningGoals: learningGoalsArray.filter((g) => g.trim()),
       levelPreference: [nlqfLevel],
       preferredLanguage: "Nederlands",
+      preferredPeriod: periodPrefs,
     });
 
     const request = {
@@ -196,6 +197,7 @@ export function KeuzehulpPage() {
       learningGoals: learningGoalsArray.filter((g) => g.trim()),
       levelPreference: [nlqfLevel],
       preferredLanguage: "Nederlands",
+      preferredPeriod: periodPrefs,
     };
 
     await getPredictions(request);
