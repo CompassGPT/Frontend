@@ -183,8 +183,10 @@ export function KeuzehulpPage() {
       creditRange = [15, 15];
     }
 
-    // Map credit range to NLQF level
-    const nlqfLevel = creditRange[0] === 30 ? "NLQF6" : "NLQF5";
+    // Map credit selection to NLQF levels
+    const levelPreference: string[] = [];
+    if (has15) levelPreference.push("NLQF5");
+    if (has30) levelPreference.push("NLQF6");
 
     // Debug log to verify data before sending
     console.log("Sending prediction request:", {
@@ -193,7 +195,7 @@ export function KeuzehulpPage() {
       wantedStudyCreditRange: creditRange,
       locationPreference: locationPrefs,
       learningGoals: learningGoalsArray.filter((g) => g.trim()),
-      levelPreference: [nlqfLevel],
+      levelPreference,
       preferredLanguage: "Nederlands",
       preferredPeriod: periodPrefs,
     });
@@ -204,7 +206,7 @@ export function KeuzehulpPage() {
       wantedStudyCreditRange: creditRange,
       locationPreference: locationPrefs,
       learningGoals: learningGoalsArray.filter((g) => g.trim()),
-      levelPreference: [nlqfLevel],
+      levelPreference,
       preferredLanguage: "Nederlands",
       preferredPeriod: periodPrefs,
     };
