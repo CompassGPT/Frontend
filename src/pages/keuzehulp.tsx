@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { usePrediction } from "../hooks/usePrediction";
 
 const TOTAL_QUESTIONS = 6;
 const QUESTIONS = [
@@ -44,9 +43,8 @@ const QUESTIONS = [
 export function KeuzehulpPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<string[]>(
-    new Array(TOTAL_QUESTIONS).fill("")
+    new Array(TOTAL_QUESTIONS).fill(""),
   );
-  const { predictions, isLoading, error, getPredictions } = usePrediction();
 
   const currentQ = QUESTIONS[currentQuestion];
   const progress = ((currentQuestion + 1) / TOTAL_QUESTIONS) * 100;
@@ -79,23 +77,9 @@ export function KeuzehulpPage() {
     }
   };
 
-  const handleComplete = async () => {
-    // Map answers to PredictionRequest shape
-    // Ensure wantedStudyCreditRange is always a tuple [number, number]
-    let wantedStudyCreditRange: [number, number] = [0, 100];
-    if (answers[3] === "15") wantedStudyCreditRange = [15, 15];
-    else if (answers[3] === "30") wantedStudyCreditRange = [30, 30];
-
-    const request = {
-      currentStudy: answers[2] || "",
-      interests: [answers[0]].filter(Boolean),
-      wantedStudyCreditRange,
-      locationPreference: answers[5] ? [answers[5]] : [],
-      learningGoals: [], // Not collected in this form
-      levelPreference: answers[1] ? [answers[1]] : [],
-      preferredLanguage: "nl", // Or collect from user
-    };
-    await getPredictions(request);
+  const handleComplete = () => {
+    // TODO: Send answers to backend or process them
+    console.log("Answers:", answers);
   };
 
   return (
@@ -162,7 +146,8 @@ export function KeuzehulpPage() {
                       answers[currentQuestion] === option
                         ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
                         : "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    }`}>
+                    }`}
+                  >
                     {option}
                   </button>
                 ))}
@@ -175,7 +160,8 @@ export function KeuzehulpPage() {
             <button
               onClick={handlePrevious}
               disabled={currentQuestion === 0}
-              className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+              className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
               Vorige
             </button>
 
@@ -185,7 +171,8 @@ export function KeuzehulpPage() {
                   ? handleComplete
                   : handleNext
               }
-              className="px-6 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">
+              className="px-6 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-medium rounded-lg transition-colors"
+            >
               {currentQuestion === TOTAL_QUESTIONS - 1
                 ? "Voltooien"
                 : "Volgende"}
@@ -199,41 +186,6 @@ export function KeuzehulpPage() {
             💡 Tip: Antwoord eerlijk op alle vragen voor de beste aanbevelingen
           </p>
         </div>
-        {/* Prediction Results */}
-        {isLoading && (
-          <div className="mt-6 text-blue-600 dark:text-blue-400">
-            Bezig met laden...
-          </div>
-        )}
-        {error && (
-          <div className="mt-6 text-red-600 dark:text-red-400">
-            Fout: {error}
-          </div>
-        )}
-        {predictions && predictions.predictions.length > 0 && (
-          <div className="mt-8">
-            <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-              Aanbevolen modules:
-            </h3>
-            <ul className="space-y-4">
-              {predictions.predictions.map((p) => (
-                <li
-                  key={p.module.id}
-                  className="p-4 bg-white dark:bg-gray-800 rounded shadow border border-gray-200 dark:border-gray-700">
-                  <div className="font-bold text-lg text-blue-700 dark:text-blue-300">
-                    {p.module.name}
-                  </div>
-                  <div className="text-gray-700 dark:text-gray-200 mb-2">
-                    {p.module.shortdescription}
-                  </div>
-                  <div className="text-sm text-gray-500 dark:text-gray-400">
-                    Score: {p.score.toFixed(2)}
-                  </div>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
     </div>
   );
