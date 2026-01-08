@@ -76,6 +76,7 @@ export function KeuzehulpPage() {
       )
   );
   const [charLimitError, setCharLimitError] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const { predictions, isLoading, error, getPredictions } = usePrediction();
 
@@ -107,6 +108,9 @@ export function KeuzehulpPage() {
 
   // --- Navigation ---
   const handleNext = () => {
+    // Clear any previous validation errors
+    setValidationError(null);
+
     if (currentQ.type === "text" && typeof currentAnswer === "string") {
       if (currentAnswer.length > MAX_TEXT_CHARS) {
         setCharLimitError(true);
@@ -123,6 +127,8 @@ export function KeuzehulpPage() {
   };
 
   const handleComplete = async () => {
+    // Clear any previous validation errors
+    setValidationError(null);
     // Transform answers for API
     const getValues = (id: number) => answers[id];
 
@@ -150,23 +156,23 @@ export function KeuzehulpPage() {
 
     // Validate minimum requirements
     if (currentStudy.length < 2) {
-      alert("Voer alstublieft je huidge studie in (minimaal 2 tekens)");
+      setValidationError("Voer alstublieft je huidige studie in (minimaal 2 tekens)");
       return;
     }
     if (locationPrefs.length === 0) {
-      alert("Selecteer alstublieft minstens één locatievoorkeur");
+      setValidationError("Selecteer alstublieft minstens één locatievoorkeur");
       return;
     }
     if (learningGoalsArray.length === 0) {
-      alert("Voer alstublieft minstens één leerdoel in");
+      setValidationError("Voer alstublieft minstens één leerdoel in");
       return;
     }
     if (periodPrefs.length === 0) {
-      alert("Selecteer alstublieft minstens één periode");
+      setValidationError("Selecteer alstublieft minstens één periode");
       return;
     }
     if (interests.length === 0) {
-      alert("Selecteer alstublieft minstens één onderwerp");
+      setValidationError("Selecteer alstublieft minstens één onderwerp");
       return;
     }
 
@@ -313,10 +319,21 @@ export function KeuzehulpPage() {
                 : "Volgende"}
             </button>
           </div>
-        </div>
-
-        {/* Results logic remains the same... */}
-        {isLoading && (
+                  </div>
+        
+                {/* Validation Error Display */}
+                {validationError && (
+                  <div className="mt-12 p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+                    <p className="text-red-800 dark:text-red-200 font-semibold mb-2">
+                      Validatie Fout:
+                    </p>
+                    <p className="text-red-700 dark:text-red-300 text-sm whitespace-pre-wrap">
+                      {validationError}
+                    </p>
+                  </div>
+                )}
+        
+                {/* Results logic remains the same... */}        {isLoading && (
           <div className="mt-12 text-center text-blue-600 dark:text-blue-400 font-semibold">
             Bezig met laden...
           </div>
