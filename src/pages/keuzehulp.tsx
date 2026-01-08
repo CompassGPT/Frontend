@@ -17,12 +17,16 @@ interface TextQuestion extends BaseQuestion {
 
 interface SelectQuestion extends BaseQuestion {
   type: "select";
-  options: string[];
+  options:
+    | string[]
+    | ((answers: Record<number, string | string[]>) => string[]);
 }
 
 interface MultiselectQuestion extends BaseQuestion {
   type: "multiselect";
-  options: string[];
+  options:
+    | string[]
+    | ((answers: Record<number, string | string[]>) => string[]);
 }
 
 type Question = TextQuestion | SelectQuestion | MultiselectQuestion;
@@ -59,19 +63,27 @@ const QUESTIONS: Question[] = [
     id: 5,
     question: "Welke vaardigheden zou je graag willen ontwikkelen?",
     type: "multiselect",
-    options: [
-      "Onderzoek",
-      "Samenwerken",
-      "Creativiteit",
-      "Leiderschap",
-      NONE_LABEL,
-    ],
+    options: (_answers) => {
+      // Dynamic options based on previous answers could go here
+      // For now, return the same options
+      return [
+        "Onderzoek",
+        "Samenwerken",
+        "Creativiteit",
+        "Leiderschap",
+        NONE_LABEL,
+      ];
+    },
   },
   {
     id: 6,
     question: "Welke onderwerpen spreken je aan?",
     type: "multiselect",
-    options: ["Technologie", "Zorg", "Economie", "Onderwijs"],
+    options: (_answers) => {
+      // Dynamic options based on previous answers could go here
+      // For now, return the same options
+      return ["Technologie", "Zorg", "Economie", "Onderwijs"];
+    },
   },
   {
     id: 7,
@@ -110,6 +122,15 @@ export function KeuzehulpPage() {
 
   const getArrayAnswer = (answer: string | string[]): string[] => {
     return Array.isArray(answer) ? answer : [];
+  };
+
+  const getOptions = (
+    question: SelectQuestion | MultiselectQuestion
+  ): string[] => {
+    if (Array.isArray(question.options)) {
+      return question.options;
+    }
+    return question.options(answers);
   };
   const currentQ = QUESTIONS[currentQuestion];
   const currentAnswer = answers[currentQ.id];
@@ -311,7 +332,7 @@ export function KeuzehulpPage() {
             {(currentQ.type === "select" ||
               currentQ.type === "multiselect") && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {currentQ.options?.map((option) => {
+                {getOptions(currentQ).map((option) => {
                   const selectedOptions = getArrayAnswer(currentAnswer);
                   const isSelected = selectedOptions.includes(option);
 
