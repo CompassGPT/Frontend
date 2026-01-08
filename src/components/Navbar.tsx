@@ -21,7 +21,6 @@ export function Navbar() {
   const navLinks = [
     { to: "/modules", label: "Modules" },
     { to: "/keuzehulp", label: "Keuzehulp" },
-    { to: "/profile", label: "Profiel" },
   ];
 
   return (
@@ -31,8 +30,7 @@ export function Navbar() {
         <div className="flex items-center">
           <Link
             to="/"
-            className="font-bold text-lg text-gray-900 dark:text-white"
-          >
+            className="font-bold text-lg text-gray-900 dark:text-white">
             CompassGPT
           </Link>
         </div>
@@ -57,8 +55,7 @@ export function Navbar() {
           <button
             onClick={handleLogout}
             className="px-3 py-1.5 text-sm border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 transition-colors"
-            type="button"
-          >
+            type="button">
             {user ? "Logout" : "Login"}
           </button>
         </div>
@@ -70,14 +67,12 @@ export function Navbar() {
             onClick={() => setIsMenuOpen(!isMenuOpen)}
             className="p-2 text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors"
             type="button"
-            aria-label="Toggle menu"
-          >
+            aria-label="Toggle menu">
             <svg
               className="w-6 h-6"
               fill="none"
               stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
+              viewBox="0 0 24 24">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -102,23 +97,24 @@ export function Navbar() {
                 key={link.to}
                 to={link.to}
                 onClick={() => setIsMenuOpen(false)}
-                className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive(link.to) ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"}`}
-              >
+                className={`block px-3 py-2 rounded-md text-sm font-medium transition-colors ${isActive(link.to) ? "bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400" : "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700"}`}>
                 {link.label}
               </Link>
             ))}
 
             {user && (
-              <div className="px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border-t border-gray-200 dark:border-gray-700 mt-2 pt-2">
+              <Link
+                to="/profile"
+                onClick={() => setIsMenuOpen(false)}
+                className="block px-3 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 border-t border-gray-200 dark:border-gray-700 mt-2 pt-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md transition-colors">
                 {user.name}
-              </div>
+              </Link>
             )}
 
             <button
               onClick={handleLogout}
               className="w-full text-left px-3 py-2 rounded-md text-sm font-medium border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-              type="button"
-            >
+              type="button">
               {user ? "Logout" : "Login"}
             </button>
           </div>
