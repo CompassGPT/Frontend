@@ -1,25 +1,16 @@
-import { useEffect, useState } from "react";
+import { useState, type KeyboardEvent } from "react";
 import { usePrediction } from "../hooks/usePrediction";
 
-type Question =
-  | {
-      id: number;
-      question: string;
-      type: "text";
-      placeholder?: string;
-    }
-  | {
-      id: number;
-      question: string;
-      type: "select";
-      options: string[];
-    }
-  | {
-      id: number;
-      question: string;
-      type: "multiselect";
-      options: string[];
-    };
+// --- Types ---
+type QuestionType = "text" | "select" | "multiselect";
+
+interface Question {
+  id: number;
+  question: string;
+  type: QuestionType;
+  placeholder?: string;
+  options?: string[]; // Made optional for text type
+}
 
 const QUESTIONS: Question[] = [
   {
@@ -48,376 +39,323 @@ const QUESTIONS: Question[] = [
   },
   {
     id: 5,
-    question:
-      "Welke vaardigheden zou je graag willen ontwikkelen bij je gekozen VKM? (meerdere keuzes mogelijk)",
+    question: "Welke vaardigheden zou je graag willen ontwikkelen?",
     type: "multiselect",
-    options: ["kaas", "patat", "mayonnaise", "is dat goed", "geschreven?"],
+    options: ["Onderzoek", "Samenwerken", "Creativiteit", "Leiderschap"],
   },
   {
     id: 6,
-    question:
-      "Welke onderwerpen spreken je aan voor een VKM? (meerdere keuzes mogelijk)",
+    question: "Welke onderwerpen spreken je aan?",
     type: "multiselect",
-    options: ["kaas", "friet"],
+    options: ["Technologie", "Zorg", "Economie", "Onderwijs"],
   },
   {
     id: 7,
-    question:
-      "In het kort: Welke interesses spelen mee bij je keuze voor een VKM?",
+    question: "In het kort: Welke interesses spelen mee?",
     type: "text",
-    placeholder: "Bijv. 'Ik ben vooral geïnteresseerd in software en AI.'",
+    placeholder: "Bijv. 'Software en AI'",
   },
   {
     id: 8,
-    question: "In het kort: Wat hoop je vooral te leren met je VKM?",
+    question: "Wat hoop je vooral te leren?",
     type: "text",
-    placeholder: "Bijv. 'Ik wil beter leren ondernemen en communiceren.'",
+    placeholder: "Bijv. 'Beter ondernemen'",
   },
 ];
 
 export function KeuzehulpPage() {
-  type Answer = string | string[];
-
   const MAX_TEXT_CHARS = 200;
+  const NONE_LABEL = "Geen van deze leerdoelen";
 
-  const NONE_OF_GIVEN_LABEL = "Geen van deze leerdoelen";
-
+  // --- State ---
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<Answer[]>(() =>
-    QUESTIONS.map((q) => (q.type === "multiselect" ? [] : ""))
+  const [answers, setAnswers] = useState<Record<number, string | string[]>>(
+    () =>
+      Object.fromEntries(
+        QUESTIONS.map((q) => [q.id, q.type === "multiselect" ? [] : ""])
+      )
   );
   const [charLimitError, setCharLimitError] = useState(false);
+
   const { predictions, isLoading, error, getPredictions } = usePrediction();
 
-  useEffect(() => {
-    setAnswers((prev) =>
-      QUESTIONS.map((q, index) => {
-        const prevValue = prev[index];
-
-        if (q.type === "multiselect") {
-          return Array.isArray(prevValue) ? prevValue : [];
-        }
-
-        return typeof prevValue === "string" ? prevValue : "";
-      })
-    );
-
-    setCurrentQuestion((prev) =>
-      Math.min(Math.max(prev, 0), Math.max(QUESTIONS.length - 1, 0))
-    );
-  }, []);
-
+  // --- Helpers ---
   const currentQ = QUESTIONS[currentQuestion];
-  const progress =
-    QUESTIONS.length <= 1
-      ? 100
-      : (currentQuestion / (QUESTIONS.length - 1)) * 100;
+  const currentAnswer = answers[currentQ.id];
+  const progress = (currentQuestion / (QUESTIONS.length - 1)) * 100;
 
-  const setAnswerForCurrentQuestion = (value: Answer) => {
-    const newAnswers = [...answers];
-    newAnswers[currentQuestion] = value;
-    setAnswers(newAnswers);
-    // Clear error when user modifies answer
+  const updateAnswer = (val: string | string[]) => {
+    setAnswers((prev) => ({ ...prev, [currentQ.id]: val }));
     if (charLimitError) setCharLimitError(false);
   };
 
-  const toggleMultiSelectOption = (option: string) => {
-    const isQuestionWithNoneOfAbove = QUESTIONS[currentQuestion]?.id === 5;
-    const current = answers[currentQuestion];
-    const selected = Array.isArray(current) ? current : [];
+  const toggleOption = (option: string) => {
+    const selected = Array.isArray(currentAnswer) ? [...currentAnswer] : [];
 
-    const normalizedSelected =
-      isQuestionWithNoneOfAbove && selected.includes(NONE_OF_GIVEN_LABEL)
-        ? selected.filter((x) => x !== NONE_OF_GIVEN_LABEL)
-        : selected;
-
-    if (isQuestionWithNoneOfAbove && option === NONE_OF_GIVEN_LABEL) {
-      const nextSelected = selected.includes(NONE_OF_GIVEN_LABEL)
-        ? []
-        : [NONE_OF_GIVEN_LABEL];
-      setAnswerForCurrentQuestion(nextSelected);
+    if (option === NONE_LABEL) {
+      updateAnswer(selected.includes(NONE_LABEL) ? [] : [NONE_LABEL]);
       return;
     }
 
-    const nextSelected = normalizedSelected.includes(option)
-      ? normalizedSelected.filter((x) => x !== option)
-      : [...normalizedSelected, option];
+    const filtered = selected.filter((item) => item !== NONE_LABEL);
+    const nextValue = filtered.includes(option)
+      ? filtered.filter((item) => item !== option)
+      : [...filtered, option];
 
-    setAnswerForCurrentQuestion(nextSelected);
+    updateAnswer(nextValue);
   };
 
+  // --- Navigation ---
   const handleNext = () => {
-    // Check text answers for character limit before moving forward
-    if (currentQ.type === "text") {
-      const currentAnswer = answers[currentQuestion];
-      if (
-        typeof currentAnswer === "string" &&
-        currentAnswer.length > MAX_TEXT_CHARS
-      ) {
+    if (currentQ.type === "text" && typeof currentAnswer === "string") {
+      if (currentAnswer.length > MAX_TEXT_CHARS) {
         setCharLimitError(true);
-        return; // Prevent navigation
+        return;
       }
     }
-
-    setCharLimitError(false);
     if (currentQuestion < QUESTIONS.length - 1) {
-      setCurrentQuestion(currentQuestion + 1);
+      setCurrentQuestion((prev) => prev + 1);
     }
   };
 
-  const handlePrevious = () => {
-    if (currentQuestion > 0) {
-      setCurrentQuestion(currentQuestion - 1);
-    }
+  const onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Enter" && currentQ.type === "text") handleNext();
   };
 
   const handleComplete = async () => {
-    const creditAnswers = answers[1];
-    // Ensure wantedStudyCreditRange is always a tuple [number, number]
-    let wantedStudyCreditRange: [number, number] = [0, 100];
-    if (Array.isArray(creditAnswers)) {
-      if (creditAnswers.includes("15")) wantedStudyCreditRange = [15, 15];
-      else if (creditAnswers.includes("30")) wantedStudyCreditRange = [30, 30];
+    // Transform answers for API
+    const getValues = (id: number) => answers[id];
+
+    // Validate required fields
+    const currentStudy = String(getValues(1)).trim();
+    const locationPrefs = Array.isArray(getValues(4))
+      ? (getValues(4) as string[])
+      : [];
+    const periodPrefs = Array.isArray(getValues(3))
+      ? (getValues(3) as string[])
+      : [];
+    const interests = Array.isArray(getValues(6))
+      ? (getValues(6) as string[])
+      : [];
+
+    const learningGoalsArray: string[] = [];
+    const q5Values = getValues(5);
+    if (Array.isArray(q5Values)) {
+      learningGoalsArray.push(...q5Values);
+    }
+    const q8Value = getValues(8);
+    if (typeof q8Value === "string" && q8Value.trim()) {
+      learningGoalsArray.push(q8Value);
     }
 
-    // Map answers to PredictionRequest shape
+    // Validate minimum requirements
+    if (currentStudy.length < 2) {
+      alert("Voer alstublieft je huidge studie in (minimaal 2 tekens)");
+      return;
+    }
+    if (locationPrefs.length === 0) {
+      alert("Selecteer alstublieft minstens één locatievoorkeur");
+      return;
+    }
+    if (learningGoalsArray.length === 0) {
+      alert("Voer alstublieft minstens één leerdoel in");
+      return;
+    }
+    if (periodPrefs.length === 0) {
+      alert("Selecteer alstublieft minstens één periode");
+      return;
+    }
+    if (interests.length === 0) {
+      alert("Selecteer alstublieft minstens één onderwerp");
+      return;
+    }
+
+    const creditRange = (getValues(2) as string[]).includes("30")
+      ? ([30, 30] as [number, number])
+      : ([15, 15] as [number, number]);
+
+    // Map credit range to NLQF level
+    const nlqfLevel = creditRange[0] === 30 ? "NLQF6" : "NLQF5";
+
+    // Debug log to verify data before sending
+    console.log("Sending prediction request:", {
+      currentStudy,
+      interests,
+      wantedStudyCreditRange: creditRange,
+      locationPreference: locationPrefs,
+      learningGoals: learningGoalsArray.filter((g) => g.trim()),
+      levelPreference: [nlqfLevel],
+      preferredLanguage: "Nederlands",
+    });
+
     const request = {
-      currentStudy: typeof answers[0] === "string" ? answers[0] : "",
-      interests: Array.isArray(answers[4]) ? answers[4] : [],
-      wantedStudyCreditRange,
-      locationPreference: Array.isArray(answers[3]) ? answers[3] : [],
-      learningGoals: [],
-      levelPreference: [],
-      preferredLanguage: "nl",
+      currentStudy,
+      interests,
+      wantedStudyCreditRange: creditRange,
+      locationPreference: locationPrefs,
+      learningGoals: learningGoalsArray.filter((g) => g.trim()),
+      levelPreference: [nlqfLevel],
+      preferredLanguage: "Nederlands",
     };
+
     await getPredictions(request);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors pt-20 pb-12">
-      {/* Header */}
-      <div className="text-center mb-12 px-4">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
-          Keuzehulp
-        </h1>
-        <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto text-sm leading-relaxed">
-          Heb je moeite met het kiezen van een keuzem module die goed bij jou
-          past? Vrees niet! Keuzehulp is speciaal ontwikkeld om jou als student
-          te helpen met het maken van deze keuze. Hieronder zie je je een
-          vragenlijst met verschillende vragen over persoonlijke interesses.
-          Keuzehulp neemt al je antwoorden op en werkt dit in een op maat
-          gemaakte advies.
-        </p>
-      </div>
-
-      {/* Main Container */}
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20 pb-12 transition-colors">
       <div className="max-w-3xl mx-auto px-4">
-        {/* Progress Bar */}
-        <div className="mb-8">
-          <div className="flex justify-between items-center mb-3">
-            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-              Voortgang
-            </span>
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400">
-              {currentQuestion + 1}/{QUESTIONS.length}
-            </span>
-          </div>
-          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 overflow-hidden">
+        {/* Progress Section */}
+        <header className="mb-12 text-center">
+          <h1 className="text-4xl font-bold mb-4 dark:text-white">Keuzehulp</h1>
+          <div className="w-full bg-gray-200 dark:bg-gray-700 h-2 rounded-full overflow-hidden mt-8">
             <div
-              className="bg-blue-600 dark:bg-blue-500 h-2 rounded-full transition-all duration-300"
+              className="bg-blue-600 h-full transition-all duration-500 ease-out"
               style={{ width: `${progress}%` }}
             />
           </div>
-        </div>
+        </header>
 
-        {/* Question Card */}
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-lg p-8 border border-gray-200 dark:border-gray-700 transition-colors">
-          {/* Question Number */}
-          <div className="mb-6">
-            <span className="text-sm font-semibold text-blue-600 dark:text-blue-400">
-              {String(currentQuestion + 1).padStart(2, "0")}/
-              {String(QUESTIONS.length).padStart(2, "0")}
-            </span>
-          </div>
-
-          {/* Question */}
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-8">
+        {/* Card */}
+        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
+          <p className="text-blue-600 font-bold text-sm mb-2 uppercase tracking-wider">
+            Vraag {currentQuestion + 1} van {QUESTIONS.length}
+          </p>
+          <h2 className="text-2xl font-bold mb-8 dark:text-white">
             {currentQ.question}
           </h2>
 
-          {/* Input Field */}
-          <div className="mb-12">
+          <div className="min-h-50">
             {currentQ.type === "text" && (
-              <>
+              <div className="space-y-2">
                 <input
                   type="text"
-                  value={
-                    typeof answers[currentQuestion] === "string"
-                      ? answers[currentQuestion]
-                      : ""
-                  }
-                  onChange={(e) => setAnswerForCurrentQuestion(e.target.value)}
-                  placeholder={currentQ.placeholder}
                   autoFocus
-                  className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-blue-400 dark:focus:border-blue-400 transition-colors"
+                  className={`w-full p-4 rounded-xl border-2 transition-all outline-none bg-transparent dark:text-white ${
+                    charLimitError
+                      ? "border-red-500"
+                      : "border-gray-200 dark:border-gray-600 focus:border-blue-500"
+                  }`}
+                  placeholder={currentQ.placeholder}
+                  value={String(currentAnswer)}
+                  onChange={(e) => updateAnswer(e.target.value)}
+                  onKeyDown={onKeyDown}
                 />
-                {charLimitError && (
-                  <p className="mt-2 text-sm text-red-600 dark:text-red-400">
-                    Je antwoord is te lang. Maximaal {MAX_TEXT_CHARS} tekens
-                    toegestaan.
-                  </p>
-                )}
-              </>
-            )}
-
-            {currentQ.type === "select" && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {currentQ.options.map((option) => (
-                  <button
-                    key={option}
-                    onClick={() => setAnswerForCurrentQuestion(option)}
-                    className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 border-2 ${
-                      answers[currentQuestion] === option
-                        ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
-                        : "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    }`}>
-                    {option}
-                  </button>
-                ))}
+                <div className="flex justify-between text-xs">
+                  <span
+                    className={
+                      charLimitError ? "text-red-500" : "text-gray-400"
+                    }>
+                    {String(currentAnswer).length} / {MAX_TEXT_CHARS} tekens
+                  </span>
+                </div>
               </div>
             )}
 
-            {currentQ.type === "multiselect" && (
+            {(currentQ.type === "select" ||
+              currentQ.type === "multiselect") && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {currentQ.options
-                  .filter((option) => option.trim() !== "")
-                  .map((option) => {
-                    const current = answers[currentQuestion];
-                    const selected = Array.isArray(current) ? current : [];
-                    const isSelected = selected.includes(option);
+                {currentQ.options?.map((option) => {
+                  const isSelected = Array.isArray(currentAnswer)
+                    ? currentAnswer.includes(option)
+                    : currentAnswer === option;
 
-                    return (
-                      <button
-                        key={option}
-                        onClick={() => toggleMultiSelectOption(option)}
-                        className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 border-2 ${
-                          isSelected
-                            ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
-                            : "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-gray-100 dark:hover:bg-gray-600"
-                        }`}>
-                        {option}
-                      </button>
-                    );
-                  })}
-
-                {currentQ.id === 5 && (
-                  <button
-                    key={NONE_OF_GIVEN_LABEL}
-                    onClick={() => toggleMultiSelectOption(NONE_OF_GIVEN_LABEL)}
-                    className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 border-2 ${
-                      Array.isArray(answers[currentQuestion]) &&
-                      answers[currentQuestion].includes(NONE_OF_GIVEN_LABEL)
-                        ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
-                        : "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    }`}>
-                    {NONE_OF_GIVEN_LABEL}
-                  </button>
-                )}
-
-                {currentQ.id === 6 && (
-                  <button
-                    key={NONE_OF_GIVEN_LABEL}
-                    onClick={() => toggleMultiSelectOption(NONE_OF_GIVEN_LABEL)}
-                    className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 border-2 ${
-                      Array.isArray(answers[currentQuestion]) &&
-                      answers[currentQuestion].includes(NONE_OF_GIVEN_LABEL)
-                        ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
-                        : "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-gray-100 dark:hover:bg-gray-600"
-                    }`}>
-                    {NONE_OF_GIVEN_LABEL}
-                  </button>
-                )}
+                  return (
+                    <button
+                      key={option}
+                      onClick={() =>
+                        currentQ.type === "select"
+                          ? updateAnswer(option)
+                          : toggleOption(option)
+                      }
+                      className={`p-4 rounded-xl border-2 font-medium transition-all text-left ${
+                        isSelected
+                          ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
+                          : "border-gray-100 dark:border-gray-700 hover:border-blue-300 dark:text-gray-300"
+                      }`}>
+                      {option}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between items-center gap-4">
+          {/* Navigation */}
+          <div className="flex justify-between mt-12 pt-8 border-t dark:border-gray-700">
             <button
-              onClick={handlePrevious}
+              onClick={() => setCurrentQuestion((prev) => prev - 1)}
               disabled={currentQuestion === 0}
-              className="px-6 py-2.5 border border-gray-300 dark:border-gray-600 rounded-lg text-gray-700 dark:text-gray-300 font-medium hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+              className="px-8 py-3 rounded-xl font-semibold text-gray-500 disabled:opacity-0 transition-opacity">
               Vorige
             </button>
-
             <button
               onClick={
                 currentQuestion === QUESTIONS.length - 1
                   ? handleComplete
                   : handleNext
               }
-              className="px-6 py-2.5 bg-blue-600 dark:bg-blue-500 hover:bg-blue-700 dark:hover:bg-blue-600 text-white font-medium rounded-lg transition-colors">
+              className="px-10 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-200 dark:shadow-none transition-all">
               {currentQuestion === QUESTIONS.length - 1
-                ? "Voltooien"
+                ? "Bekijk Resultaat"
                 : "Volgende"}
             </button>
           </div>
         </div>
 
-        {/* Info Box */}
-        <div className="mt-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
-          <p className="text-sm text-blue-800 dark:text-blue-300">
-            💡 Tip: Antwoord eerlijk op alle vragen voor de beste aanbevelingen
-          </p>
-        </div>
-
-        {/* Prediction Results */}
+        {/* Results logic remains the same... */}
         {isLoading && (
-          <div className="mt-8 text-center text-blue-600 dark:text-blue-400 font-medium">
+          <div className="mt-12 text-center text-blue-600 dark:text-blue-400 font-semibold">
             Bezig met laden...
           </div>
         )}
         {error && (
-          <div className="mt-8 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
-            <p className="text-sm text-red-800 dark:text-red-300">
-              Fout: {error}
+          <div className="mt-12 p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+            <p className="text-red-800 dark:text-red-200 font-semibold mb-2">
+              Fout bij het ophalen van aanbevelingen:
+            </p>
+            <p className="text-red-700 dark:text-red-300 text-sm whitespace-pre-wrap">
+              {error}
             </p>
           </div>
         )}
         {predictions && predictions.predictions.length > 0 && (
-          <div className="mt-8">
-            <h3 className="text-2xl font-bold mb-6 text-gray-900 dark:text-white">
+          <div className="mt-12">
+            <h3 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">
               Aanbevolen modules
             </h3>
             <div className="grid gap-4">
               {predictions.predictions.map((p) => (
                 <div
                   key={p.module.id}
-                  className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
+                  className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
                   <div className="flex justify-between items-start mb-3">
-                    <div>
+                    <div className="flex-1">
                       <h4 className="text-xl font-bold text-gray-900 dark:text-white">
                         {p.module.name}
                       </h4>
-                      <p className="text-gray-600 dark:text-gray-300 mt-1">
+                      <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm">
                         {p.module.shortdescription}
                       </p>
                     </div>
-                    <div className="ml-4 text-right">
-                      <div className="text-2xl font-bold text-blue-600 dark:text-blue-400">
+                    <div className="ml-6 text-right shrink-0">
+                      <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
                         {(p.score * 100).toFixed(0)}%
                       </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
+                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                         Match
                       </p>
                     </div>
                   </div>
-                  <div className="flex gap-4 text-sm text-gray-600 dark:text-gray-400">
-                    <span>📚 {p.module.studyCredits} EC</span>
-                    <span>
+                  <div className="flex gap-6 text-sm text-gray-600 dark:text-gray-400 pt-4 border-t dark:border-gray-700">
+                    <span className="flex items-center gap-2">
+                      📚 {p.module.studyCredits} pt
+                    </span>
+                    <span className="flex items-center gap-2">
                       📍 {p.module.location.map((l) => l.name).join(", ")}
                     </span>
-                    <span>🎓 {p.module.level}</span>
+                    <span className="flex items-center gap-2">
+                      🎓 {p.module.level}
+                    </span>
                   </div>
                 </div>
               ))}
