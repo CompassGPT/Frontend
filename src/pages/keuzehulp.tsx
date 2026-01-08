@@ -323,6 +323,7 @@ export function KeuzehulpPage() {
                           ? updateAnswer(option)
                           : toggleOption(option)
                       }
+                      aria-pressed={isSelected}
                       className={`p-4 rounded-xl border-2 font-medium transition-all text-left ${
                         isSelected
                           ? "border-blue-600 bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400"
