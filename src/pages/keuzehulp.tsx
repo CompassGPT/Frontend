@@ -12,6 +12,8 @@ interface Question {
   options?: string[]; // Made optional for text type
 }
 
+const NONE_LABEL = "Geen van deze leerdoelen";
+
 const QUESTIONS: Question[] = [
   {
     id: 1,
@@ -29,6 +31,7 @@ const QUESTIONS: Question[] = [
     id: 3,
     question: "In welke periode wil je je VKM volgen?",
     type: "multiselect",
+    // "P3" en "P4" zijn (nog) niet beschikbaar in het aanbod en blijven daarom uitgeschakeld.
     options: ["P1", "P2" /* "P3", "P4" */],
   },
   {
@@ -41,7 +44,13 @@ const QUESTIONS: Question[] = [
     id: 5,
     question: "Welke vaardigheden zou je graag willen ontwikkelen?",
     type: "multiselect",
-    options: ["Onderzoek", "Samenwerken", "Creativiteit", "Leiderschap"],
+    options: [
+      "Onderzoek",
+      "Samenwerken",
+      "Creativiteit",
+      "Leiderschap",
+      NONE_LABEL,
+    ],
   },
   {
     id: 6,
@@ -65,7 +74,6 @@ const QUESTIONS: Question[] = [
 
 export function KeuzehulpPage() {
   const MAX_TEXT_CHARS = 200;
-  const NONE_LABEL = "Geen van deze leerdoelen";
 
   // --- State ---
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -156,7 +164,9 @@ export function KeuzehulpPage() {
 
     // Validate minimum requirements
     if (currentStudy.length < 2) {
-      setValidationError("Voer alstublieft je huidige studie in (minimaal 2 tekens)");
+      setValidationError(
+        "Voer alstublieft je huidige studie in (minimaal 2 tekens)"
+      );
       return;
     }
     if (locationPrefs.length === 0) {
@@ -233,7 +243,6 @@ export function KeuzehulpPage() {
             />
           </div>
         </header>
-
         {/* Card */}
         <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8 border border-gray-100 dark:border-gray-700">
           <p className="text-blue-600 font-bold text-sm mb-2 uppercase tracking-wider">
@@ -319,21 +328,20 @@ export function KeuzehulpPage() {
                 : "Volgende"}
             </button>
           </div>
-                  </div>
-        
-                {/* Validation Error Display */}
-                {validationError && (
-                  <div className="mt-12 p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-                    <p className="text-red-800 dark:text-red-200 font-semibold mb-2">
-                      Validatie Fout:
-                    </p>
-                    <p className="text-red-700 dark:text-red-300 text-sm whitespace-pre-wrap">
-                      {validationError}
-                    </p>
-                  </div>
-                )}
-        
-                {/* Results logic remains the same... */}        {isLoading && (
+        </div>
+        {/* Validation Error Display */}
+        {validationError && (
+          <div className="mt-12 p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+            <p className="text-red-800 dark:text-red-200 font-semibold mb-2">
+              Validatie Fout:
+            </p>
+            <p className="text-red-700 dark:text-red-300 text-sm whitespace-pre-wrap">
+              {validationError}
+            </p>
+          </div>
+        )}
+        {/* Results logic remains the same... */}{" "}
+        {isLoading && (
           <div className="mt-12 text-center text-blue-600 dark:text-blue-400 font-semibold">
             Bezig met laden...
           </div>
