@@ -35,26 +35,46 @@ const QUESTIONS: Question[] = [
   },
   {
     id: 3,
-    question: "Welke periode past het best voor je?",
+    question: "In welke periode wil je je VKM volgen?",
     type: "multiselect",
     options: ["P1", "P2", "P3", "P4"],
   },
   {
     id: 4,
-    question: "Locatie voorkeur?",
+    question: "Heb je een locatievoorkeur voor je VKM?",
     type: "multiselect",
     options: ["Tilburg", "Breda", "Den Bosch", "Roosendaal"],
   },
   {
     id: 5,
-    question: "Passen een of meerdere van de volgende skills bij je leerdoelen voor je VKM?",
+    question: "Welke vaardigheden zou je graag willen ontwikkelen bij je gekozen VKM? (meerdere keuzes mogelijk)",
     type: "multiselect",
     options: ["kaas", "patat", "mayonnaise", "is dat goed", "geschreven?"]
-  }
+  },
+  {
+    id: 6,
+    question: "Welke onderwerpen spreken je aan voor een VKM? (meerdere keuzes mogelijk)",
+    type: "multiselect",
+    options: ["kaas", "friet"]
+  },
+  {
+    id: 7,
+    question: "In het kort: Welke interesses spelen mee bij je keuze voor een VKM?",
+    type: "text",
+    placeholder: "Bijv. 'Ik ben vooral geïnteresseerd in software en AI.'"
+  },
+  {
+    id: 8,
+    question: "In het kort: Wat hoop je vooral te leren met je VKM?",
+    type: "text",
+    placeholder: "Bijv. 'Ik wil beter leren ondernemen en communiceren.'"
+  },
 ];
 
 export function KeuzehulpPage() {
   type Answer = string | string[];
+
+  const MAX_TEXT_CHARS = 200;
 
   const NONE_OF_GIVEN_LABEL = "Geen van deze leerdoelen";
 
@@ -62,6 +82,7 @@ export function KeuzehulpPage() {
   const [answers, setAnswers] = useState<Answer[]>(() =>
     QUESTIONS.map((q) => (q.type === "multiselect" ? [] : "")),
   );
+  const [charLimitError, setCharLimitError] = useState(false);
 
   useEffect(() => {
     setAnswers((prev) =>
@@ -91,6 +112,8 @@ export function KeuzehulpPage() {
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = value;
     setAnswers(newAnswers);
+    // Clear error when user modifies answer
+    if (charLimitError) setCharLimitError(false);
   };
 
   const toggleMultiSelectOption = (option: string) => {
@@ -119,6 +142,16 @@ export function KeuzehulpPage() {
   };
 
   const handleNext = () => {
+    // Check text answers for character limit before moving forward
+    if (currentQ.type === "text") {
+      const currentAnswer = answers[currentQuestion];
+      if (typeof currentAnswer === "string" && currentAnswer.length > MAX_TEXT_CHARS) {
+        setCharLimitError(true);
+        return; // Prevent navigation
+      }
+    }
+
+    setCharLimitError(false);
     if (currentQuestion < QUESTIONS.length - 1) {
       setCurrentQuestion(currentQuestion + 1);
     }
@@ -190,14 +223,21 @@ export function KeuzehulpPage() {
           {/* Input Field */}
           <div className="mb-12">
             {currentQ.type === "text" && (
-              <input
-                type="text"
-                value={typeof answers[currentQuestion] === "string" ? answers[currentQuestion] : ""}
-                onChange={(e) => setAnswerForCurrentQuestion(e.target.value)}
-                placeholder={currentQ.placeholder}
-                autoFocus
-                className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none focus:border-blue-400 dark:focus:border-blue-400 transition-colors"
-              />
+              <div>
+                <input
+                  type="text"
+                  value={typeof answers[currentQuestion] === "string" ? answers[currentQuestion] : ""}
+                  onChange={(e) => setAnswerForCurrentQuestion(e.target.value)}
+                  placeholder={currentQ.placeholder}
+                  autoFocus
+                  className={`w-full px-4 py-3 rounded-lg border-2 ${charLimitError ? "border-red-500 dark:border-red-500" : "border-gray-300 dark:border-gray-600"} bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:outline-none ${charLimitError ? "focus:border-red-500 dark:focus:border-red-500" : "focus:border-blue-400 dark:focus:border-blue-400"} transition-colors`}
+                />
+                {charLimitError && (
+                  <p className="mt-2 text-sm text-red-600 dark:text-red-400">
+                    Je antwoord is te lang. Maximaal {MAX_TEXT_CHARS} tekens toegestaan.
+                  </p>
+                )}
+              </div>
             )}
 
             {currentQ.type === "select" && (
@@ -255,6 +295,23 @@ export function KeuzehulpPage() {
                   >
                     {NONE_OF_GIVEN_LABEL}
                   </button>
+                  
+                )}
+
+                {currentQ.id === 6 && (
+                  <button
+                    key={NONE_OF_GIVEN_LABEL}
+                    onClick={() => toggleMultiSelectOption(NONE_OF_GIVEN_LABEL)}
+                    className={`px-4 py-3 rounded-lg font-medium transition-all duration-200 border-2 ${
+                      Array.isArray(answers[currentQuestion]) &&
+                      answers[currentQuestion].includes(NONE_OF_GIVEN_LABEL)
+                        ? "bg-blue-600 dark:bg-blue-500 text-white border-blue-600 dark:border-blue-500"
+                        : "bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-gray-100 border-gray-300 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-400 hover:bg-gray-100 dark:hover:bg-gray-600"
+                    }`}
+                  >
+                    {NONE_OF_GIVEN_LABEL}
+                  </button>
+                  
                 )}
               </div>
             )}
