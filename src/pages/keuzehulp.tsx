@@ -170,9 +170,18 @@ export function KeuzehulpPage() {
       return;
     }
 
-    const creditRange = (getValues(2) as string[]).includes("30")
-      ? ([30, 30] as [number, number])
-      : ([15, 15] as [number, number]);
+    const creditValues = getValues(2) as string[];
+    const has15 = creditValues.includes("15");
+    const has30 = creditValues.includes("30");
+
+    let creditRange: [number, number];
+    if (has15 && has30) {
+      creditRange = [15, 30];
+    } else if (has30) {
+      creditRange = [30, 30];
+    } else {
+      creditRange = [15, 15];
+    }
 
     // Map credit range to NLQF level
     const nlqfLevel = creditRange[0] === 30 ? "NLQF6" : "NLQF5";
