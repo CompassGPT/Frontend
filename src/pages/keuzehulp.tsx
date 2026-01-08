@@ -329,6 +329,21 @@ export function KeuzehulpPage() {
             </p>
           </div>
         )}
+        {predictions &&
+          predictions.predictions.length === 0 &&
+          !isLoading &&
+          !error && (
+            <div className="mt-12 p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
+              <p className="text-yellow-800 dark:text-yellow-200 font-semibold mb-2">
+                Geen modules gevonden
+              </p>
+              <p className="text-yellow-700 dark:text-yellow-300 text-sm">
+                Helaas hebben we geen modules gevonden die volledig voldoen aan
+                jouw criteria. Probeer je voorkeuren aan te passen of neem
+                contact op met een docent.
+              </p>
+            </div>
+          )}
         {predictions && predictions.predictions.length > 0 && (
           <div className="mt-12">
             <h3 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">
