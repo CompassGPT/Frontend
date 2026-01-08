@@ -44,14 +44,14 @@ export interface ModulesResponse {
 }
 
 export interface moduleDetail {
-  id: string;
+  id: number;
   name: string;
   description: string;
   content: string;
   level: string;
   studyCredits: number;
-  location: { id: string; name: string }[];
-  moduleTags: { id: string; name: string }[];
+  location: { id: number; name: string }[];
+  moduleTags: { id: number; name: string }[];
   learningOutcomes: string;
   availableSpots: number;
   startDate: string;
@@ -67,8 +67,8 @@ export interface createModule {
   content: string;
   level: string;
   studyCredits: number;
-  location: { id: string; name: string }[];
-  moduleTags: { id: string; name: string }[];
+  location: { id: number; name: string }[];
+  moduleTags: { id: number; name: string }[];
   learningOutcomes: string;
   availableSpots: number;
   startDate: string;
@@ -79,7 +79,7 @@ export interface createModule {
  * Meta data types
  */
 export interface Location {
-  id: string;
+  id: number;
   name: string;
 }
 
@@ -88,7 +88,7 @@ export interface LocationsResponse {
 }
 
 export interface Tag {
-  id: string;
+  id: number;
   name: string;
 }
 

@@ -174,12 +174,10 @@ export function useModuleCreate() {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getModuleTags = async () => {
+  const getModuleTags = async (): Promise<Tag[]> => {
     try {
       console.log("Calling /api/moduletags...");
-      const response = await backend.get<{ moduleTags: Tag[] }>(
-        "/api/moduletags"
-      );
+      const response = await backend.get<Tag[]>("/api/moduletags");
       console.log("ModuleTags response:", response);
       return response;
     } catch (err) {
@@ -188,12 +186,10 @@ export function useModuleCreate() {
     }
   };
 
-  const getLocations = async () => {
+  const getLocations = async (): Promise<Location[]> => {
     try {
       console.log("Calling /api/locations...");
-      const response = await backend.get<{ locations: Location[] }>(
-        "/api/locations"
-      );
+      const response = await backend.get<Location[]>("/api/locations");
       console.log("Locations response:", response);
       return response;
     } catch (err) {

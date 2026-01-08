@@ -2,10 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { useModuleCreate } from "../hooks/useModule";
-import type { createModule } from "../types/api.types";
-
-type Location = { id: string; name: string };
-type Tag = { id: string; name: string };
+import type { createModule, Location, Tag } from "../types/api.types";
 
 export function CreateModulePage() {
   const { user } = useAuth();
@@ -28,8 +25,8 @@ export function CreateModulePage() {
   const [studyCredits, setStudyCredits] = useState(15);
   const [availableSpots, setAvailableSpots] = useState(30);
   const [startDate, setStartDate] = useState("");
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [selectedLocations, setSelectedLocations] = useState<number[]>([]);
+  const [selectedTags, setSelectedTags] = useState<number[]>([]);
   const [customTag, setCustomTag] = useState("");
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
@@ -46,17 +43,12 @@ export function CreateModulePage() {
           getLocations(),
           getModuleTags(),
         ]);
-        console.log("Locations data:", locationsData);
-        console.log("Tags data:", tagsData);
         const resolvedLocations = Array.isArray(locationsData)
-          ? locationsData
-          : ((locationsData as any)?.locations ?? []);
+          ? (locationsData as Location[])
+          : [];
         setLocations(resolvedLocations);
-        // tagsData may be returned as an array or as an object like { moduleTags: Tag[] }
-        const resolvedTags =
-          (Array.isArray(tagsData)
-            ? tagsData
-            : (tagsData as any)?.moduleTags) ?? [];
+        // tagsData is now returned as an array directly
+        const resolvedTags = Array.isArray(tagsData) ? (tagsData as Tag[]) : [];
         setTags(resolvedTags);
       } catch (err) {
         console.error("Failed to fetch locations/tags:", err);
@@ -88,15 +80,17 @@ export function CreateModulePage() {
     selectedLocations.length > 0 &&
     !isStartDateInPast;
 
-  const toggleLocation = (locId: string) => {
+  const toggleLocation = (locId: number) => {
     setSelectedLocations((prev) =>
-      prev.includes(locId) ? prev.filter((l) => l !== locId) : [...prev, locId],
+      prev.includes(locId)
+        ? prev.filter((id) => id !== locId)
+        : [...prev, locId]
     );
   };
 
-  const toggleTag = (tagId: string) => {
+  const toggleTag = (tagId: number) => {
     setSelectedTags((prev) =>
-      prev.includes(tagId) ? prev.filter((t) => t !== tagId) : [...prev, tagId],
+      prev.includes(tagId) ? prev.filter((t) => t !== tagId) : [...prev, tagId]
     );
   };
 
@@ -106,7 +100,7 @@ export function CreateModulePage() {
 
     // Check if tag already exists
     const existingTag = tags.find(
-      (t) => t.name.toLowerCase() === trimmedTag.toLowerCase(),
+      (t) => t.name.toLowerCase() === trimmedTag.toLowerCase()
     );
     if (existingTag) {
       // Tag already exists, just select it
@@ -124,14 +118,12 @@ export function CreateModulePage() {
 
     // Refresh tags to get the new tag with its ID
     const tagsData = await getModuleTags();
-    const resolvedTags =
-      (Array.isArray(tagsData) ? tagsData : (tagsData as any)?.moduleTags) ??
-      [];
+    const resolvedTags = Array.isArray(tagsData) ? (tagsData as Tag[]) : [];
     setTags(resolvedTags);
 
     // Find the newly created tag and select it
     const createdTag = resolvedTags.find(
-      (t: Tag) => t.name.toLowerCase() === trimmedTag.toLowerCase(),
+      (t: Tag) => t.name.toLowerCase() === trimmedTag.toLowerCase()
     );
     if (createdTag && !selectedTags.includes(createdTag.id)) {
       setSelectedTags((prev) => [...prev, createdTag.id]);
@@ -215,8 +207,7 @@ export function CreateModulePage() {
 
         <form
           onSubmit={handleSubmit}
-          className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8 space-y-8"
-        >
+          className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 sm:p-8 space-y-8">
           {/* Basisgegevens */}
           <section>
             <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
@@ -241,8 +232,7 @@ export function CreateModulePage() {
                 <select
                   value={level}
                   onChange={(e) => setLevel(e.target.value)}
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                >
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                   <option>NLQF5</option>
                   <option>NLQF6</option>
                 </select>
@@ -256,8 +246,7 @@ export function CreateModulePage() {
                   onChange={(e) =>
                     setStudyCredits(parseInt(e.target.value, 10))
                   }
-                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white"
-                >
+                  className="w-full px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white">
                   <option value={15}>15</option>
                   <option value={30}>30</option>
                 </select>
@@ -366,8 +355,7 @@ export function CreateModulePage() {
                       type="button"
                       key={loc.id}
                       onClick={() => toggleLocation(loc.id)}
-                      className={`px-3 py-1 rounded-full text-sm border transition-colors ${selectedLocations.includes(loc.id) ? "bg-blue-600 text-white border-blue-600" : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"}`}
-                    >
+                      className={`px-3 py-1 rounded-full text-sm border transition-colors ${selectedLocations.includes(loc.id) ? "bg-blue-600 text-white border-blue-600" : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"}`}>
                       {loc.name}
                     </button>
                   ))}
@@ -388,8 +376,7 @@ export function CreateModulePage() {
                       type="button"
                       key={tag.id}
                       onClick={() => toggleTag(tag.id)}
-                      className={`px-3 py-1 rounded-full text-sm border transition-colors ${selectedTags.includes(tag.id) ? "bg-green-600 text-white border-green-600" : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"}`}
-                    >
+                      className={`px-3 py-1 rounded-full text-sm border transition-colors ${selectedTags.includes(tag.id) ? "bg-green-600 text-white border-green-600" : "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-700"}`}>
                       {tag.name}
                     </button>
                   ))}
@@ -410,8 +397,7 @@ export function CreateModulePage() {
                   <button
                     type="button"
                     onClick={addCustomTag}
-                    className="px-4 py-2 rounded-lg bg-gray-900 text-white dark:bg-white dark:text-gray-900 w-full sm:w-auto"
-                  >
+                    className="px-4 py-2 rounded-lg bg-gray-900 text-white dark:bg-white dark:text-gray-900 w-full sm:w-auto">
                     Voeg toe
                   </button>
                 </div>
@@ -422,8 +408,7 @@ export function CreateModulePage() {
                       return (
                         <span
                           key={tagId}
-                          className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium rounded-full"
-                        >
+                          className="px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300 text-xs font-medium rounded-full">
                           {tag?.name || tagId}
                         </span>
                       );
@@ -438,15 +423,13 @@ export function CreateModulePage() {
           <div className="flex flex-col sm:flex-row gap-3 sm:justify-end">
             <Link
               to="/modules"
-              className="px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
-            >
+              className="px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
               Annuleren
             </Link>
             <button
               type="submit"
               disabled={!canSubmit || isCreating}
-              className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors flex items-center gap-2 ${!canSubmit || isCreating ? "bg-blue-300 text-white cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white"}`}
-            >
+              className={`px-6 py-2 rounded-full text-sm font-semibold transition-colors flex items-center gap-2 ${!canSubmit || isCreating ? "bg-blue-300 text-white cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700 text-white"}`}>
               {isCreating ? (
                 <>
                   <span className="inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
