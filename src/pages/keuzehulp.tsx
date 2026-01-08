@@ -187,6 +187,11 @@ export function KeuzehulpPage() {
     }
 
     const creditValues = getValues(2) as string[];
+    if (creditValues.length === 0) {
+      setValidationError("Selecteer alstublieft minstens één studiepunten optie (15 of 30)");
+      return;
+    }
+
     const has15 = creditValues.includes("15");
     const has30 = creditValues.includes("30");
 
