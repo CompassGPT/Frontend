@@ -89,6 +89,17 @@ export function KeuzehulpPage() {
   const { predictions, isLoading, error, getPredictions } = usePrediction();
 
   // --- Helpers ---
+  const getTextAnswer = (answer: string | string[]): string => {
+    return Array.isArray(answer) ? "" : answer;
+  };
+
+  const getArrayAnswer = (answer: string | string[]): string[] => {
+    return Array.isArray(answer) ? answer : [];
+  };
+
+  const getSelectAnswer = (answer: string | string[]): string => {
+    return Array.isArray(answer) ? "" : answer;
+  };
   const currentQ = QUESTIONS[currentQuestion];
   const currentAnswer = answers[currentQ.id];
   const progress = (currentQuestion / (QUESTIONS.length - 1)) * 100;
@@ -99,7 +110,7 @@ export function KeuzehulpPage() {
   };
 
   const toggleOption = (option: string) => {
-    const selected = Array.isArray(currentAnswer) ? [...currentAnswer] : [];
+    const selected = getArrayAnswer(currentAnswer);
 
     if (option === NONE_LABEL) {
       updateAnswer(selected.includes(NONE_LABEL) ? [] : [NONE_LABEL]);
@@ -188,7 +199,9 @@ export function KeuzehulpPage() {
 
     const creditValues = getValues(2) as string[];
     if (creditValues.length === 0) {
-      setValidationError("Selecteer alstublieft minstens één studiepunten optie (15 of 30)");
+      setValidationError(
+        "Selecteer alstublieft minstens één studiepunten optie (15 of 30)"
+      );
       return;
     }
 
@@ -269,7 +282,7 @@ export function KeuzehulpPage() {
                       : "border-gray-200 dark:border-gray-600 focus:border-blue-500"
                   }`}
                   placeholder={currentQ.placeholder}
-                  value={String(currentAnswer)}
+                  value={getTextAnswer(currentAnswer)}
                   onChange={(e) => updateAnswer(e.target.value)}
                   onKeyDown={onKeyDown}
                 />
@@ -288,9 +301,8 @@ export function KeuzehulpPage() {
               currentQ.type === "multiselect") && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {currentQ.options?.map((option) => {
-                  const isSelected = Array.isArray(currentAnswer)
-                    ? currentAnswer.includes(option)
-                    : currentAnswer === option;
+                  const selectedOptions = getArrayAnswer(currentAnswer);
+                  const isSelected = selectedOptions.includes(option);
 
                   return (
                     <button
