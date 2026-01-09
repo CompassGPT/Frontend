@@ -124,10 +124,10 @@ export function ModulesPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors overflow-x-hidden">
       {/* Header */}
       <div className="text-center py-12 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+        <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-4">
           Keuzemodules
         </h1>
         <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto px-4">
@@ -164,7 +164,7 @@ export function ModulesPage() {
       {/* Main content */}
       {!loading && !error && (
         <div className="container mx-auto px-4 py-8">
-          <div className="flex flex-col lg:flex-row gap-8">
+          <div className="flex flex-col lg:flex-row lg:gap-6 xl:gap-8">
             {/* Mobile Filter Backdrop */}
             {showMobileFilters && (
               <div
@@ -175,7 +175,7 @@ export function ModulesPage() {
 
             {/* Sidebar met filters */}
             <aside
-              className={`lg:w-72 shrink-0 ${showMobileFilters ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md max-h-[85vh] z-50 bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-2xl overflow-y-auto lg:static lg:transform-none lg:w-72 lg:max-h-none lg:bg-transparent lg:p-0 lg:overflow-visible lg:shadow-none lg:rounded-none" : "hidden lg:block"}`}
+              className={`lg:w-64 xl:w-72 shrink-0 ${showMobileFilters ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md max-h-[85vh] z-50 bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-2xl overflow-y-auto lg:static lg:transform-none lg:max-h-none lg:bg-transparent lg:p-0 lg:overflow-visible lg:shadow-none lg:rounded-none" : "hidden lg:block"}`}
             >
               <div className="flex justify-between items-center mb-4 lg:hidden">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">
@@ -477,8 +477,8 @@ export function ModulesPage() {
               </div>
 
               {/* Results info and favorites button */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-6 justify-between items-start sm:items-center">
-                <div>
+              <div className="flex flex-col sm:flex-row gap-3 mb-6 justify-between items-start sm:items-center w-full">
+                <div className="flex-1 min-w-0">
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-1">
                     {startIndex + 1} -{" "}
                     {Math.min(
@@ -495,11 +495,10 @@ export function ModulesPage() {
                 </div>
                 <button
                   onClick={toggleShowOnlyFavorites}
-                  className={`flex items-center gap-2 px-4 py-2 border rounded-lg transition-colors font-medium
-										${
-                      showOnlyFavorites
-                        ? "border-red-500 text-red-600 bg-red-50 hover:bg-red-100 dark:border-red-500 dark:text-red-400 dark:bg-red-900/30 dark:hover:bg-red-900/50"
-                        : "border-red-500 text-red-500 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-900/30"
+                  className={`flex items-center gap-2 border rounded-lg transition-colors font-medium whitespace-nowrap md:px-4 px-3 md:py-2 py-2 text-xs md:text-sm shrink-0
+										${showOnlyFavorites
+                      ? "border-red-500 text-red-600 bg-red-50 hover:bg-red-100 dark:border-red-500 dark:text-red-400 dark:bg-red-900/30 dark:hover:bg-red-900/50"
+                      : "border-red-500 text-red-500 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-900/30"
                     }
 									`}
                 >
@@ -510,7 +509,9 @@ export function ModulesPage() {
                   >
                     <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
                   </svg>
-                  Toon favorieten ({favoritesCount})
+                  <span className="hidden lg:inline">Toon favorieten</span>
+                  <span className="inline lg:hidden">Favorieten</span>
+                  <span className="ml-1">({favoritesCount})</span>
                 </button>
               </div>
 
@@ -519,123 +520,123 @@ export function ModulesPage() {
                 selectedLocatie.length > 0 ||
                 selectedLevel.length > 0 ||
                 selectedEC.length > 0) && (
-                <div className="mb-6 flex flex-wrap gap-2">
-                  {selectedPeriode.map((periode) => (
-                    <div
-                      key={periode}
-                      className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
-                    >
-                      {periode}
-                      <button
-                        onClick={() =>
-                          setSelectedPeriode(
-                            selectedPeriode.filter((p) => p !== periode),
-                          )
-                        }
-                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                        title="Filter verwijderen"
+                  <div className="mb-6 flex flex-wrap gap-2">
+                    {selectedPeriode.map((periode) => (
+                      <div
+                        key={periode}
+                        className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
                       >
-                        <svg
-                          className="w-4 h-4"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
+                        {periode}
+                        <button
+                          onClick={() =>
+                            setSelectedPeriode(
+                              selectedPeriode.filter((p) => p !== periode),
+                            )
+                          }
+                          className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                          title="Filter verwijderen"
                         >
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                  {selectedLocatie.map((locatie) => (
-                    <div
-                      key={locatie}
-                      className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
-                    >
-                      {locatie}
-                      <button
-                        onClick={() =>
-                          setSelectedLocatie(
-                            selectedLocatie.filter((l) => l !== locatie),
-                          )
-                        }
-                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                        title="Filter verwijderen"
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                    {selectedLocatie.map((locatie) => (
+                      <div
+                        key={locatie}
+                        className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
                       >
-                        <svg
-                          className="w-4 h-4"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
+                        {locatie}
+                        <button
+                          onClick={() =>
+                            setSelectedLocatie(
+                              selectedLocatie.filter((l) => l !== locatie),
+                            )
+                          }
+                          className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                          title="Filter verwijderen"
                         >
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                  {selectedLevel.map((lvl) => (
-                    <div
-                      key={lvl}
-                      className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
-                    >
-                      {lvl}
-                      <button
-                        onClick={() =>
-                          setSelectedLevel(
-                            selectedLevel.filter((l) => l !== lvl),
-                          )
-                        }
-                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                        title="Filter verwijderen"
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                    {selectedLevel.map((lvl) => (
+                      <div
+                        key={lvl}
+                        className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
                       >
-                        <svg
-                          className="w-4 h-4"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
+                        {lvl}
+                        <button
+                          onClick={() =>
+                            setSelectedLevel(
+                              selectedLevel.filter((l) => l !== lvl),
+                            )
+                          }
+                          className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                          title="Filter verwijderen"
                         >
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                  {selectedEC.map((ec) => (
-                    <div
-                      key={ec}
-                      className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
-                    >
-                      {ec} EC
-                      <button
-                        onClick={() =>
-                          setSelectedEC(selectedEC.filter((e) => e !== ec))
-                        }
-                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                        title="Filter verwijderen"
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                    {selectedEC.map((ec) => (
+                      <div
+                        key={ec}
+                        className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
                       >
-                        <svg
-                          className="w-4 h-4"
-                          fill="currentColor"
-                          viewBox="0 0 20 20"
+                        {ec} EC
+                        <button
+                          onClick={() =>
+                            setSelectedEC(selectedEC.filter((e) => e !== ec))
+                          }
+                          className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                          title="Filter verwijderen"
                         >
-                          <path
-                            fillRule="evenodd"
-                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                            clipRule="evenodd"
-                          />
-                        </svg>
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
+                          <svg
+                            className="w-4 h-4"
+                            fill="currentColor"
+                            viewBox="0 0 20 20"
+                          >
+                            <path
+                              fillRule="evenodd"
+                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                              clipRule="evenodd"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
               {/* Module cards */}
               <div className="space-y-4">
@@ -649,7 +650,7 @@ export function ModulesPage() {
                   paginatedModules.map((module) => (
                     <div
                       key={module.id}
-                      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5 flex flex-col sm:flex-row gap-5 transition-colors"
+                      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:gap-5 transition-colors"
                     >
                       {/* Module afbeelding */}
                       <div className="w-full sm:w-36 h-48 sm:h-28 bg-gray-100 dark:bg-gray-700 rounded-lg shrink-0 flex items-center justify-center border border-gray-200 dark:border-gray-700 transition-colors overflow-hidden">
@@ -775,46 +776,67 @@ export function ModulesPage() {
               </div>
 
               {/* Pagination */}
+              {/* Pagination */}
               {filteredModules.length > modulesPerPage && (
-                <div className="flex justify-center items-center gap-2 mt-8">
-                  <button
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Vorige
-                  </button>
+                <div className="mt-8 flex justify-center">
+                  <div className="flex items-center gap-1 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-1.5 sm:p-2">
+                    <button
+                      onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="p-2 sm:px-4 sm:py-2 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      aria-label="Vorige pagina"
+                    >
+                      <svg className="w-5 h-5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
+                      <span className="hidden sm:inline">Vorige</span>
+                    </button>
 
-                  <div className="flex items-center gap-1">
-                    {getPaginationNumbers().map((page, index) =>
-                      typeof page === "string" ? (
-                        <span
-                          key={`ellipsis-${index}`}
-                          className="w-10 h-10 flex items-center justify-center text-gray-400 dark:text-gray-600"
-                        >
-                          {page}
-                        </span>
-                      ) : (
-                        <button
-                          key={`page-${page}`}
-                          onClick={() => setCurrentPage(page)}
-                          className={`w-10 h-10 rounded-full text-sm font-medium transition-colors ${currentPage === page ? "bg-white dark:bg-gray-800 text-gray-900 dark:text-white border-2 border-gray-900 dark:border-gray-600" : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"}`}
-                        >
-                          {page}
-                        </button>
-                      ),
-                    )}
+                    {/* Mobile: compact counter */}
+                    <div className="sm:hidden flex items-center justify-center px-4 font-medium text-gray-900 dark:text-white min-w-[3rem]">
+                      {currentPage} <span className="text-gray-400 mx-1">/</span> {totalPages}
+                    </div>
+
+                    {/* Desktop: numeric pagination */}
+                    <div className="hidden sm:flex items-center gap-1 mx-2">
+                      {getPaginationNumbers().map((page, index) =>
+                        typeof page === "string" ? (
+                          <span
+                            key={`ellipsis-${index}`}
+                            className="w-8 h-8 flex items-center justify-center text-gray-400 dark:text-gray-600"
+                          >
+                            {page}
+                          </span>
+                        ) : (
+                          <button
+                            key={`page-${page}`}
+                            onClick={() => setCurrentPage(page)}
+                            aria-current={currentPage === page ? "page" : undefined}
+                            className={`w-8 h-8 rounded-lg text-sm font-medium transition-all ${currentPage === page
+                              ? "bg-blue-600 text-white shadow-sm"
+                              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                              }`}
+                          >
+                            {page}
+                          </button>
+                        ),
+                      )}
+                    </div>
+
+                    <button
+                      onClick={() =>
+                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                      }
+                      disabled={currentPage === totalPages}
+                      className="p-2 sm:px-4 sm:py-2 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                      aria-label="Volgende pagina"
+                    >
+                      <span className="hidden sm:inline">Volgende</span>
+                      <svg className="w-5 h-5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      </svg>
+                    </button>
                   </div>
-
-                  <button
-                    onClick={() =>
-                      setCurrentPage((p) => Math.min(totalPages, p + 1))
-                    }
-                    disabled={currentPage === totalPages}
-                    className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                  >
-                    Volgende
-                  </button>
                 </div>
               )}
 
