@@ -2,16 +2,22 @@ import { useState, type KeyboardEvent } from "react";
 import { usePrediction } from "../hooks/usePrediction";
 
 // --- Types ---
-type QuestionType = "text" | "select" | "multiselect";
+type QuestionType = "text" | "textarea" | "select" | "multiselect";
 
 interface BaseQuestion {
   id: number;
   question: string;
   type: QuestionType;
+  helperText?: string;
 }
 
 interface TextQuestion extends BaseQuestion {
   type: "text";
+  placeholder?: string;
+}
+
+interface TextAreaQuestion extends BaseQuestion {
+  type: "textarea";
   placeholder?: string;
 }
 
@@ -29,7 +35,11 @@ interface MultiselectQuestion extends BaseQuestion {
     | ((answers: Record<number, string | string[]>) => string[]);
 }
 
-type Question = TextQuestion | SelectQuestion | MultiselectQuestion;
+type Question =
+  | TextQuestion
+  | TextAreaQuestion
+  | SelectQuestion
+  | MultiselectQuestion;
 
 const NONE_LABEL = "Geen van deze leerdoelen";
 
@@ -38,34 +48,38 @@ const QUESTIONS: Question[] = [
     id: 1,
     question: "Wat is de naam van je huidige studie?",
     type: "text",
-    placeholder: "Typ je antwoord...",
+    placeholder:
+      "Bijvoorbeeld: Informatica, Verpleegkunde, Commerciële Economie...",
+    helperText:
+      "Dit helpt ons om modules te vinden die goed aansluiten bij jouw achtergrond",
   },
   {
     id: 2,
-    question: "Uit hoeveel studiepunten wil je dat je VKM bestaat?",
+    question: "Hoeveel studiepunten wil je behalen met je VKM?",
     type: "multiselect",
     options: ["15", "30"],
+    helperText: "Je kunt meerdere opties selecteren als je flexibel bent",
   },
   {
     id: 3,
-    question: "In welke periode wil je je VKM volgen?",
+    question: "In welke periode(s) wil je je VKM volgen?",
     type: "multiselect",
     // "P3" en "P4" zijn (nog) niet beschikbaar in het aanbod en blijven daarom uitgeschakeld.
     options: ["P1", "P2" /* "P3", "P4" */],
+    helperText: "Selecteer alle periodes waarin je beschikbaar bent",
   },
   {
     id: 4,
-    question: "Heb je een locatievoorkeur voor je VKM?",
+    question: "Op welke locatie(s) kun je de module volgen?",
     type: "multiselect",
     options: ["Tilburg", "Breda", "Den Bosch", "Roosendaal"],
+    helperText: "Meerdere locaties selecteren geeft je meer keuzemogelijkheden",
   },
   {
     id: 5,
-    question: "Welke vaardigheden zou je graag willen ontwikkelen?",
+    question: "Welke vaardigheden wil je ontwikkelen tijdens je VKM?",
     type: "multiselect",
     options: (_answers) => {
-      // Dynamic options based on previous answers could go here
-      // For now, return the same options
       return [
         "Onderzoek",
         "Samenwerken",
@@ -74,33 +88,40 @@ const QUESTIONS: Question[] = [
         NONE_LABEL,
       ];
     },
+    helperText: "Deze vaardigheden helpen ons om passende modules te vinden",
   },
   {
     id: 6,
-    question: "Welke onderwerpen spreken je aan?",
+    question: "Welke onderwerpen interesseren je?",
     type: "multiselect",
     options: (_answers) => {
-      // Dynamic options based on previous answers could go here
-      // For now, return the same options
       return ["Technologie", "Zorg", "Economie", "Onderwijs"];
     },
+    helperText: "Selecteer alle gebieden waar je meer over wilt leren",
   },
   {
     id: 7,
-    question: "In het kort: Welke interesses spelen mee?",
-    type: "text",
-    placeholder: "Bijv. 'Software en AI'",
+    question: "Beschrijf je interesses en wat je graag wilt leren",
+    type: "textarea",
+    placeholder:
+      "Beschrijf zo uitgebreid mogelijk wat je interesseert. Bijvoorbeeld:\n\n• Ik ben geïnteresseerd in kunstmatige intelligentie en machine learning\n• Graag wil ik meer leren over duurzaamheid en milieuvraagstukken\n• Ik vind het leuk om met data te werken en inzichten te ontdekken\n\nHoe meer details je geeft, hoe beter we kunnen zoeken!",
+    helperText:
+      "💡 Tip: Hoe meer details je geeft, hoe beter we passende modules kunnen vinden. Schrijf gerust een paar zinnen!",
   },
   {
     id: 8,
-    question: "Wat hoop je vooral te leren?",
-    type: "text",
-    placeholder: "Bijv. 'Beter ondernemen'",
+    question: "Wat zijn je leerdoelen en wat wil je bereiken?",
+    type: "textarea",
+    placeholder:
+      "Vertel ons wat je wilt bereiken met deze module. Bijvoorbeeld:\n\n• Ik wil leren hoe ik effectiever kan presenteren\n• Graag wil ik mijn kennis van projectmanagement verdiepen\n• Ik zoek een module waar ik praktijkervaring opdoe met echte klanten\n• Ik wil leren ondernemen en een eigen bedrijf starten\n\nDenk aan concrete vaardigheden, kennis of ervaring!",
+    helperText:
+      "💡 Tip: Wees specifiek over wat je wilt leren en bereiken. Dit helpt ons de beste match te vinden!",
   },
 ];
 
 export function KeuzehulpPage() {
   const MAX_TEXT_CHARS = 200;
+  const MAX_TEXTAREA_CHARS = 500;
 
   // --- State ---
   const [currentQuestion, setCurrentQuestion] = useState(0);
@@ -112,6 +133,7 @@ export function KeuzehulpPage() {
   );
   const [charLimitError, setCharLimitError] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+  const [showResults, setShowResults] = useState(false);
 
   const { predictions, isLoading, error, getPredictions } = usePrediction();
 
@@ -162,8 +184,13 @@ export function KeuzehulpPage() {
     // Clear any previous validation errors
     setValidationError(null);
 
-    if (currentQ.type === "text" && typeof currentAnswer === "string") {
-      if (currentAnswer.length > MAX_TEXT_CHARS) {
+    if (
+      (currentQ.type === "text" || currentQ.type === "textarea") &&
+      typeof currentAnswer === "string"
+    ) {
+      const maxChars =
+        currentQ.type === "textarea" ? MAX_TEXTAREA_CHARS : MAX_TEXT_CHARS;
+      if (currentAnswer.length > maxChars) {
         setCharLimitError(true);
         return;
       }
@@ -278,8 +305,193 @@ export function KeuzehulpPage() {
     };
 
     await getPredictions(request);
+    setShowResults(true);
   };
 
+  const handleReturnToQuestions = () => {
+    setShowResults(false);
+    setCurrentQuestion(0);
+  };
+
+  // If showing results, render results page
+  if (showResults && predictions) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+        {/* Header */}
+        <div className="text-center py-12 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 transition-colors">
+          <div className="container mx-auto px-4">
+            <div className="inline-block mb-4">
+              <span className="px-4 py-2 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-sm font-semibold rounded-full">
+                Jouw Persoonlijke Aanbevelingen
+              </span>
+            </div>
+            <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+              {predictions.predictions.length > 0
+                ? `${predictions.predictions.length} Aanbevolen ${predictions.predictions.length === 1 ? "Module" : "Modules"}`
+                : "Geen modules gevonden"}
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
+              {predictions.predictions.length > 0
+                ? "Op basis van jouw voorkeuren hebben we de beste matches geselecteerd"
+                : "Probeer je voorkeuren aan te passen of neem contact op met een studieadviseur"}
+            </p>
+          </div>
+        </div>
+
+        {/* Content */}
+        <div className="container mx-auto px-4 py-8">
+          {/* Results Cards */}
+          {predictions.predictions.length > 0 ? (
+            <div className="space-y-4 mb-8">
+              {predictions.predictions.map((p) => (
+                <div
+                  key={p.module.id}
+                  className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md transition-all">
+                  <div className="flex flex-col sm:flex-row gap-5">
+                    {/* Match Score - Left side */}
+                    <div className="shrink-0 flex sm:flex-col items-center sm:items-start gap-3 sm:gap-2">
+                      <div className="bg-blue-600 text-white rounded-lg px-4 py-3 text-center min-w-20">
+                        <div className="text-3xl font-bold">
+                          {(p.score * 100).toFixed(0)}%
+                        </div>
+                        <div className="text-xs opacity-90 mt-1">Match</div>
+                      </div>
+                    </div>
+
+                    {/* Module Info */}
+                    <div className="flex-1 min-w-0">
+                      {/* Tags */}
+                      <div className="flex gap-2 mb-3 flex-wrap">
+                        <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium rounded-full">
+                          {p.module.studyCredits} Studiepunten
+                        </span>
+                        <span className="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs font-medium rounded-full">
+                          {p.module.level}
+                        </span>
+                      </div>
+
+                      {/* Title */}
+                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                        {p.module.name}
+                      </h3>
+
+                      {/* Description */}
+                      <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">
+                        {p.module.shortdescription}
+                      </p>
+
+                      {/* Metadata */}
+                      <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="flex items-center gap-2">
+                          <svg
+                            className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                            />
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                            />
+                          </svg>
+                          <span>
+                            {p.module.location.map((l) => l.name).join(", ")}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <svg
+                            className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24">
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                            />
+                          </svg>
+                          <span>
+                            {new Date(p.module.startDate).toLocaleDateString(
+                              "nl-NL",
+                              { month: "long", year: "numeric" }
+                            )}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Action Button - Right side */}
+                    <div className="flex sm:flex-col items-center sm:items-end justify-end gap-3 shrink-0 border-t sm:border-t-0 pt-4 sm:pt-0 border-gray-100 dark:border-gray-700">
+                      <button className="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm">
+                        Bekijk Details
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12 border border-gray-200 dark:border-gray-700 text-center">
+              <div className="text-6xl mb-6">🔍</div>
+              <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+                Geen modules gevonden
+              </h3>
+              <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-md mx-auto">
+                Helaas hebben we geen modules gevonden die volledig voldoen aan
+                jouw criteria. Probeer je voorkeuren aan te passen of neem
+                contact op met een studieadviseur.
+              </p>
+              <button
+                onClick={handleReturnToQuestions}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors">
+                Opnieuw Proberen
+              </button>
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          {predictions.predictions.length > 0 && (
+            <div className="flex justify-center gap-4 pt-4">
+              <button
+                onClick={handleReturnToQuestions}
+                className="px-6 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                ← Opnieuw Starten
+              </button>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  // If loading, show loading state
+  if (isLoading && showResults) {
+    return (
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+        <div className="text-center py-12 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700">
+          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-4">
+            Zoeken naar modules...
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400">
+            We zoeken de beste matches voor jou
+          </p>
+        </div>
+        <div className="flex justify-center items-center py-20">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600"></div>
+        </div>
+      </div>
+    );
+  }
+
+  // Regular questionnaire view
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20 pb-12 transition-colors">
       <div className="max-w-3xl mx-auto px-4">
@@ -298,9 +510,14 @@ export function KeuzehulpPage() {
           <p className="text-blue-600 font-bold text-sm mb-2 uppercase tracking-wider">
             Vraag {currentQuestion + 1} van {QUESTIONS.length}
           </p>
-          <h2 className="text-2xl font-bold mb-8 dark:text-white">
+          <h2 className="text-2xl font-bold mb-3 dark:text-white">
             {currentQ.question}
           </h2>
+          {currentQ.helperText && (
+            <p className="text-gray-600 dark:text-gray-400 text-sm mb-6">
+              {currentQ.helperText}
+            </p>
+          )}
 
           <div className="min-h-50">
             {currentQ.type === "text" && (
@@ -324,6 +541,38 @@ export function KeuzehulpPage() {
                       charLimitError ? "text-red-500" : "text-gray-400"
                     }>
                     {String(currentAnswer).length} / {MAX_TEXT_CHARS} tekens
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {currentQ.type === "textarea" && (
+              <div className="space-y-2">
+                <textarea
+                  autoFocus
+                  rows={8}
+                  className={`w-full p-4 rounded-xl border-2 transition-all outline-none bg-transparent dark:text-white resize-none ${
+                    charLimitError
+                      ? "border-red-500"
+                      : "border-gray-200 dark:border-gray-600 focus:border-blue-500"
+                  }`}
+                  placeholder={currentQ.placeholder}
+                  value={getTextAnswer(currentAnswer)}
+                  onChange={(e) => updateAnswer(e.target.value)}
+                />
+                <div className="flex justify-between text-xs gap-2">
+                  <span
+                    className={
+                      charLimitError ? "text-red-500" : "text-gray-400"
+                    }>
+                    {String(currentAnswer).length} / {MAX_TEXTAREA_CHARS} tekens
+                  </span>
+                  <span className="text-gray-400">
+                    {String(currentAnswer).length < 100
+                      ? "💡 Meer details = betere aanbevelingen"
+                      : String(currentAnswer).length < 200
+                        ? "👍 Goed bezig!"
+                        : "✨ Uitstekend!"}
                   </span>
                 </div>
               </div>
@@ -390,13 +639,8 @@ export function KeuzehulpPage() {
             </p>
           </div>
         )}
-        {/* Results logic remains the same... */}{" "}
-        {isLoading && (
-          <div className="mt-12 text-center text-blue-600 dark:text-blue-400 font-semibold">
-            Bezig met laden...
-          </div>
-        )}
-        {error && (
+        {/* Error Display */}
+        {error && !showResults && (
           <div className="mt-12 p-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
             <p className="text-red-800 dark:text-red-200 font-semibold mb-2">
               Fout bij het ophalen van aanbevelingen:
@@ -404,65 +648,6 @@ export function KeuzehulpPage() {
             <p className="text-red-700 dark:text-red-300 text-sm whitespace-pre-wrap">
               {error}
             </p>
-          </div>
-        )}
-        {predictions &&
-          predictions.predictions.length === 0 &&
-          !isLoading &&
-          !error && (
-            <div className="mt-12 p-6 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
-              <p className="text-yellow-800 dark:text-yellow-200 font-semibold mb-2">
-                Geen modules gevonden
-              </p>
-              <p className="text-yellow-700 dark:text-yellow-300 text-sm">
-                Helaas hebben we geen modules gevonden die volledig voldoen aan
-                jouw criteria. Probeer je voorkeuren aan te passen of neem
-                contact op met een docent.
-              </p>
-            </div>
-          )}
-        {predictions && predictions.predictions.length > 0 && (
-          <div className="mt-12">
-            <h3 className="text-2xl font-bold mb-8 text-gray-900 dark:text-white">
-              Aanbevolen modules
-            </h3>
-            <div className="grid gap-4">
-              {predictions.predictions.map((p) => (
-                <div
-                  key={p.module.id}
-                  className="p-6 bg-white dark:bg-gray-800 rounded-xl shadow border border-gray-200 dark:border-gray-700 hover:shadow-lg transition-shadow">
-                  <div className="flex justify-between items-start mb-3">
-                    <div className="flex-1">
-                      <h4 className="text-xl font-bold text-gray-900 dark:text-white">
-                        {p.module.name}
-                      </h4>
-                      <p className="text-gray-600 dark:text-gray-300 mt-2 text-sm">
-                        {p.module.shortdescription}
-                      </p>
-                    </div>
-                    <div className="ml-6 text-right shrink-0">
-                      <div className="text-3xl font-bold text-blue-600 dark:text-blue-400">
-                        {(p.score * 100).toFixed(0)}%
-                      </div>
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                        Match
-                      </p>
-                    </div>
-                  </div>
-                  <div className="flex gap-6 text-sm text-gray-600 dark:text-gray-400 pt-4 border-t dark:border-gray-700">
-                    <span className="flex items-center gap-2">
-                      📚 {p.module.studyCredits} pt
-                    </span>
-                    <span className="flex items-center gap-2">
-                      📍 {p.module.location.map((l) => l.name).join(", ")}
-                    </span>
-                    <span className="flex items-center gap-2">
-                      🎓 {p.module.level}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
           </div>
         )}
       </div>
