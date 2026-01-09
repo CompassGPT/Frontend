@@ -1,5 +1,7 @@
 import { useEffect, useState, type KeyboardEvent } from "react";
+import { useNavigate } from "react-router";
 import { usePrediction } from "../hooks/usePrediction";
+import { useBackend } from "../hooks/useBackend";
 
 // --- Types ---
 type QuestionType = "text" | "textarea" | "select" | "multiselect";
@@ -123,6 +125,8 @@ export function KeuzehulpPage() {
   const MAX_TEXT_CHARS = 200;
   const MAX_TEXTAREA_CHARS = 500;
 
+  const navigate = useNavigate();
+
   // --- State ---
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string | string[]>>(
@@ -136,8 +140,13 @@ export function KeuzehulpPage() {
   const [showResults, setShowResults] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedModuleIds, setSelectedModuleIds] = useState<number[]>([]);
+  const [isSavingPreferences, setIsSavingPreferences] = useState(false);
+  const [savePreferencesError, setSavePreferencesError] = useState<string | null>(
+    null
+  );
 
   const { predictions, isLoading, error, getPredictions } = usePrediction();
+  const backend = useBackend();
 
   useEffect(() => {
     if (!showResults || !predictions || predictions.predictions.length === 0) {
@@ -157,8 +166,24 @@ export function KeuzehulpPage() {
     setSelectedModuleIds((prev) => prev.filter((id) => id !== moduleId));
   };
 
-  const handleSubmitPreferences = () => {
-    console.log("Voorkeuren indienen (module IDs):", selectedModuleIds);
+  const handleSubmitPreferences = async () => {
+    if (isSavingPreferences) return;
+
+    setIsSavingPreferences(true);
+    setSavePreferencesError(null);
+
+    try {
+      await backend.post("/api/user/recommended", {
+        moduleIds: selectedModuleIds,
+      });
+      navigate("/profile");
+    } catch (e) {
+      setSavePreferencesError(
+        e instanceof Error ? e.message : "Opslaan mislukt. Probeer opnieuw."
+      );
+    } finally {
+      setIsSavingPreferences(false);
+    }
   };
 
   // --- Helpers ---
@@ -530,18 +555,36 @@ export function KeuzehulpPage() {
 
           {/* Action Buttons */}
           {predictions.predictions.length > 0 && (
-            <div className="flex justify-center gap-4 pt-4">
-              <button
-                onClick={handleReturnToQuestions}
-                className="px-6 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                ← Opnieuw Starten
-              </button>
-              <button
-                type="button"
-                onClick={handleSubmitPreferences}
-                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm">
-                Geselecteerde aanbevelingen opslaan
-              </button>
+            <div className="pt-4">
+              <div className="flex justify-center gap-4">
+                <button
+                  onClick={handleReturnToQuestions}
+                  className="px-6 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
+                  ← Opnieuw Starten
+                </button>
+                <button
+                  type="button"
+                  onClick={handleSubmitPreferences}
+                  disabled={isSavingPreferences}
+                  className={`px-6 py-3 font-medium rounded-lg transition-colors shadow-sm flex items-center gap-2 ${
+                    isSavingPreferences
+                      ? "bg-blue-400 text-white cursor-not-allowed"
+                      : "bg-blue-600 hover:bg-blue-700 text-white"
+                  }`}>
+                  {isSavingPreferences && (
+                    <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  )}
+                  {isSavingPreferences
+                    ? "Opslaan..."
+                    : "Geselecteerde aanbevelingen opslaan"}
+                </button>
+              </div>
+
+              {savePreferencesError && (
+                <div className="mt-3 text-center text-sm text-red-600 dark:text-red-400">
+                  {savePreferencesError}
+                </div>
+              )}
             </div>
           )}
         </div>

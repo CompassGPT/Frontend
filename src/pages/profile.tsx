@@ -1,18 +1,66 @@
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { useFavoritesList } from "../hooks/useFavorites";
+import { useBackend, BackendError } from "../hooks/useBackend";
 
 /**
  * Profile page with updated styling
  */
 export function ProfilePage() {
   const { user, logout, isLoading } = useAuth();
+  const backend = useBackend();
+  const MAX_RECENT_RECOMMENDED = 5;
+
+  const [recommendedIds, setRecommendedIds] = useState<number[]>([]);
+  const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
+  const [recommendedError, setRecommendedError] = useState<string | null>(null);
+
   const {
     favoriteModules,
-    toggleFavorite,
+    modules,
     isLoading: loadingModules,
     error: favoritesError,
   } = useFavoritesList();
+
+  useEffect(() => {
+    const fetchRecommended = async () => {
+      if (!user) return;
+
+      setIsLoadingRecommended(true);
+      setRecommendedError(null);
+
+      try {
+        const res = await backend.get<{
+          recommended: { choiceModuleId: number }[];
+        }>("/api/user/recommended");
+        const ids = res.recommended.map((r) => r.choiceModuleId);
+        setRecommendedIds(ids.slice(0, MAX_RECENT_RECOMMENDED));
+      } catch (err) {
+        setRecommendedIds([]);
+        setRecommendedError(
+          err instanceof BackendError
+            ? err.message
+            : "Failed to fetch recommended modules"
+        );
+      } finally {
+        setIsLoadingRecommended(false);
+      }
+    };
+
+    fetchRecommended();
+  }, [backend, user]);
+
+  const recommendedModules = useMemo(() => {
+    if (!modules || modules.length === 0 || recommendedIds.length === 0) {
+      return [];
+    }
+
+    const byId = new Map(modules.map((m) => [m.id, m]));
+    return recommendedIds
+      .map((id) => byId.get(id))
+      .filter((m): m is NonNullable<typeof m> => Boolean(m));
+  }, [modules, recommendedIds]);
 
   const handleLogout = async () => {
     try {
@@ -161,8 +209,8 @@ export function ProfilePage() {
                   className="group flex flex-col sm:flex-row gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700 border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200"
                 >
                   <div className="flex-1 min-w-0">
-                    <div className="flex justify-between items-start gap-2">
-                      <div>
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                      <div className="min-w-0">
                         <h3 className="font-bold text-gray-900 dark:text-white truncate">
                           {module.title}
                         </h3>
@@ -176,7 +224,7 @@ export function ProfilePage() {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 shrink-0">
                         <Link
                           to={`/modules/${module.id}`}
                           className="px-3 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
@@ -221,9 +269,57 @@ export function ProfilePage() {
             </button>
           </div>
           <div className="space-y-4">
-            <p className="text-gray-500 dark:text-gray-400 italic">
-              Geen aanbevolen modules gevonden.
-            </p>
+            {recommendedError && (
+              <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 text-red-800 dark:text-red-300 transition-colors">
+                {recommendedError}
+              </div>
+            )}
+
+            {isLoadingRecommended || loadingModules ? (
+              <p className="text-gray-500 dark:text-gray-400">Laden...</p>
+            ) : recommendedModules.length === 0 ? (
+              <p className="text-gray-500 dark:text-gray-400 italic">
+                Geen aanbevolen modules gevonden.
+              </p>
+            ) : (
+              recommendedModules.map((module) => (
+                <div
+                  key={module.id}
+                  className="group flex flex-col sm:flex-row gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700 border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200"
+                >
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
+                      <div className="min-w-0">
+                        <h3 className="font-bold text-gray-900 dark:text-white truncate">
+                          {module.title}
+                        </h3>
+                        <div className="flex flex-wrap gap-2 mt-1.5">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900/50 dark:text-blue-300">
+                            {module.studiepunten} EC
+                          </span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900/50 dark:text-purple-300">
+                            {module.level}
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <Link
+                          to={`/modules/${module.id}`}
+                          className="px-3 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
+                        >
+                          Meer info
+                        </Link>
+                      </div>
+                    </div>
+
+                    <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
+                      {module.description}
+                    </p>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

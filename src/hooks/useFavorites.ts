@@ -167,6 +167,7 @@ export function useFavoritesList() {
     favoriteIds,
     favoritesCount: favoriteIds.length,
     favoriteModules,
+    modules: allModules,
     showOnlyFavorites,
     toggleShowOnlyFavorites,
     toggleFavorite,
