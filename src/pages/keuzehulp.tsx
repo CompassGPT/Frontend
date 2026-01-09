@@ -1,4 +1,4 @@
-import { useState, type KeyboardEvent } from "react";
+import { useEffect, useState, type KeyboardEvent } from "react";
 import { usePrediction } from "../hooks/usePrediction";
 
 // --- Types ---
@@ -134,8 +134,32 @@ export function KeuzehulpPage() {
   const [charLimitError, setCharLimitError] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
   const [showResults, setShowResults] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [selectedModuleIds, setSelectedModuleIds] = useState<number[]>([]);
 
   const { predictions, isLoading, error, getPredictions } = usePrediction();
+
+  useEffect(() => {
+    if (!showResults || !predictions || predictions.predictions.length === 0) {
+      return;
+    }
+
+    setSelectedModuleIds(predictions.predictions.map((p) => p.module.id));
+  }, [showResults, predictions]);
+
+  const selectModule = (moduleId: number) => {
+    setSelectedModuleIds((prev) =>
+      prev.includes(moduleId) ? prev : [...prev, moduleId]
+    );
+  };
+
+  const unselectModule = (moduleId: number) => {
+    setSelectedModuleIds((prev) => prev.filter((id) => id !== moduleId));
+  };
+
+  const handleSubmitPreferences = () => {
+    console.log("Voorkeuren indienen (module IDs):", selectedModuleIds);
+  };
 
   // --- Helpers ---
   const getTextAnswer = (answer: string | string[]): string => {
@@ -304,8 +328,13 @@ export function KeuzehulpPage() {
       preferredPeriod: periodPrefs,
     };
 
-    await getPredictions(request);
-    setShowResults(true);
+    setIsSubmitting(true);
+    try {
+      await getPredictions(request);
+      setShowResults(true);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleReturnToQuestions = () => {
@@ -344,6 +373,10 @@ export function KeuzehulpPage() {
           {predictions.predictions.length > 0 ? (
             <div className="space-y-4 mb-8">
               {predictions.predictions.map((p) => (
+                (() => {
+                  const isSelected = selectedModuleIds.includes(p.module.id);
+
+                  return (
                 <div
                   key={p.module.id}
                   className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md transition-all">
@@ -430,12 +463,37 @@ export function KeuzehulpPage() {
 
                     {/* Action Button - Right side */}
                     <div className="flex sm:flex-col items-center sm:items-end justify-end gap-3 shrink-0 border-t sm:border-t-0 pt-4 sm:pt-0 border-gray-100 dark:border-gray-700">
-                      <button className="w-full sm:w-auto px-6 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm">
-                        Bekijk Details
-                      </button>
+                      <div className="inline-flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                        <button
+                          type="button"
+                          onClick={() => unselectModule(p.module.id)}
+                          aria-pressed={!isSelected}
+                          aria-label="Module afwijzen"
+                          className={`h-10 w-10 grid place-items-center font-bold transition-colors ${
+                            !isSelected
+                              ? "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white"
+                              : "bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                          }`}>
+                          ✕
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => selectModule(p.module.id)}
+                          aria-pressed={isSelected}
+                          aria-label="Module selecteren"
+                          className={`h-10 w-10 grid place-items-center font-bold transition-colors ${
+                            isSelected
+                              ? "bg-blue-600 text-white"
+                              : "bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                          }`}>
+                          ✓
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
+                  );
+                })()
               ))}
             </div>
           ) : (
@@ -464,6 +522,12 @@ export function KeuzehulpPage() {
                 onClick={handleReturnToQuestions}
                 className="px-6 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                 ← Opnieuw Starten
+              </button>
+              <button
+                type="button"
+                onClick={handleSubmitPreferences}
+                className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm">
+                Voorkeuren indienen
               </button>
             </div>
           )}
@@ -621,10 +685,22 @@ export function KeuzehulpPage() {
                   ? handleComplete
                   : handleNext
               }
-              className="px-10 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold shadow-lg shadow-blue-200 dark:shadow-none transition-all">
-              {currentQuestion === QUESTIONS.length - 1
-                ? "Bekijk Resultaat"
-                : "Volgende"}
+              disabled={isSubmitting}
+              aria-busy={isSubmitting}
+              className="px-10 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-70 disabled:cursor-not-allowed text-white rounded-xl font-bold shadow-lg shadow-blue-200 dark:shadow-none transition-all">
+              {currentQuestion === QUESTIONS.length - 1 ? (
+                <span className="inline-flex items-center gap-2">
+                  {isSubmitting && (
+                    <span
+                      className="inline-block h-4 w-4 rounded-full border-2 border-white/60 border-t-white animate-spin"
+                      aria-hidden="true"
+                    />
+                  )}
+                  <span>{isSubmitting ? "Ophalen..." : "Bekijk Resultaat"}</span>
+                </span>
+              ) : (
+                "Volgende"
+              )}
             </button>
           </div>
         </div>
