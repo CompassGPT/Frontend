@@ -213,7 +213,11 @@ export function KeuzehulpPage() {
       typeof currentAnswer === "string"
     ) {
       const maxChars =
-        currentQ.type === "textarea" ? MAX_TEXTAREA_CHARS : MAX_TEXT_CHARS;
+        currentQ.type === "textarea"
+          ? currentQ.id === 8
+            ? MAX_TEXT_CHARS
+            : MAX_TEXTAREA_CHARS
+          : MAX_TEXT_CHARS;
       if (currentAnswer.length > maxChars) {
         setCharLimitError(true);
         return;
@@ -233,6 +237,15 @@ export function KeuzehulpPage() {
     setValidationError(null);
     // Transform answers for API
     const getValues = (id: number) => answers[id];
+
+    // Character-limit validation (Q8 leerdoelen uses same 200 char limit as Q1)
+    const q8Raw = getValues(8);
+    const q8Text = typeof q8Raw === "string" ? q8Raw : "";
+    if (q8Text.length > MAX_TEXT_CHARS) {
+      setCharLimitError(true);
+      setValidationError("Leerdoelen mag maximaal 200 tekens bevatten");
+      return;
+    }
 
     // Validate required fields
     const currentStudy = String(getValues(1)).trim();
@@ -361,7 +374,7 @@ export function KeuzehulpPage() {
             </h1>
             <p className="text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
               {predictions.predictions.length > 0
-                ? "Op basis van jouw voorkeuren hebben we de beste matches geselecteerd"
+                ? "Op basis van jouw voorkeuren hebben we de beste matches geselecteerd. Lees hier kort over de modules en leg alvast vast of deze modules interessant lijken door het geven van een kruisje of vinkje!"
                 : "Probeer je voorkeuren aan te passen of neem contact op met een studieadviseur"}
             </p>
           </div>
@@ -527,7 +540,7 @@ export function KeuzehulpPage() {
                 type="button"
                 onClick={handleSubmitPreferences}
                 className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors shadow-sm">
-                Voorkeuren indienen
+                Geselecteerde aanbevelingen opslaan
               </button>
             </div>
           )}
@@ -629,7 +642,8 @@ export function KeuzehulpPage() {
                     className={
                       charLimitError ? "text-red-500" : "text-gray-400"
                     }>
-                    {String(currentAnswer).length} / {MAX_TEXTAREA_CHARS} tekens
+                    {String(currentAnswer).length} /{" "}
+                    {currentQ.id === 8 ? MAX_TEXT_CHARS : MAX_TEXTAREA_CHARS} tekens
                   </span>
                   <span className="text-gray-400">
                     {String(currentAnswer).length < 100
