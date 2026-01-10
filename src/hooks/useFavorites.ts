@@ -27,10 +27,12 @@ export function useFavoriteModule(moduleId?: number) {
       setIsLoading(true);
       setError(null);
       try {
+        // Backend returns { favorites: [{ id, userId, moduleId, createdAt }, ...] }
+        // See Backend/src/domain/usermodule/userfavorite.model.ts
         const res = await backend.get<{
-          favorites: { choiceModuleId: number }[];
+          favorites: { moduleId: number }[];
         }>("/user");
-        const ids = res.favorites.map((f) => f.choiceModuleId);
+        const ids = res.favorites.map((f) => f.moduleId);
         if (validModuleId) {
           setIsFavorited(ids.includes(validModuleId));
         } else {
@@ -50,6 +52,7 @@ export function useFavoriteModule(moduleId?: number) {
 
     fetchFavorites();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // NOTE: backend is excluded because useBackend returns a stable memoized object
   }, [validModuleId, user?.role]);
 
   const toggleFavorite = useCallback(async () => {
@@ -119,6 +122,7 @@ export function useFavoritesList() {
 
     fetchFavorites();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // NOTE: backend is excluded because useBackend returns a stable memoized object
   }, [user?.role]);
 
   // Fetch all modules for profile/list views
@@ -153,6 +157,7 @@ export function useFavoritesList() {
 
     fetchModules();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // NOTE: backend is excluded because useBackend returns a stable memoized object
   }, []);
 
   const favoriteModules = useMemo(() => {
