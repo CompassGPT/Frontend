@@ -112,7 +112,7 @@ export function useModulesList() {
         ...m,
         periode: getPeriodeFromDate(m.startDate),
       })),
-    [modules]
+    [getPeriodeFromDate, modules]
   );
 
   // Filter opties
