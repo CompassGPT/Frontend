@@ -1,0 +1,35 @@
+name: SonarCloud analysis
+
+on:
+  push:
+    branches: 
+      - main
+      - "release/**"    # Matches release/v1, release/2024-Q1, etc.
+  pull_request:
+    branches: 
+      - main
+      - "release/**"
+  workflow_dispatch:
+
+permissions:
+  pull-requests: read
+
+jobs:
+  Analysis:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
+
+      - name: Analyze with SonarCloud
+        uses: SonarSource/sonarcloud-github-action@4006f663ecaf1f8093e8e4abb9227f6041f52216
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=CompassGPT_Frontend
+            -Dsonar.organization=compassgpt
+          projectBaseDir: .
