@@ -19,6 +19,7 @@ export function ProfilePage() {
   const {
     favoriteModules,
     modules,
+    toggleFavorite,
     isLoading: loadingModules,
     error: favoritesError,
   } = useFavoritesList();
@@ -50,7 +51,7 @@ export function ProfilePage() {
 
     fetchRecommended();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]); // backend is stable, don't include it
+  }, [user]);
 
   const recommendedModules = useMemo(() => {
     if (!modules || modules.length === 0 || recommendedIds.length === 0) {
