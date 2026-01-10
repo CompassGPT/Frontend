@@ -39,7 +39,8 @@ export function useModule(id: string) {
     };
 
     fetchModule();
-  }, [backend, id]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]); // backend is stable, don't include it
 
   return { module, isLoading, error };
 }
@@ -81,7 +82,8 @@ export function useModulesList() {
     };
 
     void fetchModules();
-  }, [backend]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount, backend is stable
 
   // Bepaal periode uit startDate (string format: "2025-09-02")
   const getPeriodeFromDate = (dateStr: string) => {

@@ -16,20 +16,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const backend = useBackend();
 
   // Check if there's an active session on mount
+  useEffect(() => {
+    const checkSession = async () => {
+      try {
+        const response = await backend.get<{ user: User }>("/api/user/profile");
+        setUser(response.user);
+      } catch {
+        setUser(null);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkSession();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
+
+  // Separate checkSession function for manual calls
   const checkSession = useCallback(async () => {
     try {
       const response = await backend.get<{ user: User }>("/api/user/profile");
       setUser(response.user);
     } catch {
       setUser(null);
-    } finally {
-      setIsLoading(false);
     }
-  }, [backend]);
-
-  useEffect(() => {
-    checkSession();
-  }, [checkSession]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Login
   const login = async (credentials: LoginRequest) => {

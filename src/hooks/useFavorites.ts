@@ -40,7 +40,8 @@ export function useFavoriteModule(moduleId?: number) {
     };
 
     fetchFavorites();
-  }, [backend, validModuleId]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [validModuleId]); // backend is stable, don't include it
 
   const toggleFavorite = async () => {
     if (!validModuleId) return;
@@ -100,7 +101,8 @@ export function useFavoritesList() {
     };
 
     fetchFavorites();
-  }, [backend]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount, backend is stable
 
   // Fetch all modules for profile/list views
   useEffect(() => {
@@ -133,7 +135,8 @@ export function useFavoritesList() {
     };
 
     fetchModules();
-  }, [backend]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount, backend is stable
 
   const favoriteModules = useMemo(() => {
     return allModules.filter((m) => favoriteIds.includes(m.id));
