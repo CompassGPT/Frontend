@@ -32,9 +32,9 @@ export function ProfilePage() {
 
       try {
         const res = await backend.get<{
-          recommended: { choiceModuleId: number }[];
-        }>("/api/user/recommended");
-        const ids = res.recommended.map((r) => r.choiceModuleId);
+          recommended: { moduleId: number }[];
+        }>("/user/recommended");
+        const ids = res.recommended.map((r) => r.moduleId);
         setRecommendedIds(ids.slice(0, MAX_RECENT_RECOMMENDED));
       } catch (err) {
         setRecommendedIds([]);
@@ -49,7 +49,8 @@ export function ProfilePage() {
     };
 
     fetchRecommended();
-  }, [backend, user]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]); // backend is stable, don't include it
 
   const recommendedModules = useMemo(() => {
     if (!modules || modules.length === 0 || recommendedIds.length === 0) {
@@ -104,8 +105,7 @@ export function ProfilePage() {
             <svg
               className="w-16 h-16 text-gray-400 dark:text-gray-500"
               fill="currentColor"
-              viewBox="0 0 20 20"
-            >
+              viewBox="0 0 20 20">
               <path
                 fillRule="evenodd"
                 d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
@@ -130,8 +130,7 @@ export function ProfilePage() {
             </h2>
             <button
               onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors"
-            >
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded transition-colors">
               Logout
             </button>
           </div>
@@ -206,8 +205,7 @@ export function ProfilePage() {
               favoriteModules.map((module) => (
                 <div
                   key={module.id}
-                  className="group flex flex-col sm:flex-row gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700 border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200"
-                >
+                  className="group flex flex-col sm:flex-row gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700 border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200">
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                       <div className="min-w-0">
@@ -227,21 +225,18 @@ export function ProfilePage() {
                       <div className="flex items-center gap-2 shrink-0">
                         <Link
                           to={`/modules/${module.id}`}
-                          className="px-3 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
-                        >
+                          className="px-3 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors whitespace-nowrap">
                           Meer info
                         </Link>
                         <button
                           onClick={() => toggleFavorite(module.id)}
                           className="p-2 rounded-lg transition-colors bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50"
-                          title="Verwijder uit favorieten"
-                        >
+                          title="Verwijder uit favorieten">
                           <svg
                             className="w-5 h-5"
                             fill="currentColor"
                             stroke="currentColor"
-                            viewBox="0 0 20 20"
-                          >
+                            viewBox="0 0 20 20">
                             <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
                           </svg>
                         </button>
@@ -285,8 +280,7 @@ export function ProfilePage() {
               recommendedModules.map((module) => (
                 <div
                   key={module.id}
-                  className="group flex flex-col sm:flex-row gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700 border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200"
-                >
+                  className="group flex flex-col sm:flex-row gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700 border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200">
                   <div className="flex-1 min-w-0">
                     <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2">
                       <div className="min-w-0">
@@ -306,8 +300,7 @@ export function ProfilePage() {
                       <div className="flex items-center gap-2 shrink-0">
                         <Link
                           to={`/modules/${module.id}`}
-                          className="px-3 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
-                        >
+                          className="px-3 py-1.5 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors whitespace-nowrap">
                           Meer info
                         </Link>
                       </div>

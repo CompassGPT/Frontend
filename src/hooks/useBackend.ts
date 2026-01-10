@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router";
 import { createApiUrl } from "../lib/api";
 import type { ApiError } from "../types/api.types";
 
@@ -10,6 +11,7 @@ export interface FetchOptions extends Omit<RequestInit, "body"> {
  * Handles authentication, error handling, and JSON serialization
  */
 export const useBackend = () => {
+  const navigate = useNavigate();
   /**
    * Make an API request with automatic JSON handling and credentials
    */
@@ -61,7 +63,21 @@ export const useBackend = () => {
           fullMessage = errorData.details;
         }
 
-        throw new BackendError(fullMessage, errorData.statusCode, errorData);
+        const error = new BackendError(
+          fullMessage,
+          errorData.statusCode,
+          errorData
+        );
+
+        // Handle 401 Unauthorized - redirect to login
+        if (error.isAuthError()) {
+          console.warn(
+            "Session expired or unauthorized - redirecting to login"
+          );
+          navigate("/auth/login", { replace: true });
+        }
+
+        throw error;
       }
 
       // Handle empty responses

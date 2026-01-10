@@ -48,18 +48,25 @@ export function useModule(id: string) {
 export function useModulesList() {
   const backend = useBackend();
   const [modules, setModules] = useState<TransformedModule[]>([]);
+  const [locations, setLocations] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch modules from backend
+  // Fetch modules and locations from backend
   useEffect(() => {
-    const fetchModules = async () => {
+    const fetchData = async () => {
       try {
         setLoading(true);
         setError(null);
-        const response = await backend.get<ModulesResponse>("/api/modules");
+
+        // Fetch modules and locations in parallel
+        const [modulesResponse, locationsResponse] = await Promise.all([
+          backend.get<ModulesResponse>("/modules"),
+          backend.get<{ locations: Location[] }>("/modules/locations"),
+        ]);
+
         // Transform backend Module to frontend format
-        const transformed = response.modules.map((m) => ({
+        const transformed = modulesResponse.modules.map((m) => ({
           id: m.id,
           title: m.name,
           description: m.shortdescription,
@@ -72,6 +79,9 @@ export function useModulesList() {
               : "Onbekend",
         }));
         setModules(transformed);
+
+        // Extract unique location names
+        setLocations(locationsResponse.locations.map((loc) => loc.name));
       } catch (err) {
         console.error("Failed to fetch modules:", err);
         setError("Kon modules niet laden. Probeer later opnieuw.");
@@ -81,7 +91,7 @@ export function useModulesList() {
       }
     };
 
-    void fetchModules();
+    void fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run once on mount, backend is stable
 
@@ -110,10 +120,10 @@ export function useModulesList() {
     const levelOpties = ["NLQF5", "NLQF6"];
     const ecOpties = [15, 30];
     const periodeOpties = ["P1", "P2", "P3", "P4"];
-    const locatieOpties = ["Tilburg", "Breda", "Den Bosch", "Roosendaal"];
+    const locatieOpties = locations;
 
     return { levelOpties, ecOpties, periodeOpties, locatieOpties };
-  }, []);
+  }, [locations]);
 
   // Filter modules
   const filterModules = (
@@ -216,7 +226,7 @@ export function useModuleCreate() {
       }));
       console.log("Creating module with data:", module);
       const response = await backend.post<{ module: moduleDetail }>(
-        "/api/modules",
+        "/modules",
         module
       );
       return response.module?.id || null;
@@ -236,7 +246,7 @@ export function useModuleCreate() {
       if (!tag) return null;
       console.log("Creating module tags:", tag);
       const response = await backend.post<{ moduleTag: Tag }>(
-        "/api/modules/moduletags",
+        "/modules/moduletags",
         { tag }
       );
       console.log("ModuleTags response:", response);

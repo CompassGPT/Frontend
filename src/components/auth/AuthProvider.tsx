@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await backend.get<{ user: User }>("/api/user/profile");
+        const response = await backend.get<{ user: User }>("/user/profile");
         setUser(response.user);
       } catch {
         setUser(null);
@@ -35,7 +35,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Separate checkSession function for manual calls
   const checkSession = useCallback(async () => {
     try {
-      const response = await backend.get<{ user: User }>("/api/user/profile");
+      const response = await backend.get<{ user: User }>("/user/profile");
       setUser(response.user);
     } catch {
       setUser(null);
@@ -49,7 +49,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setError(null);
     try {
       const response = await backend.post<LoginResponse>(
-        "/api/auth/login",
+        "/auth/login",
         credentials
       );
       setUser(response.user);
@@ -66,7 +66,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setIsLoading(true);
     setError(null);
     try {
-      await backend.post<LogoutResponse>("/api/auth/logout");
+      await backend.post<LogoutResponse>("/auth/logout");
       setUser(null);
     } catch (err) {
       setError(err instanceof BackendError ? err.message : "Failed to logout");

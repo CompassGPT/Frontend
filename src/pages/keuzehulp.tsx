@@ -141,9 +141,9 @@ export function KeuzehulpPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedModuleIds, setSelectedModuleIds] = useState<number[]>([]);
   const [isSavingPreferences, setIsSavingPreferences] = useState(false);
-  const [savePreferencesError, setSavePreferencesError] = useState<string | null>(
-    null
-  );
+  const [savePreferencesError, setSavePreferencesError] = useState<
+    string | null
+  >(null);
 
   const { predictions, isLoading, error, getPredictions } = usePrediction();
   const backend = useBackend();
@@ -173,11 +173,17 @@ export function KeuzehulpPage() {
     setSavePreferencesError(null);
 
     try {
-      await backend.post("/api/user/recommended", {
-        moduleIds: selectedModuleIds,
+      // Ensure we only send valid integer IDs
+      const validModuleIds = selectedModuleIds.filter(
+        (id) => typeof id === "number" && !isNaN(id) && id > 0
+      );
+
+      await backend.post("/user/recommended", {
+        moduleIds: validModuleIds,
       });
       navigate("/profile");
     } catch (e) {
+      console.error("Failed to save recommendations:", e);
       setSavePreferencesError(
         e instanceof Error ? e.message : "Opslaan mislukt. Probeer opnieuw."
       );
@@ -410,129 +416,133 @@ export function KeuzehulpPage() {
           {/* Results Cards */}
           {predictions.predictions.length > 0 ? (
             <div className="space-y-4 mb-8">
-              {predictions.predictions.map((p) => (
+              {predictions.predictions.map((p) =>
                 (() => {
                   const isSelected = selectedModuleIds.includes(p.module.id);
 
                   return (
-                <div
-                  key={p.module.id}
-                  className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md transition-all">
-                  <div className="flex flex-col sm:flex-row gap-5">
-                    {/* Match Score - Left side */}
-                    <div className="shrink-0 flex sm:flex-col items-center sm:items-start gap-3 sm:gap-2">
-                      <div className="bg-blue-600 text-white rounded-lg px-4 py-3 text-center min-w-20">
-                        <div className="text-3xl font-bold">
-                          {(p.score * 100).toFixed(0)}%
+                    <div
+                      key={p.module.id}
+                      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-5 hover:shadow-md transition-all">
+                      <div className="flex flex-col sm:flex-row gap-5">
+                        {/* Match Score - Left side */}
+                        <div className="shrink-0 flex sm:flex-col items-center sm:items-start gap-3 sm:gap-2">
+                          <div className="bg-blue-600 text-white rounded-lg px-4 py-3 text-center min-w-20">
+                            <div className="text-3xl font-bold">
+                              {(p.score * 100).toFixed(0)}%
+                            </div>
+                            <div className="text-xs opacity-90 mt-1">Match</div>
+                          </div>
                         </div>
-                        <div className="text-xs opacity-90 mt-1">Match</div>
+
+                        {/* Module Info */}
+                        <div className="flex-1 min-w-0">
+                          {/* Tags */}
+                          <div className="flex gap-2 mb-3 flex-wrap">
+                            <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium rounded-full">
+                              {p.module.studyCredits} Studiepunten
+                            </span>
+                            <span className="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs font-medium rounded-full">
+                              {p.module.level}
+                            </span>
+                          </div>
+
+                          {/* Title */}
+                          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+                            {p.module.name}
+                          </h3>
+
+                          {/* Description */}
+                          <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">
+                            {p.module.shortdescription}
+                          </p>
+
+                          {/* Metadata */}
+                          <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
+                            <div className="flex items-center gap-2">
+                              <svg
+                                className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
+                                />
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
+                                />
+                              </svg>
+                              <span>
+                                {p.module.location
+                                  .map((l) => l.name)
+                                  .join(", ")}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <svg
+                                className="w-4 h-4 text-gray-500 dark:text-gray-400"
+                                fill="none"
+                                stroke="currentColor"
+                                viewBox="0 0 24 24">
+                                <path
+                                  strokeLinecap="round"
+                                  strokeLinejoin="round"
+                                  strokeWidth={2}
+                                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                                />
+                              </svg>
+                              <span>
+                                {new Date(
+                                  p.module.startDate
+                                ).toLocaleDateString("nl-NL", {
+                                  month: "long",
+                                  year: "numeric",
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Action Button - Right side */}
+                        <div className="flex sm:flex-col items-center sm:items-end justify-end gap-3 shrink-0 border-t sm:border-t-0 pt-4 sm:pt-0 border-gray-100 dark:border-gray-700">
+                          <div className="inline-flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
+                            <button
+                              type="button"
+                              onClick={() => unselectModule(p.module.id)}
+                              aria-pressed={!isSelected}
+                              aria-label="Module afwijzen"
+                              className={`h-10 w-10 grid place-items-center font-bold transition-colors ${
+                                !isSelected
+                                  ? "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white"
+                                  : "bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                              }`}>
+                              ✕
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => selectModule(p.module.id)}
+                              aria-pressed={isSelected}
+                              aria-label="Module selecteren"
+                              className={`h-10 w-10 grid place-items-center font-bold transition-colors ${
+                                isSelected
+                                  ? "bg-blue-600 text-white"
+                                  : "bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
+                              }`}>
+                              ✓
+                            </button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-
-                    {/* Module Info */}
-                    <div className="flex-1 min-w-0">
-                      {/* Tags */}
-                      <div className="flex gap-2 mb-3 flex-wrap">
-                        <span className="px-3 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 text-xs font-medium rounded-full">
-                          {p.module.studyCredits} Studiepunten
-                        </span>
-                        <span className="px-3 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-700 dark:text-orange-400 text-xs font-medium rounded-full">
-                          {p.module.level}
-                        </span>
-                      </div>
-
-                      {/* Title */}
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-                        {p.module.name}
-                      </h3>
-
-                      {/* Description */}
-                      <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">
-                        {p.module.shortdescription}
-                      </p>
-
-                      {/* Metadata */}
-                      <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">
-                        <div className="flex items-center gap-2">
-                          <svg
-                            className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"
-                            />
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"
-                            />
-                          </svg>
-                          <span>
-                            {p.module.location.map((l) => l.name).join(", ")}
-                          </span>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <svg
-                            className="w-4 h-4 text-gray-500 dark:text-gray-400"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24">
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              strokeWidth={2}
-                              d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                            />
-                          </svg>
-                          <span>
-                            {new Date(p.module.startDate).toLocaleDateString(
-                              "nl-NL",
-                              { month: "long", year: "numeric" }
-                            )}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Action Button - Right side */}
-                    <div className="flex sm:flex-col items-center sm:items-end justify-end gap-3 shrink-0 border-t sm:border-t-0 pt-4 sm:pt-0 border-gray-100 dark:border-gray-700">
-                      <div className="inline-flex rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700">
-                        <button
-                          type="button"
-                          onClick={() => unselectModule(p.module.id)}
-                          aria-pressed={!isSelected}
-                          aria-label="Module afwijzen"
-                          className={`h-10 w-10 grid place-items-center font-bold transition-colors ${
-                            !isSelected
-                              ? "bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-white"
-                              : "bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                          }`}>
-                          ✕
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => selectModule(p.module.id)}
-                          aria-pressed={isSelected}
-                          aria-label="Module selecteren"
-                          className={`h-10 w-10 grid place-items-center font-bold transition-colors ${
-                            isSelected
-                              ? "bg-blue-600 text-white"
-                              : "bg-white dark:bg-gray-800 text-gray-500 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700"
-                          }`}>
-                          ✓
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
                   );
                 })()
-              ))}
+              )}
             </div>
           ) : (
             <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-12 border border-gray-200 dark:border-gray-700 text-center">
@@ -686,7 +696,8 @@ export function KeuzehulpPage() {
                       charLimitError ? "text-red-500" : "text-gray-400"
                     }>
                     {String(currentAnswer).length} /{" "}
-                    {currentQ.id === 8 ? MAX_TEXT_CHARS : MAX_TEXTAREA_CHARS} tekens
+                    {currentQ.id === 8 ? MAX_TEXT_CHARS : MAX_TEXTAREA_CHARS}{" "}
+                    tekens
                   </span>
                   <span className="text-gray-400">
                     {String(currentAnswer).length < 100
@@ -753,7 +764,9 @@ export function KeuzehulpPage() {
                       aria-hidden="true"
                     />
                   )}
-                  <span>{isSubmitting ? "Ophalen..." : "Bekijk Resultaat"}</span>
+                  <span>
+                    {isSubmitting ? "Ophalen..." : "Bekijk Resultaat"}
+                  </span>
                 </span>
               ) : (
                 "Volgende"

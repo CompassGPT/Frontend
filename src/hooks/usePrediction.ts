@@ -24,7 +24,7 @@ export function usePrediction() {
       setError(null);
 
       const response = await backend.post<PredictionResponse>(
-        "/api/ai/predict",
+        "/ai/predict",
         request
       );
 

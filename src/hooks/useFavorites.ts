@@ -48,10 +48,10 @@ export function useFavoriteModule(moduleId?: number) {
     try {
       setError(null);
       if (isFavorited) {
-        await backend.delete(`/api/user/${validModuleId}`);
+        await backend.delete(`/user/${validModuleId}`);
         setIsFavorited(false);
       } else {
-        await backend.post(`/api/user/${validModuleId}`);
+        await backend.post(`/user/${validModuleId}`);
         setIsFavorited(true);
       }
     } catch (err) {
@@ -84,7 +84,7 @@ export function useFavoritesList() {
       try {
         const res = await backend.get<{
           favorites: UserFavorite[];
-        }>("/api/user");
+        }>("/user");
         const ids = res.favorites.map((f) => f.moduleId);
         setFavoriteIds(ids);
       } catch (err) {
@@ -110,7 +110,7 @@ export function useFavoritesList() {
       try {
         setError(null);
         setIsLoadingModules(true);
-        const response = await backend.get<ModulesResponse>("/api/modules");
+        const response = await backend.get<ModulesResponse>("/modules");
         const transformed = response.modules.map((m) => ({
           id: m.id,
           title: m.name,
@@ -148,10 +148,10 @@ export function useFavoritesList() {
     try {
       setError(null);
       if (favoriteIds.includes(targetId)) {
-        await backend.delete(`/api/user/${targetId}`);
+        await backend.delete(`/user/${targetId}`);
         setFavoriteIds((prev) => prev.filter((fid) => fid !== targetId));
       } else {
-        await backend.post(`/api/user/${targetId}`);
+        await backend.post(`/user/${targetId}`);
         setFavoriteIds((prev) => [...prev, targetId]);
       }
     } catch (err) {

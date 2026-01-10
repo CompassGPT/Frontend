@@ -11,5 +11,5 @@ export const getBackendUrl = (): string => {
 export const createApiUrl = (endpoint: string): string => {
   const baseUrl = getBackendUrl();
   const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
-  return `${baseUrl}${cleanEndpoint}`;
+  return `${baseUrl}/api${cleanEndpoint}`;
 };
