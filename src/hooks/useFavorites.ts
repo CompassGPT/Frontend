@@ -60,10 +60,10 @@ export function useFavoriteModule(moduleId?: number) {
     try {
       setError(null);
       if (isFavorited) {
-        await backend.delete(`/user/${validModuleId}`);
+        await backend.delete(`/user/favorites/${validModuleId}`);
         setIsFavorited(false);
       } else {
-        await backend.post(`/user/${validModuleId}`);
+        await backend.post(`/user/favorites/${validModuleId}`);
         setIsFavorited(true);
       }
     } catch (err) {
@@ -171,10 +171,10 @@ export function useFavoritesList() {
       try {
         setError(null);
         if (favoriteIds.includes(targetId)) {
-          await backend.delete(`/user/${targetId}`);
+          await backend.delete(`/user/favorites/${targetId}`);
           setFavoriteIds((prev) => prev.filter((fid) => fid !== targetId));
         } else {
-          await backend.post(`/user/${targetId}`);
+          await backend.post(`/user/favorites/${targetId}`);
           setFavoriteIds((prev) => [...prev, targetId]);
         }
       } catch (err) {
