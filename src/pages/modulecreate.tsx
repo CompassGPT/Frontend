@@ -5,7 +5,7 @@ import { useModuleCreate } from "../hooks/useModule";
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router";
 import { useAuth } from "../hooks/useAuth";
-import { format } from "date-fns";
+import { format, startOfToday } from "date-fns";
 
 export function CreateModulePage() {
   const { user } = useAuth();
@@ -346,7 +346,7 @@ export function CreateModulePage() {
                     selected={startDate}
                     onChange={setStartDate}
                     placeholder="Selecteer een startdatum"
-                    minDate={new Date()}
+                    minDate={startOfToday()}
                   />
                 </div>
               </div>

@@ -163,7 +163,7 @@ const CustomDatePicker = ({
             <button
               type="button"
               onClick={() => {
-                onChange(new Date());
+                onChange(today);
                 setIsOpen(false);
               }}
               className="text-xs font-medium text-blue-600 dark:text-blue-400 hover:underline">
