@@ -74,7 +74,10 @@ export const useBackend = () => {
           console.warn(
             "Session expired or unauthorized - redirecting to login"
           );
-          navigate("/auth/login", { replace: true });
+          navigate("/auth/login", {
+            replace: true,
+            state: { message: fullMessage },
+          });
         }
 
         throw error;

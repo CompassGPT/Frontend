@@ -21,7 +21,13 @@ export function ProtectedRoute() {
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/auth/login" replace />;
+    return (
+      <Navigate
+        to="/auth/login"
+        replace
+        state={{ message: "Please log in to continue" }}
+      />
+    );
   }
 
   return <AppLayout />;
