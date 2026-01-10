@@ -31,7 +31,7 @@ export function useFavoriteModule(moduleId?: number) {
         // See Backend/src/domain/usermodule/userfavorite.model.ts
         const res = await backend.get<{
           favorites: { moduleId: number }[];
-        }>("/user");
+        }>("/user/favorites");
         const ids = res.favorites.map((f) => f.moduleId);
         if (validModuleId) {
           setIsFavorited(ids.includes(validModuleId));
@@ -104,7 +104,7 @@ export function useFavoritesList() {
       try {
         const res = await backend.get<{
           favorites: UserFavorite[];
-        }>("/user");
+        }>("/user/favorites");
         const ids = res.favorites.map((f) => f.moduleId);
         setFavoriteIds(ids);
       } catch (err) {
