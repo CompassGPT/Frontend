@@ -1,6 +1,7 @@
 import { useParams } from "react-router";
 import { useModule } from "../hooks/useModule";
 import { useFavoriteModule } from "../hooks/useFavorites";
+import { ModuleDetailSkeleton } from "../components/skeleton";
 import keuzemoduleFallback from "../images/keuzemodule_fallback_16-9.webp";
 
 export function ModulePage() {
@@ -15,7 +16,7 @@ export function ModulePage() {
   } = useFavoriteModule(id ? parseInt(id, 10) : undefined);
 
   if (isLoading) {
-    return <div>Loading module...</div>;
+    return <ModuleDetailSkeleton />;
   }
 
   if (error) {

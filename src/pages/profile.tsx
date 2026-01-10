@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { useFavoritesList } from "../hooks/useFavorites";
 import { useBackend, BackendError } from "../hooks/useBackend";
+import { ProfileSkeleton } from "../components/skeleton";
 
 /**
  * Profile page with updated styling
@@ -72,12 +73,8 @@ export function ProfilePage() {
     }
   };
 
-  if (isLoading) {
-    return (
-      <div className="p-8 text-center text-gray-900 dark:text-white">
-        Loading...
-      </div>
-    );
+  if (isLoading || loadingModules) {
+    return <ProfileSkeleton />;
   }
 
   if (!user) {
