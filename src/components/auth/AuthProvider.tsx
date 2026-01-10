@@ -15,33 +15,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [error, setError] = useState<string | null>(null);
   const backend = useBackend();
 
-  // Check if there's an active session on mount
-  useEffect(() => {
-    const checkSession = async () => {
-      try {
-        const response = await backend.get<{ user: User }>("/user/profile");
-        setUser(response.user);
-      } catch {
-        setUser(null);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    checkSession();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount
-
-  // Separate checkSession function for manual calls
+  // Single checkSession function for both initial load and manual calls
   const checkSession = useCallback(async () => {
     try {
+      setIsLoading(true);
       const response = await backend.get<{ user: User }>("/user/profile");
       setUser(response.user);
     } catch {
       setUser(null);
+    } finally {
+      setIsLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // NOTE: backend is excluded because useBackend returns a stable memoized object
   }, []);
+
+  // Check if there's an active session on mount
+  useEffect(() => {
+    checkSession();
+  }, [checkSession]);
 
   // Login
   const login = async (credentials: LoginRequest) => {
