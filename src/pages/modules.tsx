@@ -3,7 +3,10 @@ import { Link } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { useFavoritesList } from "../hooks/useFavorites";
 import { useModulesList } from "../hooks/useModule";
-import { ModuleGridSkeleton } from "../components/skeleton";
+import {
+  ModuleGridSkeleton,
+  FilterSidebarSkeleton,
+} from "../components/skeleton";
 import keuzemoduleFallback from "../images/keuzemodule_fallback_16-9.webp";
 
 export function ModulesPage() {
@@ -143,8 +146,8 @@ export function ModulesPage() {
       {(loading || favoritesLoading) && (
         <div className="container mx-auto px-4 py-8">
           <div className="flex flex-col lg:flex-row lg:gap-6 xl:gap-8">
-            {/* Spacer for sidebar on desktop */}
-            <div className="hidden lg:block lg:w-72 shrink-0" />
+            {/* Filter sidebar skeleton */}
+            <FilterSidebarSkeleton />
 
             {/* Skeleton cards */}
             <div className="flex-1 space-y-4">
