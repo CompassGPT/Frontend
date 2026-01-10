@@ -40,6 +40,7 @@ export function useModule(id: string) {
 
     fetchModule();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // NOTE: backend is excluded because useBackend returns a stable memoized object
   }, [id]);
 
   return { module, isLoading, error };
@@ -257,7 +258,7 @@ export function useModuleCreate() {
           { tag }
         );
         console.log("ModuleTags response:", response);
-        return response;
+        return response.moduleTag;
       } catch (err) {
         console.error("Error creating module tags:", err);
         return null;
