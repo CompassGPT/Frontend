@@ -1,11 +1,13 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useBackend, BackendError } from "./useBackend";
+import { useAuth } from "./useAuth";
 import type { ModulesResponse, UserFavorite } from "../types/api.types";
 import type { TransformedModule } from "../types/api.types";
 
 // Hook for single module favorite state
 export function useFavoriteModule(moduleId?: number) {
   const backend = useBackend();
+  const { user } = useAuth();
   const validModuleId =
     typeof moduleId === "number" && !isNaN(moduleId) ? moduleId : undefined;
 
@@ -14,6 +16,13 @@ export function useFavoriteModule(moduleId?: number) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    // Skip favorites for non-students
+    if (user?.role !== "STUDENT") {
+      setIsLoading(false);
+      setIsFavorited(false);
+      return;
+    }
+
     const fetchFavorites = async () => {
       setIsLoading(true);
       setError(null);
@@ -41,9 +50,9 @@ export function useFavoriteModule(moduleId?: number) {
 
     fetchFavorites();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [validModuleId]); // backend is stable, don't include it
+  }, [validModuleId, user?.role]);
 
-  const toggleFavorite = async () => {
+  const toggleFavorite = useCallback(async () => {
     if (!validModuleId) return;
     try {
       setError(null);
@@ -60,7 +69,7 @@ export function useFavoriteModule(moduleId?: number) {
         err instanceof BackendError ? err.message : "Failed to toggle favorite"
       );
     }
-  };
+  }, [validModuleId, isFavorited, backend]);
 
   return { isFavorited, toggleFavorite, isLoading, error };
 }
@@ -68,6 +77,7 @@ export function useFavoriteModule(moduleId?: number) {
 // Hook for favorites in list contexts (modules page, profile page)
 export function useFavoritesList() {
   const backend = useBackend();
+  const { user } = useAuth();
 
   const [favoriteIds, setFavoriteIds] = useState<number[]>([]);
   const [allModules, setAllModules] = useState<TransformedModule[]>([]);
@@ -78,6 +88,13 @@ export function useFavoritesList() {
 
   // Fetch favorites
   useEffect(() => {
+    // Skip favorites for non-students
+    if (user?.role !== "STUDENT") {
+      setIsLoadingFavorites(false);
+      setFavoriteIds([]);
+      return;
+    }
+
     const fetchFavorites = async () => {
       setIsLoadingFavorites(true);
       setError(null);
@@ -102,7 +119,7 @@ export function useFavoritesList() {
 
     fetchFavorites();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount, backend is stable
+  }, [user?.role]);
 
   // Fetch all modules for profile/list views
   useEffect(() => {
@@ -136,35 +153,40 @@ export function useFavoritesList() {
 
     fetchModules();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount, backend is stable
+  }, []);
 
   const favoriteModules = useMemo(() => {
     return allModules.filter((m) => favoriteIds.includes(m.id));
   }, [allModules, favoriteIds]);
 
-  const toggleFavorite = async (id: number) => {
-    if (id == null || isNaN(id)) return;
-    const targetId = id;
-    try {
-      setError(null);
-      if (favoriteIds.includes(targetId)) {
-        await backend.delete(`/user/${targetId}`);
-        setFavoriteIds((prev) => prev.filter((fid) => fid !== targetId));
-      } else {
-        await backend.post(`/user/${targetId}`);
-        setFavoriteIds((prev) => [...prev, targetId]);
+  const toggleFavorite = useCallback(
+    async (id: number) => {
+      if (id == null || isNaN(id)) return;
+      const targetId = id;
+      try {
+        setError(null);
+        if (favoriteIds.includes(targetId)) {
+          await backend.delete(`/user/${targetId}`);
+          setFavoriteIds((prev) => prev.filter((fid) => fid !== targetId));
+        } else {
+          await backend.post(`/user/${targetId}`);
+          setFavoriteIds((prev) => [...prev, targetId]);
+        }
+      } catch (err) {
+        console.error("Failed to toggle favorite:", err);
+        setError(
+          err instanceof BackendError
+            ? err.message
+            : "Failed to toggle favorite"
+        );
       }
-    } catch (err) {
-      console.error("Failed to toggle favorite:", err);
-      setError(
-        err instanceof BackendError ? err.message : "Failed to toggle favorite"
-      );
-    }
-  };
+    },
+    [favoriteIds, backend]
+  );
 
-  const toggleShowOnlyFavorites = () => {
+  const toggleShowOnlyFavorites = useCallback(() => {
     setShowOnlyFavorites((prev) => !prev);
-  };
+  }, []);
 
   return {
     favoriteIds,

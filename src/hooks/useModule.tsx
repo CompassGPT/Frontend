@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import { useBackend, BackendError } from "../hooks/useBackend";
 import type {
   createModule,
@@ -40,7 +40,7 @@ export function useModule(id: string) {
 
     fetchModule();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]); // backend is stable, don't include it
+  }, [id]);
 
   return { module, isLoading, error };
 }
@@ -93,17 +93,17 @@ export function useModulesList() {
 
     void fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run once on mount, backend is stable
+  }, []);
 
   // Bepaal periode uit startDate (string format: "2025-09-02")
-  const getPeriodeFromDate = (dateStr: string) => {
+  const getPeriodeFromDate = useCallback((dateStr: string) => {
     const d = new Date(dateStr);
     const m = d.getMonth(); // 0-11
     if (m >= 8 && m <= 10) return "P1"; // sep-nov (8,9,10)
     if (m === 11 || m <= 1) return "P2"; // dec-feb (11,0,1)
     if (m >= 2 && m <= 3) return "P3"; // mrt-apr (2,3)
     return "P4"; // mei-aug (4,5,6,7)
-  };
+  }, []);
 
   // Verrijk modules met periode
   const modulesWithPeriode = useMemo(
@@ -126,49 +126,52 @@ export function useModulesList() {
   }, [locations]);
 
   // Filter modules
-  const filterModules = (
-    modulesToFilter: typeof modulesWithPeriode,
-    searchQuery: string,
-    selectedPeriode: string[],
-    selectedLocatie: string[],
-    selectedLevel: string[],
-    selectedEC: number[],
-    showOnlyFavorites: boolean,
-    favoriteIds: number[]
-  ) => {
-    return modulesToFilter.filter((module) => {
-      if (showOnlyFavorites && !favoriteIds.includes(module.id)) {
-        return false;
-      }
+  const filterModules = useCallback(
+    (
+      modulesToFilter: typeof modulesWithPeriode,
+      searchQuery: string,
+      selectedPeriode: string[],
+      selectedLocatie: string[],
+      selectedLevel: string[],
+      selectedEC: number[],
+      showOnlyFavorites: boolean,
+      favoriteIds: number[]
+    ) => {
+      return modulesToFilter.filter((module) => {
+        if (showOnlyFavorites && !favoriteIds.includes(module.id)) {
+          return false;
+        }
 
-      const matchesSearch =
-        searchQuery === "" ||
-        module.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        module.description.toLowerCase().includes(searchQuery.toLowerCase());
+        const matchesSearch =
+          searchQuery === "" ||
+          module.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          module.description.toLowerCase().includes(searchQuery.toLowerCase());
 
-      const matchesPeriode =
-        selectedPeriode.length === 0 ||
-        selectedPeriode.includes(module.periode);
+        const matchesPeriode =
+          selectedPeriode.length === 0 ||
+          selectedPeriode.includes(module.periode);
 
-      const matchesLocatie =
-        selectedLocatie.length === 0 ||
-        selectedLocatie.some((loc) => module.locatie.includes(loc));
+        const matchesLocatie =
+          selectedLocatie.length === 0 ||
+          selectedLocatie.some((loc) => module.locatie.includes(loc));
 
-      const matchesLevel =
-        selectedLevel.length === 0 || selectedLevel.includes(module.level);
+        const matchesLevel =
+          selectedLevel.length === 0 || selectedLevel.includes(module.level);
 
-      const matchesEC =
-        selectedEC.length === 0 || selectedEC.includes(module.studiepunten);
+        const matchesEC =
+          selectedEC.length === 0 || selectedEC.includes(module.studiepunten);
 
-      return (
-        matchesSearch &&
-        matchesPeriode &&
-        matchesLocatie &&
-        matchesLevel &&
-        matchesEC
-      );
-    });
-  };
+        return (
+          matchesSearch &&
+          matchesPeriode &&
+          matchesLocatie &&
+          matchesLevel &&
+          matchesEC
+        );
+      });
+    },
+    []
+  );
 
   return {
     modules: modulesWithPeriode,
@@ -184,7 +187,7 @@ export function useModuleCreate() {
   const [isCreating, setIsCreating] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const getModuleTags = async (): Promise<Tag[]> => {
+  const getModuleTags = useCallback(async (): Promise<Tag[]> => {
     try {
       console.log("Calling /modules/moduletags...");
       const response = await backend.get<{ moduleTags: Tag[] }>(
@@ -196,9 +199,9 @@ export function useModuleCreate() {
       console.error("Error fetching module tags:", err);
       return [];
     }
-  };
+  }, [backend]);
 
-  const getLocations = async (): Promise<Location[]> => {
+  const getLocations = useCallback(async (): Promise<Location[]> => {
     try {
       console.log("Calling /modules/locations...");
       const response = await backend.get<{ locations: Location[] }>(
@@ -210,52 +213,58 @@ export function useModuleCreate() {
       console.error("Error fetching locations:", err);
       return [];
     }
-  };
+  }, [backend]);
 
-  const createModule = async (module: createModule) => {
-    try {
-      setIsCreating(true);
-      setError(null);
-      module.location = module.location.map((loc) => ({
-        id: loc.id,
-        name: loc.name,
-      }));
-      module.moduleTags = module.moduleTags.map((tag) => ({
-        id: tag.id,
-        name: tag.name,
-      }));
-      console.log("Creating module with data:", module);
-      const response = await backend.post<{ module: moduleDetail }>(
-        "/modules",
-        module
-      );
-      return response.module?.id || null;
-    } catch (err) {
-      console.error(err);
-      setError(
-        err instanceof BackendError ? err.message : "Failed to create module"
-      );
-      return null;
-    } finally {
-      setIsCreating(false);
-    }
-  };
+  const createModule = useCallback(
+    async (module: createModule) => {
+      try {
+        setIsCreating(true);
+        setError(null);
+        module.location = module.location.map((loc) => ({
+          id: loc.id,
+          name: loc.name,
+        }));
+        module.moduleTags = module.moduleTags.map((tag) => ({
+          id: tag.id,
+          name: tag.name,
+        }));
+        console.log("Creating module with data:", module);
+        const response = await backend.post<{ module: moduleDetail }>(
+          "/modules",
+          module
+        );
+        return response.module?.id || null;
+      } catch (err) {
+        console.error(err);
+        setError(
+          err instanceof BackendError ? err.message : "Failed to create module"
+        );
+        return null;
+      } finally {
+        setIsCreating(false);
+      }
+    },
+    [backend]
+  );
 
-  const createModuleTag = async (tag: string) => {
-    try {
-      if (!tag) return null;
-      console.log("Creating module tags:", tag);
-      const response = await backend.post<{ moduleTag: Tag }>(
-        "/modules/moduletags",
-        { tag }
-      );
-      console.log("ModuleTags response:", response);
-      return response;
-    } catch (err) {
-      console.error("Error creating module tags:", err);
-      return null;
-    }
-  };
+  const createModuleTag = useCallback(
+    async (tag: string) => {
+      try {
+        if (!tag) return null;
+        console.log("Creating module tags:", tag);
+        const response = await backend.post<{ moduleTag: Tag }>(
+          "/modules/moduletags",
+          { tag }
+        );
+        console.log("ModuleTags response:", response);
+        return response;
+      } catch (err) {
+        console.error("Error creating module tags:", err);
+        return null;
+      }
+    },
+    [backend]
+  );
 
   return {
     isCreating,
