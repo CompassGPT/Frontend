@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useBackend, BackendError } from "./useBackend";
 import type { PredictionRequest, PredictionResponse } from "../types/api.types";
 
@@ -16,45 +16,48 @@ export function usePrediction() {
   /**
    * Get module predictions based on student preferences
    */
-  const getPredictions = async (
-    request: PredictionRequest
-  ): Promise<PredictionResponse | null> => {
-    try {
-      setIsLoading(true);
-      setError(null);
+  const getPredictions = useCallback(
+    async (request: PredictionRequest): Promise<PredictionResponse | null> => {
+      try {
+        setIsLoading(true);
+        setError(null);
 
-      const response = await backend.post<PredictionResponse>(
-        "/api/ai/predict",
-        request
-      );
+        const response = await backend.post<PredictionResponse>(
+          "/ai/predict",
+          request
+        );
 
-      setPredictions(response);
-      return response;
-    } catch (err) {
-      const errorMessage =
-        err instanceof BackendError ? err.message : "Failed to get predictions";
-      setError(errorMessage);
-      console.error("Prediction error:", err);
-      return null;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        setPredictions(response);
+        return response;
+      } catch (err) {
+        const errorMessage =
+          err instanceof BackendError
+            ? err.message
+            : "Failed to get predictions";
+        setError(errorMessage);
+        console.error("Prediction error:", err);
+        return null;
+      } finally {
+        setIsLoading(false);
+      }
+    },
+    [backend]
+  );
 
   /**
    * Clear predictions and reset state
    */
-  const clearPredictions = () => {
+  const clearPredictions = useCallback(() => {
     setPredictions(null);
     setError(null);
-  };
+  }, []);
 
   /**
    * Clear error message
    */
-  const clearError = () => {
+  const clearError = useCallback(() => {
     setError(null);
-  };
+  }, []);
 
   return {
     predictions,

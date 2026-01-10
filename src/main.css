@@ -50,3 +50,17 @@
 .animate-fade-in-up {
   animation: fade-in-up 0.6s ease-out backwards;
 }
+
+/* Skeleton loading animations */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}

@@ -15,7 +15,7 @@ import { CreateModulePage } from "./pages/modulecreate";
 import { ThemeProvider } from "./context/ThemeContext.tsx";
 
 // Auth provider
-import { AuthProvider } from "./hooks/useAuth";
+import { AuthProvider } from "./components/auth/AuthProvider";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Rendering app
@@ -44,5 +44,5 @@ createRoot(root).render(
         </AuthProvider>
       </BrowserRouter>
     </ThemeProvider>
-  </StrictMode>,
+  </StrictMode>
 );

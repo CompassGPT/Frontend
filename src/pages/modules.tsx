@@ -3,6 +3,10 @@ import { Link } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { useFavoritesList } from "../hooks/useFavorites";
 import { useModulesList } from "../hooks/useModule";
+import {
+  ModuleGridSkeleton,
+  FilterSidebarSkeleton,
+} from "../components/skeleton";
 import keuzemoduleFallback from "../images/keuzemodule_fallback_16-9.webp";
 
 export function ModulesPage() {
@@ -45,7 +49,7 @@ export function ModulesPage() {
   const handleFilterToggle = (
     value: string,
     selected: string[],
-    setSelected: React.Dispatch<React.SetStateAction<string[]>>,
+    setSelected: React.Dispatch<React.SetStateAction<string[]>>
   ) => {
     if (selected.includes(value)) {
       setSelected(selected.filter((item) => item !== value));
@@ -72,7 +76,7 @@ export function ModulesPage() {
     selectedLevel,
     selectedEC,
     showOnlyFavorites,
-    favoriteIds,
+    favoriteIds
   );
 
   // Pagination
@@ -80,7 +84,7 @@ export function ModulesPage() {
   const startIndex = (currentPage - 1) * modulesPerPage;
   const paginatedModules = filteredModules.slice(
     startIndex,
-    startIndex + modulesPerPage,
+    startIndex + modulesPerPage
   );
 
   // Generate smart pagination numbers
@@ -140,8 +144,16 @@ export function ModulesPage() {
 
       {/* Loading state */}
       {(loading || favoritesLoading) && (
-        <div className="flex justify-center items-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col lg:flex-row lg:gap-6 xl:gap-8">
+            {/* Filter sidebar skeleton */}
+            <FilterSidebarSkeleton />
+
+            {/* Skeleton cards */}
+            <div className="flex-1 space-y-4">
+              <ModuleGridSkeleton count={5} />
+            </div>
+          </div>
         </div>
       )}
 
@@ -175,8 +187,7 @@ export function ModulesPage() {
 
             {/* Sidebar met filters */}
             <aside
-              className={`lg:w-64 xl:w-72 shrink-0 ${showMobileFilters ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md max-h-[85vh] z-50 bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-2xl overflow-y-auto lg:static lg:transform-none lg:max-h-none lg:bg-transparent lg:p-0 lg:overflow-visible lg:shadow-none lg:rounded-none" : "hidden lg:block"}`}
-            >
+              className={`lg:w-64 xl:w-72 shrink-0 ${showMobileFilters ? "fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-md max-h-[85vh] z-50 bg-white dark:bg-gray-900 p-6 rounded-2xl shadow-2xl overflow-y-auto lg:static lg:transform-none lg:max-h-none lg:bg-transparent lg:p-0 lg:overflow-visible lg:shadow-none lg:rounded-none" : "hidden lg:block"}`}>
               <div className="flex justify-between items-center mb-4 lg:hidden">
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white">
                   Filters
@@ -185,14 +196,12 @@ export function ModulesPage() {
                   type="button"
                   aria-label="Sluit filters"
                   onClick={() => setShowMobileFilters(false)}
-                  className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
-                >
+                  className="p-2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
                   <svg
                     className="w-6 h-6"
                     fill="none"
                     stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                    viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -205,14 +214,12 @@ export function ModulesPage() {
               <div className="space-y-4">
                 <button
                   onClick={handleReset}
-                  className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
-                >
+                  className="w-full px-4 py-2 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
                   <svg
                     className="w-4 h-4"
                     fill="none"
                     stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                    viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -227,8 +234,7 @@ export function ModulesPage() {
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
                   <button
                     onClick={() => toggleFilter("level")}
-                    className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
+                    className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <h3 className="font-semibold text-gray-900 dark:text-white">
                       Niveau
                     </h3>
@@ -236,8 +242,7 @@ export function ModulesPage() {
                       className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${openFilters.level ? "rotate-180" : ""}`}
                       fill="none"
                       stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                      viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -247,14 +252,12 @@ export function ModulesPage() {
                     </svg>
                   </button>
                   <div
-                    className={`transition-all duration-200 ease-in-out ${openFilters.level ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}
-                  >
+                    className={`transition-all duration-200 ease-in-out ${openFilters.level ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}>
                     <div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700">
                       {filterOptions.levelOpties.map((lvl: string) => (
                         <label
                           key={lvl}
-                          className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"
-                        >
+                          className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
                           <input
                             type="checkbox"
                             checked={selectedLevel.includes(lvl)}
@@ -262,7 +265,7 @@ export function ModulesPage() {
                               handleFilterToggle(
                                 lvl,
                                 selectedLevel,
-                                setSelectedLevel,
+                                setSelectedLevel
                               )
                             }
                             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
@@ -280,8 +283,7 @@ export function ModulesPage() {
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
                   <button
                     onClick={() => toggleFilter("studiepunten")}
-                    className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
+                    className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <h3 className="font-semibold text-gray-900 dark:text-white">
                       Studiepunten (EC)
                     </h3>
@@ -289,8 +291,7 @@ export function ModulesPage() {
                       className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${openFilters.studiepunten ? "rotate-180" : ""}`}
                       fill="none"
                       stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                      viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -300,14 +301,12 @@ export function ModulesPage() {
                     </svg>
                   </button>
                   <div
-                    className={`transition-all duration-200 ease-in-out ${openFilters.studiepunten ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}
-                  >
+                    className={`transition-all duration-200 ease-in-out ${openFilters.studiepunten ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}>
                     <div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700">
                       {filterOptions.ecOpties.map((ec: number) => (
                         <label
                           key={ec}
-                          className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"
-                        >
+                          className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
                           <input
                             type="checkbox"
                             checked={selectedEC.includes(ec)}
@@ -315,7 +314,7 @@ export function ModulesPage() {
                               setSelectedEC((prev) =>
                                 prev.includes(ec)
                                   ? prev.filter((e) => e !== ec)
-                                  : [...prev, ec],
+                                  : [...prev, ec]
                               )
                             }
                             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
@@ -333,8 +332,7 @@ export function ModulesPage() {
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
                   <button
                     onClick={() => toggleFilter("periode")}
-                    className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
+                    className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <h3 className="font-semibold text-gray-900 dark:text-white">
                       Periode
                     </h3>
@@ -342,8 +340,7 @@ export function ModulesPage() {
                       className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${openFilters.periode ? "rotate-180" : ""}`}
                       fill="none"
                       stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                      viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -353,14 +350,12 @@ export function ModulesPage() {
                     </svg>
                   </button>
                   <div
-                    className={`transition-all duration-200 ease-in-out ${openFilters.periode ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}
-                  >
+                    className={`transition-all duration-200 ease-in-out ${openFilters.periode ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}>
                     <div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700">
                       {filterOptions.periodeOpties.map((periode: string) => (
                         <label
                           key={periode}
-                          className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"
-                        >
+                          className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
                           <input
                             type="checkbox"
                             checked={selectedPeriode.includes(periode)}
@@ -368,7 +363,7 @@ export function ModulesPage() {
                               handleFilterToggle(
                                 periode,
                                 selectedPeriode,
-                                setSelectedPeriode,
+                                setSelectedPeriode
                               )
                             }
                             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
@@ -386,8 +381,7 @@ export function ModulesPage() {
                 <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 overflow-hidden transition-colors">
                   <button
                     onClick={() => toggleFilter("locatie")}
-                    className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                  >
+                    className="w-full flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
                     <h3 className="font-semibold text-gray-900 dark:text-white">
                       Locatie
                     </h3>
@@ -395,8 +389,7 @@ export function ModulesPage() {
                       className={`w-5 h-5 text-gray-500 transition-transform duration-200 ${openFilters.locatie ? "rotate-180" : ""}`}
                       fill="none"
                       stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
+                      viewBox="0 0 24 24">
                       <path
                         strokeLinecap="round"
                         strokeLinejoin="round"
@@ -406,14 +399,12 @@ export function ModulesPage() {
                     </svg>
                   </button>
                   <div
-                    className={`transition-all duration-200 ease-in-out ${openFilters.locatie ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}
-                  >
+                    className={`transition-all duration-200 ease-in-out ${openFilters.locatie ? "max-h-96 opacity-100" : "max-h-0 opacity-0 overflow-hidden"}`}>
                     <div className="px-4 pb-4 space-y-2 border-t border-gray-100 dark:border-gray-700">
                       {filterOptions.locatieOpties.map((locatie: string) => (
                         <label
                           key={locatie}
-                          className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors"
-                        >
+                          className="flex items-center gap-3 cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 p-2 rounded-md transition-colors">
                           <input
                             type="checkbox"
                             checked={selectedLocatie.includes(locatie)}
@@ -421,7 +412,7 @@ export function ModulesPage() {
                               handleFilterToggle(
                                 locatie,
                                 selectedLocatie,
-                                setSelectedLocatie,
+                                setSelectedLocatie
                               )
                             }
                             className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
@@ -437,8 +428,7 @@ export function ModulesPage() {
 
                 <button
                   onClick={() => setShowMobileFilters(false)}
-                  className="w-full mt-4 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors lg:hidden"
-                >
+                  className="w-full mt-4 px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors lg:hidden">
                   Toon {filteredModules.length} resultaten
                 </button>
               </div>
@@ -457,14 +447,12 @@ export function ModulesPage() {
                 />
                 <button
                   onClick={() => setShowMobileFilters(!showMobileFilters)}
-                  className="lg:hidden px-6 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2"
-                >
+                  className="lg:hidden px-6 py-3 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-white font-medium rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center justify-center gap-2">
                   <svg
                     className="w-5 h-5"
                     fill="none"
                     stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
+                    viewBox="0 0 24 24">
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -483,7 +471,7 @@ export function ModulesPage() {
                     {startIndex + 1} -{" "}
                     {Math.min(
                       startIndex + modulesPerPage,
-                      filteredModules.length,
+                      filteredModules.length
                     )}{" "}
                     van {filteredModules.length} keuzemodules
                   </p>
@@ -493,26 +481,51 @@ export function ModulesPage() {
                       : "Selecteer een module om meer te zien"}
                   </p>
                 </div>
-                <button
-                  onClick={toggleShowOnlyFavorites}
-                  className={`flex items-center gap-2 border rounded-lg transition-colors font-medium whitespace-nowrap md:px-4 px-3 md:py-2 py-2 text-xs md:text-sm shrink-0
-										${showOnlyFavorites
-                      ? "border-red-500 text-red-600 bg-red-50 hover:bg-red-100 dark:border-red-500 dark:text-red-400 dark:bg-red-900/30 dark:hover:bg-red-900/50"
-                      : "border-red-500 text-red-500 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-900/30"
+                <div className="flex items-center gap-2">
+                  {/* Create Module Button for teachers/admin */}
+                  {user?.role !== "STUDENT" && (
+                    <Link
+                      to="/modules/create"
+                      className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors shadow-sm hover:shadow-md whitespace-nowrap text-sm">
+                      <svg
+                        className="w-4 h-4"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M12 4v16m8-8H4"
+                        />
+                      </svg>
+                      <span className="hidden md:inline">Nieuwe module</span>
+                      <span className="inline md:hidden">Nieuw</span>
+                    </Link>
+                  )}
+                  {/* Favorites button - only for students */}
+                  {user?.role === "STUDENT" && (
+                    <button
+                      onClick={toggleShowOnlyFavorites}
+                      className={`flex items-center gap-2 border rounded-lg transition-colors font-medium whitespace-nowrap md:px-4 px-3 md:py-2 py-2 text-xs md:text-sm shrink-0
+										${
+                      showOnlyFavorites
+                        ? "border-red-500 text-red-600 bg-red-50 hover:bg-red-100 dark:border-red-500 dark:text-red-400 dark:bg-red-900/30 dark:hover:bg-red-900/50"
+                        : "border-red-500 text-red-500 hover:bg-red-50 dark:border-red-500 dark:text-red-400 dark:hover:bg-red-900/30"
                     }
-									`}
-                >
-                  <svg
-                    className="w-5 h-5"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
-                  </svg>
-                  <span className="hidden lg:inline">Toon favorieten</span>
-                  <span className="inline lg:hidden">Favorieten</span>
-                  <span className="ml-1">({favoritesCount})</span>
-                </button>
+									`}>
+                      <svg
+                        className="w-5 h-5"
+                        fill="currentColor"
+                        viewBox="0 0 20 20">
+                        <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                      </svg>
+                      <span className="hidden lg:inline">Toon favorieten</span>
+                      <span className="inline lg:hidden">Favorieten</span>
+                      <span className="ml-1">({favoritesCount})</span>
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Active filters display */}
@@ -520,123 +533,111 @@ export function ModulesPage() {
                 selectedLocatie.length > 0 ||
                 selectedLevel.length > 0 ||
                 selectedEC.length > 0) && (
-                  <div className="mb-6 flex flex-wrap gap-2">
-                    {selectedPeriode.map((periode) => (
-                      <div
-                        key={periode}
-                        className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
-                      >
-                        {periode}
-                        <button
-                          onClick={() =>
-                            setSelectedPeriode(
-                              selectedPeriode.filter((p) => p !== periode),
-                            )
-                          }
-                          className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                          title="Filter verwijderen"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
-                    {selectedLocatie.map((locatie) => (
-                      <div
-                        key={locatie}
-                        className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
-                      >
-                        {locatie}
-                        <button
-                          onClick={() =>
-                            setSelectedLocatie(
-                              selectedLocatie.filter((l) => l !== locatie),
-                            )
-                          }
-                          className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                          title="Filter verwijderen"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
-                    {selectedLevel.map((lvl) => (
-                      <div
-                        key={lvl}
-                        className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
-                      >
-                        {lvl}
-                        <button
-                          onClick={() =>
-                            setSelectedLevel(
-                              selectedLevel.filter((l) => l !== lvl),
-                            )
-                          }
-                          className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                          title="Filter verwijderen"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
-                    {selectedEC.map((ec) => (
-                      <div
-                        key={ec}
-                        className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow"
-                      >
-                        {ec} EC
-                        <button
-                          onClick={() =>
-                            setSelectedEC(selectedEC.filter((e) => e !== ec))
-                          }
-                          className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
-                          title="Filter verwijderen"
-                        >
-                          <svg
-                            className="w-4 h-4"
-                            fill="currentColor"
-                            viewBox="0 0 20 20"
-                          >
-                            <path
-                              fillRule="evenodd"
-                              d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-                              clipRule="evenodd"
-                            />
-                          </svg>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div className="mb-6 flex flex-wrap gap-2">
+                  {selectedPeriode.map((periode) => (
+                    <div
+                      key={periode}
+                      className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+                      {periode}
+                      <button
+                        onClick={() =>
+                          setSelectedPeriode(
+                            selectedPeriode.filter((p) => p !== periode)
+                          )
+                        }
+                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        title="Filter verwijderen">
+                        <svg
+                          className="w-4 h-4"
+                          fill="currentColor"
+                          viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                  {selectedLocatie.map((locatie) => (
+                    <div
+                      key={locatie}
+                      className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+                      {locatie}
+                      <button
+                        onClick={() =>
+                          setSelectedLocatie(
+                            selectedLocatie.filter((l) => l !== locatie)
+                          )
+                        }
+                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        title="Filter verwijderen">
+                        <svg
+                          className="w-4 h-4"
+                          fill="currentColor"
+                          viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                  {selectedLevel.map((lvl) => (
+                    <div
+                      key={lvl}
+                      className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+                      {lvl}
+                      <button
+                        onClick={() =>
+                          setSelectedLevel(
+                            selectedLevel.filter((l) => l !== lvl)
+                          )
+                        }
+                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        title="Filter verwijderen">
+                        <svg
+                          className="w-4 h-4"
+                          fill="currentColor"
+                          viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                  {selectedEC.map((ec) => (
+                    <div
+                      key={ec}
+                      className="px-4 py-2 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white text-sm font-medium rounded-lg flex items-center gap-2 shadow-sm hover:shadow-md transition-shadow">
+                      {ec} EC
+                      <button
+                        onClick={() =>
+                          setSelectedEC(selectedEC.filter((e) => e !== ec))
+                        }
+                        className="text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                        title="Filter verwijderen">
+                        <svg
+                          className="w-4 h-4"
+                          fill="currentColor"
+                          viewBox="0 0 20 20">
+                          <path
+                            fillRule="evenodd"
+                            d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                            clipRule="evenodd"
+                          />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Module cards */}
               <div className="space-y-4">
@@ -650,8 +651,7 @@ export function ModulesPage() {
                   paginatedModules.map((module) => (
                     <div
                       key={module.id}
-                      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:gap-5 transition-colors"
-                    >
+                      className="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4 sm:p-5 flex flex-col sm:flex-row gap-4 sm:gap-5 transition-colors">
                       {/* Module afbeelding */}
                       <div className="w-full sm:w-36 h-48 sm:h-28 bg-gray-100 dark:bg-gray-700 rounded-lg shrink-0 flex items-center justify-center border border-gray-200 dark:border-gray-700 transition-colors overflow-hidden">
                         <img
@@ -694,8 +694,7 @@ export function ModulesPage() {
                             className="w-4 h-4 text-gray-500 dark:text-gray-400"
                             fill="none"
                             stroke="currentColor"
-                            viewBox="0 0 24 24"
-                          >
+                            viewBox="0 0 24 24">
                             <path
                               strokeLinecap="round"
                               strokeLinejoin="round"
@@ -717,14 +716,12 @@ export function ModulesPage() {
                         <div className="flex flex-wrap sm:flex-nowrap items-center sm:items-end gap-2">
                           <Link
                             to={`/modules/${module.id}`}
-                            className="flex-1 sm:flex-none text-center px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors whitespace-nowrap"
-                          >
+                            className="flex-1 sm:flex-none text-center px-4 py-2 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm font-semibold rounded-full border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors whitespace-nowrap">
                             Meer info
                           </Link>
                           <button
                             className="flex-1 sm:flex-none justify-center px-4 py-2 text-sm font-semibold rounded-full border border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors flex items-center gap-2 whitespace-nowrap"
-                            type="button"
-                          >
+                            type="button">
                             Aanmelden
                             <span className="hidden sm:inline">
                               {" "}
@@ -734,8 +731,7 @@ export function ModulesPage() {
                               className="w-4 h-4"
                               fill="none"
                               stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
+                              viewBox="0 0 24 24">
                               <path
                                 strokeLinecap="round"
                                 strokeLinejoin="round"
@@ -750,24 +746,25 @@ export function ModulesPage() {
                               />
                             </svg>
                           </button>
-                          <button
-                            onClick={() => toggleFavorite(module.id)}
-                            className={`p-2 rounded-lg transition-colors ${favoriteIds.includes(module.id) ? "bg-red-50 dark:bg-red-900/30 text-red-500" : "border border-red-500 text-red-500 hover:bg-red-50"}`}
-                            title="Favoriet markeren"
-                          >
-                            <svg
-                              className="w-5 h-5"
-                              fill={
-                                favoriteIds.includes(module.id)
-                                  ? "currentColor"
-                                  : "none"
-                              }
-                              stroke="currentColor"
-                              viewBox="0 0 20 20"
-                            >
-                              <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
-                            </svg>
-                          </button>
+                          {/* Favorite button - only for students */}
+                          {user?.role === "STUDENT" && (
+                            <button
+                              onClick={() => toggleFavorite(module.id)}
+                              className={`p-2 rounded-lg transition-colors ${favoriteIds.includes(module.id) ? "bg-red-50 dark:bg-red-900/30 text-red-500" : "border border-red-500 text-red-500 hover:bg-red-50"}`}
+                              title="Favoriet markeren">
+                              <svg
+                                className="w-5 h-5"
+                                fill={
+                                  favoriteIds.includes(module.id)
+                                    ? "currentColor"
+                                    : "none"
+                                }
+                                stroke="currentColor"
+                                viewBox="0 0 20 20">
+                                <path d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" />
+                              </svg>
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
@@ -776,7 +773,6 @@ export function ModulesPage() {
               </div>
 
               {/* Pagination */}
-              {/* Pagination */}
               {filteredModules.length > modulesPerPage && (
                 <div className="mt-8 flex justify-center">
                   <div className="flex items-center gap-1 bg-white dark:bg-gray-800 rounded-2xl shadow-sm border border-gray-200 dark:border-gray-700 p-1.5 sm:p-2">
@@ -784,17 +780,26 @@ export function ModulesPage() {
                       onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                       disabled={currentPage === 1}
                       className="p-2 sm:px-4 sm:py-2 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      aria-label="Vorige pagina"
-                    >
-                      <svg className="w-5 h-5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      aria-label="Vorige pagina">
+                      <svg
+                        className="w-5 h-5 sm:hidden"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 19l-7-7 7-7"
+                        />
                       </svg>
                       <span className="hidden sm:inline">Vorige</span>
                     </button>
 
                     {/* Mobile: compact counter */}
-                    <div className="sm:hidden flex items-center justify-center px-4 font-medium text-gray-900 dark:text-white min-w-[3rem]">
-                      {currentPage} <span className="text-gray-400 mx-1">/</span> {totalPages}
+                    <div className="sm:hidden flex items-center justify-center px-4 font-medium text-gray-900 dark:text-white min-w-12">
+                      {currentPage}{" "}
+                      <span className="text-gray-400 mx-1">/</span> {totalPages}
                     </div>
 
                     {/* Desktop: numeric pagination */}
@@ -803,23 +808,24 @@ export function ModulesPage() {
                         typeof page === "string" ? (
                           <span
                             key={`ellipsis-${index}`}
-                            className="w-8 h-8 flex items-center justify-center text-gray-400 dark:text-gray-600"
-                          >
+                            className="w-8 h-8 flex items-center justify-center text-gray-400 dark:text-gray-600">
                             {page}
                           </span>
                         ) : (
                           <button
                             key={`page-${page}`}
                             onClick={() => setCurrentPage(page)}
-                            aria-current={currentPage === page ? "page" : undefined}
-                            className={`w-8 h-8 rounded-lg text-sm font-medium transition-all ${currentPage === page
-                              ? "bg-blue-600 text-white shadow-sm"
-                              : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
-                              }`}
-                          >
+                            aria-current={
+                              currentPage === page ? "page" : undefined
+                            }
+                            className={`w-8 h-8 rounded-lg text-sm font-medium transition-all ${
+                              currentPage === page
+                                ? "bg-blue-600 text-white shadow-sm"
+                                : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700"
+                            }`}>
                             {page}
                           </button>
-                        ),
+                        )
                       )}
                     </div>
 
@@ -829,39 +835,22 @@ export function ModulesPage() {
                       }
                       disabled={currentPage === totalPages}
                       className="p-2 sm:px-4 sm:py-2 rounded-xl text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 hover:text-gray-900 dark:hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                      aria-label="Volgende pagina"
-                    >
+                      aria-label="Volgende pagina">
                       <span className="hidden sm:inline">Volgende</span>
-                      <svg className="w-5 h-5 sm:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                      <svg
+                        className="w-5 h-5 sm:hidden"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24">
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M9 5l7 7-7 7"
+                        />
                       </svg>
                     </button>
                   </div>
-                </div>
-              )}
-
-              {/* Create Module Button when user is not a student */}
-              {user?.role !== "STUDENT" && (
-                <div className="flex justify-center mt-8">
-                  <Link
-                    to="/modules/create"
-                    className="px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-sm hover:shadow-md"
-                  >
-                    <svg
-                      className="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M12 4v16m8-8H4"
-                      />
-                    </svg>
-                    Nieuwe keuzemodule aanmaken
-                  </Link>
                 </div>
               )}
             </main>

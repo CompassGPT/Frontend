@@ -41,19 +41,18 @@ export function Navbar() {
   // Logic for active states and breadcrumbs
   const isModuleDetail = location.pathname.match(/^\/modules\/[^/]+$/);
   const isHome = location.pathname === "/" || location.pathname === "/modules";
-  
+
   const currentModuleName = isModuleDetail
     ? location.pathname.split("/modules/")[1]
     : null;
 
   const navLinks = [
-    { to: "/keuzehulp", label: "Keuzehulp" },
-  ];
+    { to: "/keuzehulp", label: "Keuzehulp", role: "STUDENT" },
+  ].filter((link) => !link.role || user?.role === link.role);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-gray-200/50 bg-white/80 backdrop-blur-md dark:bg-gray-900/80 dark:border-gray-800 transition-all">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        
         {/* --- BRAND --- */}
         <Link
           to="/"
@@ -113,7 +112,7 @@ export function Navbar() {
         <div className="hidden sm:flex items-center gap-4">
           <ThemeToggle />
           <div className="h-6 w-px bg-gray-200 dark:bg-gray-700" />
-          
+
           {user ? (
             <div className="relative" ref={profileRef}>
               <button
@@ -125,27 +124,47 @@ export function Navbar() {
                 <span className="text-sm font-medium text-gray-700 dark:text-gray-200 max-w-25 truncate">
                   {user.name}
                 </span>
-                <ChevronDown size={14} className={cn("text-gray-500 transition-transform duration-200", isProfileOpen && "rotate-180")} />
+                <ChevronDown
+                  size={14}
+                  className={cn(
+                    "text-gray-500 transition-transform duration-200",
+                    isProfileOpen && "rotate-180"
+                  )}
+                />
               </button>
 
-              <div className={cn(
-                "absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden ring-1 ring-black/5 py-1 transform transition-all duration-200 origin-top-right",
-                isProfileOpen ? "opacity-100 scale-100 translate-y-0 visible" : "opacity-0 scale-95 -translate-y-2 invisible"
-              )}>
+              <div
+                className={cn(
+                  "absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 overflow-hidden ring-1 ring-black/5 py-1 transform transition-all duration-200 origin-top-right",
+                  isProfileOpen
+                    ? "opacity-100 scale-100 translate-y-0 visible"
+                    : "opacity-0 scale-95 -translate-y-2 invisible"
+                )}>
                 <div className="px-4 py-3 border-b border-gray-100 dark:border-gray-700/50">
-                  <p className="text-xs text-gray-500 dark:text-gray-400">Signed in as</p>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">{user.name}</p>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    Signed in as
+                  </p>
+                  <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                    {user.name}
+                  </p>
                 </div>
-                <Link to="/profile" onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                <Link
+                  to="/profile"
+                  onClick={() => setIsProfileOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                   <User size={16} /> Profile
                 </Link>
-                <button onClick={handleLogout} className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors">
                   <LogOut size={16} /> Sign out
                 </button>
               </div>
             </div>
           ) : (
-            <button onClick={handleLogout} className="px-5 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
+            <button
+              onClick={handleLogout}
+              className="px-5 py-2 bg-gray-900 dark:bg-white text-white dark:text-gray-900 text-sm font-medium rounded-full hover:shadow-lg hover:-translate-y-0.5 transition-all duration-200">
               Login
             </button>
           )}
@@ -164,10 +183,11 @@ export function Navbar() {
       </div>
 
       {/* --- MOBILE MENU --- */}
-      <div className={cn(
-        "sm:hidden overflow-hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out",
-        isMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
-      )}>
+      <div
+        className={cn(
+          "sm:hidden overflow-hidden bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out",
+          isMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+        )}>
         <div className="px-4 py-6 space-y-4">
           <div className="space-y-1">
             <Link
@@ -175,7 +195,9 @@ export function Navbar() {
               onClick={() => setIsMenuOpen(false)}
               className={cn(
                 "block px-4 py-3 rounded-xl text-base font-medium transition-all duration-200",
-                isHome ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400" : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                isHome
+                  ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
               )}>
               Dashboard
             </Link>
@@ -186,7 +208,9 @@ export function Navbar() {
                 onClick={() => setIsMenuOpen(false)}
                 className={cn(
                   "block px-4 py-3 rounded-xl text-base font-medium transition-all duration-200",
-                  location.pathname === link.to ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400" : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+                  location.pathname === link.to
+                    ? "bg-blue-50 text-blue-600 dark:bg-blue-900/20 dark:text-blue-400"
+                    : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
                 )}>
                 {link.label}
               </Link>
@@ -200,11 +224,20 @@ export function Navbar() {
                   {user.name.charAt(0).toUpperCase()}
                 </div>
                 <div>
-                  <p className="font-semibold text-gray-900 dark:text-white">{user.name}</p>
-                  <Link to="/profile" onClick={() => setIsMenuOpen(false)} className="text-xs text-gray-500">View Profile</Link>
+                  <p className="font-semibold text-gray-900 dark:text-white">
+                    {user.name}
+                  </p>
+                  <Link
+                    to="/profile"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="text-xs text-gray-500">
+                    View Profile
+                  </Link>
                 </div>
               </div>
-              <button onClick={handleLogout} className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/10 rounded-xl font-medium transition-colors">
+              <button
+                onClick={handleLogout}
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/10 rounded-xl font-medium transition-colors">
                 <LogOut size={18} /> Log Out
               </button>
             </div>
