@@ -33,6 +33,8 @@ export function ProfilePage() {
       setRecommendedError(null);
 
       try {
+        // Backend returns { recommended: [{ moduleId: number }, ...] }
+        // See Backend/src/presentation/controllers/user.controller.ts:55-66
         const res = await backend.get<{
           recommended: { moduleId: number }[];
         }>("/user/recommended");
@@ -52,6 +54,7 @@ export function ProfilePage() {
 
     fetchRecommended();
     // eslint-disable-next-line react-hooks/exhaustive-deps
+    // NOTE: backend is excluded because useBackend returns a stable memoized object
   }, [user]);
 
   const recommendedModules = useMemo(() => {

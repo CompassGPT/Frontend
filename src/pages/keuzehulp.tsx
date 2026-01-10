@@ -173,6 +173,8 @@ export function KeuzehulpPage() {
     setSavePreferencesError(null);
 
     try {
+      // Backend expects { moduleIds: number[] }
+      // See Backend/src/presentation/controllers/user.controller.ts:70-79
       // Ensure we only send valid integer IDs
       const validModuleIds = selectedModuleIds.filter(
         (id) => typeof id === "number" && !isNaN(id) && id > 0
