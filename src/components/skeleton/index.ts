@@ -6,3 +6,4 @@ export { FormSkeleton } from "./FormSkeleton";
 export { TextSkeleton } from "./TextSkeleton";
 export { CardSkeleton } from "./CardSkeleton";
 export { ListSkeleton } from "./ListSkeleton";
+export { FilterSidebarSkeleton } from "./FilterSidebarSkeleton";
