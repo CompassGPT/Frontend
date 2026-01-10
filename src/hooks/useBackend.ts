@@ -10,6 +10,15 @@ export interface FetchOptions extends Omit<RequestInit, "body"> {
 /**
  * Custom hook for making API requests to the backend
  * Handles authentication, error handling, and JSON serialization
+ *
+ * NOTE: This hook returns a stable memoized object via useMemo, which means
+ * the returned backend object reference will not change between renders.
+ * Therefore, when using `backend` in useCallback or useEffect dependencies,
+ * you can safely exclude it from the dependency array to avoid unnecessary
+ * effect re-runs. Mark these with:
+ *
+ *   // eslint-disable-next-line react-hooks/exhaustive-deps
+ *   // NOTE: backend is excluded because useBackend returns a stable memoized object
  */
 export const useBackend = () => {
   const navigate = useNavigate();
