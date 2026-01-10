@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from "react";
 import { useBackend, BackendError } from "./useBackend";
-import type { ModulesResponse } from "../types/api.types";
+import type { ModulesResponse, UserFavorite } from "../types/api.types";
 import type { TransformedModule } from "../types/api.types";
 
 // Hook for single module favorite state
@@ -20,7 +20,7 @@ export function useFavoriteModule(moduleId?: number) {
       try {
         const res = await backend.get<{
           favorites: { choiceModuleId: number }[];
-        }>("/api/user/favorites");
+        }>("/user");
         const ids = res.favorites.map((f) => f.choiceModuleId);
         if (validModuleId) {
           setIsFavorited(ids.includes(validModuleId));
@@ -47,10 +47,10 @@ export function useFavoriteModule(moduleId?: number) {
     try {
       setError(null);
       if (isFavorited) {
-        await backend.delete(`/api/user/favorites/${validModuleId}`);
+        await backend.delete(`/api/user/${validModuleId}`);
         setIsFavorited(false);
       } else {
-        await backend.post(`/api/user/favorites/${validModuleId}`);
+        await backend.post(`/api/user/${validModuleId}`);
         setIsFavorited(true);
       }
     } catch (err) {
@@ -82,9 +82,9 @@ export function useFavoritesList() {
       setError(null);
       try {
         const res = await backend.get<{
-          favorites: { choiceModuleId: number }[];
-        }>("/api/user/favorites");
-        const ids = res.favorites.map((f) => f.choiceModuleId);
+          favorites: UserFavorite[];
+        }>("/api/user");
+        const ids = res.favorites.map((f) => f.moduleId);
         setFavoriteIds(ids);
       } catch (err) {
         console.error("Failed to fetch favorites:", err);
@@ -145,10 +145,10 @@ export function useFavoritesList() {
     try {
       setError(null);
       if (favoriteIds.includes(targetId)) {
-        await backend.delete(`/api/user/favorites/${targetId}`);
+        await backend.delete(`/api/user/${targetId}`);
         setFavoriteIds((prev) => prev.filter((fid) => fid !== targetId));
       } else {
-        await backend.post(`/api/user/favorites/${targetId}`);
+        await backend.post(`/api/user/${targetId}`);
         setFavoriteIds((prev) => [...prev, targetId]);
       }
     } catch (err) {

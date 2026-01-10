@@ -24,11 +24,9 @@ export function useModule(id: string) {
         setIsLoading(true);
         setError(null);
 
-        const response = await backend.get<ModuleResponse>(
-          `/api/modules/${id}`
-        );
+        const response = await backend.get<ModuleResponse>(`/modules/${id}`);
 
-        setModule(response.module); // ✅ correct
+        setModule(response.module);
         console.log("Fetched module:", response.module);
       } catch (err) {
         console.error(err);
@@ -176,10 +174,12 @@ export function useModuleCreate() {
 
   const getModuleTags = async (): Promise<Tag[]> => {
     try {
-      console.log("Calling /api/moduletags...");
-      const response = await backend.get<Tag[]>("/api/moduletags");
+      console.log("Calling /modules/moduletags...");
+      const response = await backend.get<{ moduleTags: Tag[] }>(
+        "/modules/moduletags"
+      );
       console.log("ModuleTags response:", response);
-      return response;
+      return response.moduleTags;
     } catch (err) {
       console.error("Error fetching module tags:", err);
       return [];
@@ -188,10 +188,12 @@ export function useModuleCreate() {
 
   const getLocations = async (): Promise<Location[]> => {
     try {
-      console.log("Calling /api/locations...");
-      const response = await backend.get<Location[]>("/api/locations");
+      console.log("Calling /modules/locations...");
+      const response = await backend.get<{ locations: Location[] }>(
+        "/modules/locations"
+      );
       console.log("Locations response:", response);
-      return response;
+      return response.locations;
     } catch (err) {
       console.error("Error fetching locations:", err);
       return [];
@@ -231,8 +233,8 @@ export function useModuleCreate() {
     try {
       if (!tag) return null;
       console.log("Creating module tags:", tag);
-      const response = await backend.post<{ moduleTags: Tag[] }>(
-        "/api/moduletags",
+      const response = await backend.post<{ moduleTag: Tag }>(
+        "/api/modules/moduletags",
         { tag }
       );
       console.log("ModuleTags response:", response);
