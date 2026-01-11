@@ -141,6 +141,7 @@ export interface PredictionRequest {
 export interface ModulePrediction {
   module: Module;
   score: number;
+  motivation: string;
 }
 
 export interface PredictionResponse {

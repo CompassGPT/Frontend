@@ -173,15 +173,21 @@ export function KeuzehulpPage() {
     setSavePreferencesError(null);
 
     try {
-      // Backend expects { moduleIds: number[] }
-      // See Backend/src/presentation/controllers/user.controller.ts:70-79
-      // Ensure we only send valid integer IDs
-      const validModuleIds = selectedModuleIds.filter(
-        (id) => typeof id === "number" && !isNaN(id) && id > 0
-      );
+      // Build array of modules with their motivations
+      const modules = selectedModuleIds
+        .map((moduleId) => {
+          const prediction = predictions?.predictions.find(
+            (p) => p.module.id === moduleId
+          );
+          return {
+            moduleId,
+            motivation: prediction?.motivation || "",
+          };
+        })
+        .filter((m) => typeof m.moduleId === "number" && m.moduleId > 0);
 
       await backend.post("/user/recommended", {
-        moduleIds: validModuleIds,
+        modules,
       });
       navigate("/profile");
     } catch (e) {
@@ -458,6 +464,16 @@ export function KeuzehulpPage() {
                           <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">
                             {p.module.shortdescription}
                           </p>
+
+                          {/* Motivation */}
+                          {p.motivation && (
+                            <div className="mb-3 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+                              <p className="text-sm text-blue-900 dark:text-blue-200">
+                                <span className="font-semibold">💡 Waarom deze module: </span>
+                                {p.motivation}
+                              </p>
+                            </div>
+                          )}
 
                           {/* Metadata */}
                           <div className="flex flex-wrap gap-4 text-sm text-gray-600 dark:text-gray-400">

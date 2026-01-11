@@ -13,7 +13,9 @@ export function ProfilePage() {
   const backend = useBackend();
   const MAX_RECENT_RECOMMENDED = 5;
 
-  const [recommendedIds, setRecommendedIds] = useState<number[]>([]);
+  const [recommendedModules, setRecommendedModules] = useState<
+    Array<{ moduleId: number; motivation?: string | null }>
+  >([]);
   const [isLoadingRecommended, setIsLoadingRecommended] = useState(true);
   const [recommendedError, setRecommendedError] = useState<string | null>(null);
 
@@ -33,15 +35,12 @@ export function ProfilePage() {
       setRecommendedError(null);
 
       try {
-        // Backend returns { recommended: [{ moduleId: number }, ...] }
-        // See Backend/src/presentation/controllers/user.controller.ts:55-66
         const res = await backend.get<{
-          recommended: { moduleId: number }[];
+          recommended: Array<{ moduleId: number; motivation?: string | null }>;
         }>("/user/recommended");
-        const ids = res.recommended.map((r) => r.moduleId);
-        setRecommendedIds(ids.slice(0, MAX_RECENT_RECOMMENDED));
+        setRecommendedModules(res.recommended.slice(0, MAX_RECENT_RECOMMENDED));
       } catch (err) {
-        setRecommendedIds([]);
+        setRecommendedModules([]);
         setRecommendedError(
           err instanceof BackendError
             ? err.message
@@ -57,16 +56,23 @@ export function ProfilePage() {
     // NOTE: backend is excluded because useBackend returns a stable memoized object
   }, [user]);
 
-  const recommendedModules = useMemo(() => {
-    if (!modules || modules.length === 0 || recommendedIds.length === 0) {
+  const recommendedModulesWithDetails = useMemo(() => {
+    if (!modules || modules.length === 0 || recommendedModules.length === 0) {
       return [];
     }
 
     const byId = new Map(modules.map((m) => [m.id, m]));
-    return recommendedIds
-      .map((id) => byId.get(id))
+    return recommendedModules
+      .map((rec) => {
+        const module = byId.get(rec.moduleId);
+        if (!module) return null;
+        return {
+          ...module,
+          motivation: rec.motivation,
+        };
+      })
       .filter((m): m is NonNullable<typeof m> => Boolean(m));
-  }, [modules, recommendedIds]);
+  }, [modules, recommendedModules]);
 
   const handleLogout = async () => {
     try {
@@ -256,14 +262,9 @@ export function ProfilePage() {
 
         {/* Recommended Modules */}
         <div className="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 transition-colors">
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Recent aanbevolen modules
-            </h2>
-            <button className="bg-blue-600 text-white px-3 py-1 rounded text-sm hover:bg-blue-700 transition-colors">
-              Aanpassen
-            </button>
-          </div>
+          <h2 className="text-xl font-semibold mb-6 text-gray-900 dark:text-white">
+            Recent aanbevolen modules
+          </h2>
           <div className="space-y-4">
             {recommendedError && (
               <div className="mb-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-3 text-red-800 dark:text-red-300 transition-colors">
@@ -273,12 +274,12 @@ export function ProfilePage() {
 
             {isLoadingRecommended || loadingModules ? (
               <p className="text-gray-500 dark:text-gray-400">Laden...</p>
-            ) : recommendedModules.length === 0 ? (
+            ) : recommendedModulesWithDetails.length === 0 ? (
               <p className="text-gray-500 dark:text-gray-400 italic">
                 Geen aanbevolen modules gevonden.
               </p>
             ) : (
-              recommendedModules.map((module) => (
+              recommendedModulesWithDetails.map((module) => (
                 <div
                   key={module.id}
                   className="group flex flex-col sm:flex-row gap-4 p-4 rounded-xl bg-gray-50 dark:bg-gray-700/30 hover:bg-white dark:hover:bg-gray-700 border border-transparent hover:border-gray-200 dark:hover:border-gray-600 transition-all duration-200">
@@ -310,6 +311,15 @@ export function ProfilePage() {
                     <p className="mt-2 text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                       {module.description}
                     </p>
+
+                    {module.motivation && (
+                      <div className="mt-3 p-2.5 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+                        <p className="text-xs text-blue-900 dark:text-blue-200">
+                          <span className="font-semibold">💡 Aanbeveling: </span>
+                          {module.motivation}
+                        </p>
+                      </div>
+                    )}
                   </div>
                 </div>
               ))
