@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router";
 import { useAuth } from "../hooks/useAuth";
 import { useFavoritesList } from "../hooks/useFavorites";
@@ -66,6 +66,18 @@ export function ModulesPage() {
     setSelectedEC([]);
     setCurrentPage(1);
   };
+
+  // Reset pagination when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [
+    searchQuery,
+    selectedPeriode,
+    selectedLocatie,
+    selectedLevel,
+    selectedEC,
+    showOnlyFavorites,
+  ]);
 
   // Filter modules
   const filteredModules = filterModules(

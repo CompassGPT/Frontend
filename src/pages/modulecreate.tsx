@@ -36,7 +36,6 @@ export function CreateModulePage() {
   const [tagSearch, setTagSearch] = useState("");
   const [showTagDropdown, setShowTagDropdown] = useState(false);
   const [isCreatingTag, setIsCreatingTag] = useState(false);
-  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [locations, setLocations] = useState<Location[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -170,7 +169,6 @@ export function CreateModulePage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setSuccessMessage(null);
 
     if (!startDate) return;
 
@@ -197,8 +195,6 @@ export function CreateModulePage() {
     const createdModuleId = await createModule(payload);
     if (createdModuleId && !error) {
       navigate(`/modules/${createdModuleId}`);
-    } else if (!error) {
-      setSuccessMessage("Module succesvol aangemaakt.");
     }
   };
 
@@ -234,24 +230,6 @@ export function CreateModulePage() {
           <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-blue-800 dark:text-blue-300 flex items-center gap-3">
             <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
             Gegevens laden...
-          </div>
-        )}
-
-        {/* Success Message */}
-        {successMessage && (
-          <div className="mb-6 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 text-green-800 dark:text-green-300 flex items-center gap-2">
-            <Check className="w-5 h-5" />
-            <span>{successMessage}</span>
-            <Link className="ml-auto underline font-medium" to="/modules">
-              Terug naar overzicht
-            </Link>
-          </div>
-        )}
-
-        {/* Error Message */}
-        {error && (
-          <div className="mb-6 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-800 dark:text-red-300">
-            <strong>Fout:</strong> {error}
           </div>
         )}
 
@@ -596,6 +574,13 @@ export function CreateModulePage() {
               </div>
             </div>
           </div>
+
+          {/* Error Message */}
+          {error && (
+            <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 text-red-800 dark:text-red-300">
+              <strong>Fout:</strong> {error}
+            </div>
+          )}
 
           {/* Form Actions */}
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
