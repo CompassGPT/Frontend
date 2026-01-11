@@ -1,11 +1,17 @@
-import { useParams } from "react-router";
+import { useParams, useNavigate } from "react-router";
 import { useModule } from "../hooks/useModule";
 import { useFavoriteModule } from "../hooks/useFavorites";
+import { useAuth } from "../hooks/useAuth";
+import { useBackend } from "../hooks/useBackend";
 import { ModuleDetailSkeleton } from "../components/skeleton";
 import keuzemoduleFallback from "../images/keuzemodule_fallback_16-9.webp";
+import { useState } from "react";
 
 export function ModulePage() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const backend = useBackend();
 
   const { module, isLoading, error } = useModule(id || "");
 
@@ -14,6 +20,28 @@ export function ModulePage() {
     toggleFavorite,
     isLoading: isFavoriteLoading,
   } = useFavoriteModule(id ? parseInt(id, 10) : undefined);
+
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const handleDelete = async () => {
+    if (!id || !window.confirm("Weet je zeker dat je deze module wilt verwijderen?")) {
+      return;
+    }
+
+    setIsDeleting(true);
+    setDeleteError(null);
+
+    try {
+      await backend.delete(`/modules/${id}`);
+      navigate("/modules");
+    } catch (err) {
+      console.error("Failed to delete module:", err);
+      setDeleteError(err instanceof Error ? err.message : "Verwijderen mislukt");
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   if (isLoading) {
     return <ModuleDetailSkeleton />;
@@ -31,7 +59,34 @@ export function ModulePage() {
     <div className="w-full min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 py-8 px-4 sm:px-6">
       <div className="max-w-5xl mx-auto space-y-6">
         <div className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow">
-          <h1 className="text-2xl font-bold">{module.name}</h1>
+          <div className="flex justify-between items-start">
+            <h1 className="text-2xl font-bold">{module.name}</h1>
+            {user?.role === "ADMIN" && (
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="p-2 rounded-lg transition-colors bg-red-50 dark:bg-red-900/30 text-red-500 hover:bg-red-100 dark:hover:bg-red-900/50 disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Verwijder module">
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24">
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                  />
+                </svg>
+              </button>
+            )}
+          </div>
+          {deleteError && (
+            <div className="mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg text-red-800 dark:text-red-300 text-sm">
+              {deleteError}
+            </div>
+          )}
           <div className="mt-4">
             <h2 className="text-lg font-semibold">Dit is wat je gaat leren</h2>
             <p>{module.learningOutcomes}</p>
