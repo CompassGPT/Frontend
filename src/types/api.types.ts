@@ -32,7 +32,7 @@ export interface ApiError {
 export interface Module {
   id: number;
   name: string;
-  shortdescription: string;
+  shortDescription: string;
   studyCredits: number;
   level: string;
   location: { id: number; name: string }[];
@@ -46,6 +46,7 @@ export interface ModulesResponse {
 export interface moduleDetail {
   id: number;
   name: string;
+  shortDescription: string;
   description: string;
   content: string;
   level: string;
@@ -72,7 +73,7 @@ export interface createModule {
   learningOutcomes: string;
   availableSpots: number;
   startDate: string;
-  shortdescription: string;
+  shortDescription: string;
 }
 
 /**

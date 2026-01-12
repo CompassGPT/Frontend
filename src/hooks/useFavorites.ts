@@ -135,7 +135,7 @@ export function useFavoritesList() {
         const transformed = response.modules.map((m) => ({
           id: m.id,
           title: m.name,
-          description: m.shortdescription,
+          description: m.shortDescription,
           startDate: m.startDate,
           level: m.level,
           studiepunten: m.studyCredits,

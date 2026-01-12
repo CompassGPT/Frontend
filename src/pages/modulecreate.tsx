@@ -21,7 +21,7 @@ export function CreateModulePage() {
 
   // Form fields
   const [name, setName] = useState("");
-  const [shortdescription, setShortdescription] = useState("");
+  const [shortDescription, setShortDescription] = useState("");
   const [description, setDescription] = useState("");
   const [content, setContent] = useState("");
   const [learningOutcomes, setLearningOutcomes] = useState("");
@@ -91,7 +91,7 @@ export function CreateModulePage() {
   const isStartDateInPast = startDate && new Date(startDate) < new Date();
   const canSubmit =
     name.trim() !== "" &&
-    shortdescription.trim() !== "" &&
+    shortDescription.trim() !== "" &&
     description.trim() !== "" &&
     content.trim() !== "" &&
     learningOutcomes.trim() !== "" &&
@@ -174,7 +174,7 @@ export function CreateModulePage() {
 
     const payload: createModule = {
       name,
-      shortdescription,
+      shortDescription,
       description,
       content,
       level,
@@ -198,7 +198,7 @@ export function CreateModulePage() {
     }
   };
 
-  const shortDescLength = shortdescription.length;
+  const shortDescLength = shortDescription.length;
   const descLength = description.length;
   const contentLength = content.length;
   const learningLength = learningOutcomes.length;
@@ -504,8 +504,8 @@ export function CreateModulePage() {
                   </span>
                 </div>
                 <textarea
-                  value={shortdescription}
-                  onChange={(e) => setShortdescription(e.target.value)}
+                  value={shortDescription}
+                  onChange={(e) => setShortDescription(e.target.value)}
                   rows={3}
                   className="w-full px-4 py-2.5 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors resize-none"
                   placeholder="Een korte samenvatting voor in het overzicht..."

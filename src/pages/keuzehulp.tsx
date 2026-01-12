@@ -462,7 +462,7 @@ export function KeuzehulpPage() {
 
                           {/* Description */}
                           <p className="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">
-                            {p.module.shortdescription}
+                            {p.module.shortDescription}
                           </p>
 
                           {/* Motivation */}
