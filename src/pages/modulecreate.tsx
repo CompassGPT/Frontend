@@ -3,13 +3,17 @@ import type { createModule, Location, Tag } from "../types/api.types";
 import CustomDatePicker from "../components/DatePicker";
 import { useModuleCreate } from "../hooks/useModule";
 import { useState, useEffect, useRef } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useParams } from "react-router";
 import { useAuth } from "../hooks/useAuth";
-import { format, startOfToday } from "date-fns";
+import { format, startOfToday, parse } from "date-fns";
+import { useBackend } from "../hooks/useBackend";
 
 export function CreateModulePage() {
+  const { id } = useParams<{ id: string }>();
+  const isEditMode = Boolean(id);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const backend = useBackend();
   const {
     isCreating,
     error,
@@ -39,9 +43,59 @@ export function CreateModulePage() {
   const [locations, setLocations] = useState<Location[]>([]);
   const [tags, setTags] = useState<Tag[]>([]);
   const [loadingData, setLoadingData] = useState(true);
+  const [loadingModule, setLoadingModule] = useState(isEditMode);
 
   const tagInputRef = useRef<HTMLInputElement>(null);
   const tagDropdownRef = useRef<HTMLDivElement>(null);
+
+  // Load existing module data for edit mode
+  useEffect(() => {
+    if (!isEditMode || !id) return;
+
+    const fetchModule = async () => {
+      try {
+        setLoadingModule(true);
+        const response = await backend.get<{ module: any }>(`/modules/${id}`);
+        const module = response.module;
+
+        // Populate form fields with existing data
+        setName(module.name || "");
+        setShortDescription(module.shortDescription || "");
+        setDescription(module.description || "");
+        setContent(module.content || "");
+        setLearningOutcomes(module.learningOutcomes || "");
+        setLevel(module.level || "NLQF5");
+        setStudyCredits(module.studyCredits || 15);
+        setAvailableSpots(module.availableSpots || 30);
+        
+        // Parse and set the start date
+        if (module.startDate) {
+          try {
+            const parsedDate = parse(module.startDate, "yyyy-MM-dd", new Date());
+            setStartDate(parsedDate);
+          } catch (e) {
+            console.error("Error parsing date:", e);
+          }
+        }
+
+        // Set locations
+        if (module.location && Array.isArray(module.location)) {
+          setSelectedLocations(module.location.map((loc: any) => loc.id));
+        }
+
+        // Set tags
+        if (module.moduleTags && Array.isArray(module.moduleTags)) {
+          setSelectedTags(module.moduleTags.map((tag: any) => tag.id));
+        }
+      } catch (err) {
+        console.error("Failed to fetch module:", err);
+      } finally {
+        setLoadingModule(false);
+      }
+    };
+
+    fetchModule();
+  }, [isEditMode, id, backend]);
 
   // Load locations and tags
   useEffect(() => {
@@ -192,9 +246,25 @@ export function CreateModulePage() {
       }),
     };
 
-    const createdModuleId = await createModule(payload);
-    if (createdModuleId && !error) {
-      navigate(`/modules/${createdModuleId}`);
+    if (isEditMode && id) {
+      // Update existing module
+      try {
+        const response = await backend.put<{ module: any }>(
+          `/modules/${id}`,
+          payload
+        );
+        if (response.module && !error) {
+          navigate(`/modules/${id}`);
+        }
+      } catch (err) {
+        console.error("Failed to update module:", err);
+      }
+    } else {
+      // Create new module
+      const createdModuleId = await createModule(payload);
+      if (createdModuleId && !error) {
+        navigate(`/modules/${createdModuleId}`);
+      }
     }
   };
 
@@ -215,15 +285,37 @@ export function CreateModulePage() {
               Modules
             </Link>
             <span>/</span>
-            <span className="text-gray-900 dark:text-white">Nieuwe module</span>
+            {isEditMode && id ? (
+              <>
+                <Link
+                  to={`/modules/${id}`}
+                  className="hover:text-gray-900 dark:hover:text-white transition-colors">
+                  Module {id}
+                </Link>
+                <span>/</span>
+                <span className="text-gray-900 dark:text-white">Bewerken</span>
+              </>
+            ) : (
+              <span className="text-gray-900 dark:text-white">Nieuwe module</span>
+            )}
           </div>
           <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
-            Nieuwe keuzemodule aanmaken
+            {isEditMode ? "Keuzemodule bewerken" : "Nieuwe keuzemodule aanmaken"}
           </h1>
           <p className="mt-2 text-gray-600 dark:text-gray-400">
-            Vul alle details in om een nieuwe module aan te maken.
+            {isEditMode
+              ? "Pas de details van de module aan."
+              : "Vul alle details in om een nieuwe module aan te maken."}
           </p>
         </div>
+
+        {/* Loading State for Module */}
+        {loadingModule && (
+          <div className="mb-6 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 text-blue-800 dark:text-blue-300 flex items-center gap-3">
+            <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
+            Module laden...
+          </div>
+        )}
 
         {/* Loading State */}
         {loadingData && (
@@ -585,7 +677,7 @@ export function CreateModulePage() {
           {/* Form Actions */}
           <div className="flex flex-col sm:flex-row gap-3 pt-4">
             <Link
-              to="/modules"
+              to={isEditMode && id ? `/modules/${id}` : "/modules"}
               className="flex-1 sm:flex-none px-6 py-3 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-center font-semibold rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
               Annuleren
             </Link>
@@ -596,12 +688,21 @@ export function CreateModulePage() {
               {isCreating ? (
                 <>
                   <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Module aanmaken...
+                  {isEditMode ? "Opslaan..." : "Module aanmaken..."}
                 </>
               ) : (
                 <>
-                  <Plus className="w-5 h-5" />
-                  Module aanmaken
+                  {isEditMode ? (
+                    <>
+                      <Check className="w-5 h-5" />
+                      Wijzigingen opslaan
+                    </>
+                  ) : (
+                    <>
+                      <Plus className="w-5 h-5" />
+                      Module aanmaken
+                    </>
+                  )}
                 </>
               )}
             </button>

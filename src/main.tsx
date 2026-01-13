@@ -32,10 +32,11 @@ createRoot(root).render(
             <Route element={<ProtectedRoute />}>
               <Route path="/" element={<ModulesPage />} />
               <Route path="/modules" element={<ModulesPage />} />
+              <Route path="/modules/create" element={<CreateModulePage />} />
               <Route path="/modules/:id" element={<ModulePage />} />
+              <Route path="/modules/:id/edit" element={<CreateModulePage />} />
               <Route path="/keuzehulp" element={<KeuzehulpPage />} />
               <Route path="/profile" element={<ProfilePage />} />
-              <Route path="/modules/create" element={<CreateModulePage />} />
             </Route>
 
             {/* Public routes */}
