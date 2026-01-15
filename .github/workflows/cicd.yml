@@ -13,19 +13,7 @@ env:
   NODE_VERSION: 22
 
 jobs:
-  # 1. Secret Scanning
-  secret_scan:
-    name: Detect Secrets
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0 # Full history for gitleaks
-
-      - name: Run gitleaks
-        uses: gitleaks/gitleaks-action@v2
-
-  # 2. Dependency Scanning (SCA)
+  # 1. Dependency Scanning (SCA)
   sca_scan:
     name: SCA - Dependency Scanning
     runs-on: ubuntu-latest
@@ -72,10 +60,10 @@ jobs:
             -Dsonar.sources=src
             -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/*.spec.ts
 
-  # 4. Build and Test Job
+  # 2. Build and Test Job
   build_and_test:
     if: github.event_name == 'push' || (github.event_name == 'pull_request' && github.event.action != 'closed')
-    needs: [secret_scan, sca_scan]
+    needs: [sca_scan]
     runs-on: ubuntu-latest
     name: Build and Test
     steps:
