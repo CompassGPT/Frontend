@@ -1,7 +1,16 @@
 /**
  * Get the backend API base URL from environment variables
+ * First tries runtime config (Azure Static Web Apps), then falls back to build-time vars
  */
 export const getBackendUrl = (): string => {
+  // Check for runtime config (set by config.js)
+  if (
+    typeof window !== "undefined" &&
+    (window as any).__ENV__?.VITE_BACKEND_URL
+  ) {
+    return (window as any).__ENV__.VITE_BACKEND_URL;
+  }
+  // Fall back to build-time environment variable
   return import.meta.env.VITE_BACKEND_URL || "http://localhost:4000";
 };
 
