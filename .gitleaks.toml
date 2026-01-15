@@ -1,0 +1,38 @@
+# Gitleaks configuration file
+# Place this as .gitleaks.toml in repository root
+
+[extend]
+# Use gitleaks' default patterns
+useDefault = true
+
+# Optional: Add custom patterns for your organization
+[[rules]]
+id = "custom-api-key"
+description = "Custom API Key Pattern"
+regex = '''(?i)custom_api_key\s*=\s*['\"]?([a-zA-Z0-9_-]{32,})['\"]?'''
+keywords = ["custom_api_key"]
+
+[[rules]]
+id = "internal-token"
+description = "Internal token pattern"
+regex = '''internal[_-]?token[_-]?['\"]?([a-zA-Z0-9]{40,})['\"]?'''
+keywords = ["internal_token"]
+
+# Paths to ignore (false positives)
+[allowlist]
+paths = [
+    "\.git/",
+    "node_modules/",
+    "venv/",
+    ".venv/",
+    "__pycache__/",
+    "dist/",
+    "build/",
+    ".gitleaksignore",  # Ignore this file itself
+]
+
+# File globs to ignore
+regexes = [
+    ".*\\.lock$",
+    ".*\\.log$",
+]
