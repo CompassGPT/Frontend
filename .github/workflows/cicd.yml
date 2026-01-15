@@ -57,6 +57,7 @@ jobs:
         with:
           args: >
             -Dsonar.projectKey=compassgpt-frontend
+            -Dsonar.organization=compassgpt
             -Dsonar.sources=src
             -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/*.spec.ts
 
