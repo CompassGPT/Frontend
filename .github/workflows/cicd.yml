@@ -57,10 +57,11 @@ jobs:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
-            -Dsonar.projectKey=compassgpt-frontend
+            -Dsonar.projectKey=CompassGPT_Frontend
             -Dsonar.organization=compassgpt
             -Dsonar.sources=src
             -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/*.spec.ts
+            
 
   # 2. Build and Test Job
   build_and_test:
