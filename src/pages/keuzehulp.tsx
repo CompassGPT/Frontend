@@ -297,6 +297,12 @@ export function KeuzehulpPage() {
     const interests = Array.isArray(getValues(6))
       ? (getValues(6) as string[])
       : [];
+    
+    // Add detailed interests description from question 7
+    const q7Value = getValues(7);
+    if (typeof q7Value === "string" && q7Value.trim()) {
+      interests.push(q7Value);
+    }
 
     const learningGoalsArray: string[] = [];
     const q5Values = getValues(5);
@@ -381,9 +387,34 @@ export function KeuzehulpPage() {
     };
 
     setIsSubmitting(true);
+    setValidationError(null);
     try {
-      await getPredictions(request);
-      setShowResults(true);
+      const result = await getPredictions(request);
+      if (result) {
+        setShowResults(true);
+      } else {
+        // If getPredictions returns null, an error occurred
+        setValidationError(
+          "Er is een fout opgetreden bij het ophalen van aanbevelingen. Probeer het later opnieuw."
+        );
+      }
+    } catch (err) {
+      // Handle rate limiting and other errors
+      if (err instanceof Error) {
+        if (err.message.includes("ThrottlerException") || err.message.includes("Too Many Requests")) {
+          setValidationError(
+            "Je hebt te veel verzoeken gedaan. Wacht een paar minuten en probeer het opnieuw."
+          );
+        } else {
+          setValidationError(
+            err.message || "Er is een fout opgetreden. Probeer het later opnieuw."
+          );
+        }
+      } else {
+        setValidationError(
+          "Er is een onverwachte fout opgetreden. Probeer het later opnieuw."
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }

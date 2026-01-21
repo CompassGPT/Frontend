@@ -36,7 +36,8 @@ export function usePrediction() {
             : "Failed to get predictions";
         setError(errorMessage);
         console.error("Prediction error:", err);
-        return null;
+        // Re-throw the error so it can be caught by the caller
+        throw err;
       } finally {
         setIsLoading(false);
       }
